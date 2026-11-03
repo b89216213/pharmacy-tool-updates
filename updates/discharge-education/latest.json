@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.9.1",
-  "notes": "修正衛教功能連接 Portal 時持續逾時；逾時操作不再延遲執行，並保留快速切換欄位時的填寫內容。",
-  "packagePath": "updates/discharge-education/packages/2.9.1.json",
-  "size": 320951,
-  "sha256": "4cff743463d3d5270159f93df1127650ae1d86348c68fced6bec2c6d9131c0ed"
+  "version": "2.10.0",
+  "notes": "統一登錄衛教紀錄與單份名單進度；家屬必填、未完成只填原因；加速填寫並使用摘要全選，改由原頁選單連結切換 Portal。",
+  "packagePath": "updates/discharge-education/packages/2.10.0.json",
+  "size": 330494,
+  "sha256": "b446e30b441b465ee54ff9772c4f4ae4976cbd21b56cc1a93cd7b28a39597dbe"
 }

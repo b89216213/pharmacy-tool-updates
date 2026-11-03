@@ -61,7 +61,7 @@
         <li>日期支援 10/02、10-02、10月2日、2026/10/02、2026-10-02；也支援「可出院：10/02」。只寫月日時，採與基準日最接近的合理年份。</li>
         <li>床號＝病房－病室－病床。帳號目前支援「2 位數字＋1 個英文字母＋8 位數字」格式。</li>
         <li>重複貼上相同病人只列一次。資料互相矛盾、日期無法判讀或含否定語意，會列入「待核對」，不自行猜測。</li>
-        <li>病人資料不傳送到外部服務。確認列印或儲存後，名單在這台電腦保留七天，可重新開啟補登錄衛教；到期後不再顯示，開啟工具或背景啟動時移除。批次登錄使用目前登入的院內頁面。</li>
+        <li>病人資料不傳送到外部服務。在列印預覽按「登錄衛教紀錄」或「儲存名單／稍後登錄」後，名單在這台電腦保留七天，可重新開啟補登錄衛教；到期後不再顯示，開啟工具或背景啟動時移除。批次登錄使用目前登入的院內頁面。</li>
       </ul></details>
     </section>
     <div>
@@ -75,7 +75,7 @@
       <div class="notice" id="notice" role="status" aria-live="polite"></div>
     </div>
   </div>
-  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.9.1</span></footer>
+  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.10.0</span></footer>
 </main>
 <script src="education-core.js"></script>
 <script src="incremental.js"></script>
@@ -94,7 +94,7 @@
     <div class="update-folder-row"><div><strong>工具資料夾</strong><p id="update-directory" class="muted small"></p></div><button id="update-folder" type="button">指定資料夾</button></div>
     <p class="muted small">請選擇原本在 Chrome 載入的 discharge-extension 資料夾，內有 manifest.json。Chrome 可能再次要求寫入授權。</p>
     <p class="muted small">使用公開更新來源，不需 GitHub 帳號或憑證。</p>
-  </section><p class="muted small update-footnote">只下載工具程式；病人資料、七天名單與當日列印比對紀錄不會傳到 GitHub。更新期間請保持視窗開啟。</p>
+  </section><p class="muted small update-footnote">只下載工具程式；病人名單、衛教登錄紀錄與當日列印比對紀錄不會傳到 GitHub。更新期間請保持視窗開啟。</p>
 </dialog>
 <div id="management-pending" class="management-pending" hidden role="status">已收到管理限制，完成目前擷取後將暫停新的作業。</div>
 <section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><span class="management-icon">衛</span><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>

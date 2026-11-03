@@ -3,7 +3,7 @@
 window.educationPageBridge=function(action,p={},expiresAt){
  try{
   const path='/WebApplication/PharManagement/CareEducationRecord.aspx',capture='/WebApplication/PharManagement/InMedicationProcess.aspx';
-  if(location.origin!=='https://ihisaw.ntuh.gov.tw'||![path,capture].includes(location.pathname))return null;
+  if(!['https://ihisaw.ntuh.gov.tw','https://portal.ntuh.gov.tw'].includes(location.origin))return null;
   const readOnly=['eduDiscover','eduRead','eduPlanOrders','eduVerify'].includes(action);
   // Promise.race does not cancel an injection already queued by Chrome.
   // A late mutation must expire in the hospital page before touching controls.
@@ -12,6 +12,21 @@ window.educationPageBridge=function(action,p={},expiresAt){
   const $=id=>document.getElementById(id),E='NTUHWeb1_EditorBox_',C=E+'ContentBox_',N='NTUHWeb1_InPatInsertNavigatorBox_',Q=N+'InPatQueryBox_',O=N+'InPatOrderListBox_',D=O+'InPatOrderQueryBox_';
   const clean=s=>String(s??'').normalize('NFKC').replace(/\s+/g,' ').trim(),visible=e=>!!e&&!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)&&getComputedStyle(e).visibility!=='hidden';
   const text=e=>clean(e?.textContent),date=s=>clean(s).replace(/\D/g,''),key=r=>r.orderDate+'|'+r.number+'|'+r.sequence;
+  const kind=location.origin==='https://ihisaw.ntuh.gov.tw'?(location.pathname===path?'education':location.pathname===capture?'capture':'other'):'other';
+  function links(to){const wanted=to==='education'?path:capture,label=to==='education'?'衛教紀錄':'查詢處理';return [...document.querySelectorAll('a[href]')].filter(a=>{if(text(a)!==label)return false;try{const u=new URL(a.href,location.href);return u.origin==='https://ihisaw.ntuh.gov.tw'&&u.pathname===wanted;}catch{return false;}});}
+  function follow(to){
+   if(kind==='education'&&editor()&&!text($(C+'lblCreateDateTime')))throw Error('Portal 仍有未儲存的衛教表單，請先到原頁返回。');
+   const all=links(to),shown=all.filter(visible),a=shown.length===1?shown[0]:all.length===1?all[0]:null;
+   if(!a)throw Error('找不到唯一的「'+(to==='education'?'衛教紀錄':'查詢處理')+'」選單連結，請在 Portal 手動開啟。');
+   if(!visible(a)){
+    const parents=[];for(let e=a.parentElement;e;e=e.parentElement)if(e.classList.contains('webfx-tree-container')&&!visible(e))parents.unshift(e);
+    const container=parents.find(e=>visible($(e.id.replace(/-cont$/,'-plus'))));const toggle=container&&$(container.id.replace(/-cont$/,'-plus'));
+    if(!toggle)throw Error('選單尚未展開，請先在 Portal 展開藥事服務或住院作業。');fresh();toggle.click();return {acted:true,expanded:true};
+   }
+   // Click the existing authenticated menu link unchanged. Never reconstruct
+   // a URL or copy the SESSION value outside this page.
+   fresh();a.click();return {acted:true};
+  }
   const busy=()=>document.readyState==='loading'||!!window.Sys?.WebForms?.PageRequestManager?.getInstance()?.get_isInAsyncPostBack();
   const need=id=>{const e=$(id);if(!visible(e)||e.disabled)throw Error('院內欄位尚未就緒：'+id.split('_').slice(-1));return e;};
   const click=id=>{if(busy())throw Error('院內頁面正在更新，未送出操作。');const e=need(id);fresh();e.click();return {acted:true};};
@@ -33,11 +48,11 @@ window.educationPageBridge=function(action,p={},expiresAt){
    const errors=[...document.querySelectorAll('[id*="Validator"],[id*="ValidationSummary"]')].filter(visible).map(text).filter(Boolean);
    return {path:location.pathname,ready:!busy(),phase,identity:identity(),fields,chosen:isEditor?chosen():[],created:text($(C+'lblCreateDateTime')),sent:text($(C+'lblSendVerifyDateTime')),status:text($(C+'lblStatusName')),errors,queryMrn:$(Q+'txbChartNo')?.value,baseDate:$(D+'txbBaseDate')?.value,days:$(D+'txbDayRange')?.value};
   }
-  if(action==='eduDiscover')return {path:location.pathname};
-  if(action==='eduNavigate'){if(location.pathname===path)return {acted:false};location.assign(location.origin+path);return {acted:true};}
-  if(location.pathname!==path)throw Error('請先開啟衛教紀錄頁面。');
+  if(action==='eduDiscover')return {path:location.pathname,kind,ready:!busy(),links:{education:links('education').length>0,capture:links('capture').length>0},unsaved:kind==='education'&&editor()&&!text($(C+'lblCreateDateTime'))};
+  if(action==='eduNavigate')return kind==='education'?{acted:false}:follow('education');
+  if(action==='eduReturnCapture')return kind==='capture'?{acted:false}:follow('capture');
+  if(kind!=='education')throw Error('請先開啟衛教紀錄頁面。');
   if(action==='eduRead')return state();
-  if(action==='eduReturnCapture'){if(editor()&&!text($(C+'lblCreateDateTime')))throw Error('Portal 仍有未儲存的衛教表單，請先到原頁返回。');location.assign(location.origin+capture);return {acted:true};}
   if(busy())throw Error('院內頁面正在更新，未送出操作。');
   if(action==='eduBegin'){if(editor()&&!text($(C+'lblCreateDateTime')))throw Error('Portal 有尚未關閉的衛教表單，請先返回後再開始批次登錄。');return click('NTUHWeb1_ChooseFunctionBox_InPatEducationRecord');}
   if(action==='eduPatientMode')return set(Q+'rdbQueryByPatientId',true);
@@ -64,6 +79,20 @@ window.educationPageBridge=function(action,p={},expiresAt){
    const cleanRows=selected.map(({checkbox,button,...r})=>r);const result=click(selected.at(-1).button);return {...result,selected:cleanRows};
   }
   if(action==='eduField'){checkChosen();if(text($(C+'lblCreateDateTime')))throw Error('此衛教紀錄已儲存，停止修改。');if(!/^[A-Za-z0-9_]+$/.test(p.field))throw Error('欄位代碼不正確。');return set(C+p.field,p.value);}
+  if(action==='eduSummaryAll'){checkChosen();if(text($(C+'lblCreateDateTime')))throw Error('此衛教紀錄已儲存，停止修改。');return click(C+'btnCareOpinionItemSelectAll');}
+  if(action==='eduFillFields'){
+   checkChosen();if(text($(C+'lblCreateDateTime')))throw Error('此衛教紀錄已儲存，停止修改。');const changed={};
+   for(const [field,value]of Object.entries(p.fields||{})){
+    if(!/^[A-Za-z0-9_]+$/.test(field))throw Error('欄位代碼不正確。');const el=need(C+field),actual=['checkbox','radio'].includes(el.type)?el.checked:el.value;
+    if(actual===value)continue;
+    const postback=/__doPostBack|WebForm_DoPostBack/.test((el.getAttribute('onclick')||'')+(el.getAttribute('onchange')||''))||/^(rdbEducationType_|rdbIsComplete_|chkCareGiverType_|chkLanguageType_|rdbLearningObstacle|chkPatientSpeciality_|rdbLearningAffect)/.test(field);
+    set(C+field,value);changed[field]=value;
+    // Conditional controls can rebuild the form. Stop this chunk immediately
+    // and let the controller wait for that postback before continuing.
+    if(postback)return {done:false,changed};
+   }
+   return {done:true,changed};
+  }
   if(action==='eduVerify'||action==='eduSend'){
    checkChosen();const s=state();if(s.created||s.sent)throw Error('此紀錄已儲存，未重複送出。');
    for(const [k,v]of Object.entries(p.fields||{}))if(!s.fields[k]||s.fields[k].disabled||s.fields[k].value!==v)throw Error('衛教欄位核對不符：'+k+'。');

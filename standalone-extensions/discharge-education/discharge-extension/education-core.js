@@ -24,17 +24,22 @@
  const TOPICS=['藥品名稱','作用','適應症','用法','藥品食物交互作用','不良反應','藥品其它相關資訊'];
  function summary(f){return f.summary===null?'告知病人'+f.topics.map(i=>TOPICS[i]).join('、')+'。':text(f.summary);}
  function validate(f){
+  if(!['Y','N'].includes(f.complete))throw Error('請選擇是否完成衛教。');
+  if(f.complete==='N'){if(!text(f.reason))throw Error('請填寫未完成衛教原因。');if(text(f.reason).length>50)throw Error('未完成原因請限制在 50 字以內。');return;}
   if(!Array.isArray(f.caregivers)||!f.caregivers.length)throw Error('請填寫衛教對象。');
+  if(f.caregivers.includes(1)&&!text(f.familyNote))throw Error('請填寫家屬姓名或稱謂。');
   if(f.caregivers.includes(3)&&!text(f.otherCaregiver))throw Error('請填寫其它衛教對象。');
   if(!/^\d{1,4}$/.test(String(f.minutes))||+f.minutes<1||+f.minutes>9999)throw Error('花費時間請填寫 1–9999 分鐘。');
-  if(!['Y','N'].includes(f.complete))throw Error('請選擇是否完成衛教。');
-  if(f.complete==='N'){if(!text(f.reason))throw Error('請填寫未完成衛教原因。');return;}
   if(!f.languages.length||!f.understand.length||!f.evaluate.length)throw Error('請填寫慣用語言、學習成效與評估依據。');
   if(f.languages.includes(6)&&!text(f.otherLanguage))throw Error('請填寫其它語言。');
   if(f.obstacle&&(!f.obstacles.length||f.obstacles.includes(5)&&!text(f.otherObstacle)))throw Error('請填寫學習障礙及其它說明。');
   if(f.affect&&!f.affects.length&&!text(f.affectText))throw Error('請填寫影響學習的因素。');
   if(!summary(f)||summary(f).replace(/[^\x00-\x7f]/g,'xx').length>1500)throw Error('衛教摘要需有內容，且不超過 1500 英文字或 750 中文字。');
   for(const k of ['familyNote','otherCaregiver','otherLanguage','otherObstacle','prohibitionText','willText','affectText','reason'])if(text(f[k]).length>50)throw Error('補充說明請限制在 50 字以內。');
+ }
+ function batchSummary(raw,batchId,now=Date.now()){
+  const ps=patients(raw,{batchId},now).filter(p=>p.pickups.length),total=ps.length,done=ps.filter(p=>!p.pending.length&&!p.error&&!p.uncertain).length,uncertain=ps.filter(p=>p.uncertain).length;
+  return {total,done,pending:total-done,uncertain,label:!total?'無須登錄':uncertain?'待核對':done===total?'已完成登錄':done?'部分完成':'未登錄'};
  }
  function covers(p,receipt){return (receipt.pickups||[]).some(x=>rxKey(x)===rxKey(p)&&(!seqs(p).length||seqs(p).every(n=>seqs(x).includes(n))));}
  function patients(raw,{batchId='',pharmacist=''}={},now=Date.now()){
@@ -71,5 +76,5 @@
   o.txbCostMinute=String(f.minutes);check('chkCareOpinionItem_',f.topics,7);o.txbCareOpioion=summary(f);return o;
  }
  function dateRange(pickups){const a=pickups.map(p=>date(p.orderDate)).sort();if(!a.length||!a[0])throw Error('沒有可登錄的出院藥。');const stamp=x=>Date.UTC(+x.slice(0,4),+x.slice(4,6)-1,+x.slice(6,8));return {baseDate:a.at(-1),days:String(Math.ceil((stamp(a.at(-1))-stamp(a[0]))/86400000)+1)};}
- root.EducationCore={KEY,TTL,date,rxKey,seqs,empty,prune,addBatch,defaults,validate,summary,TOPICS,covers,patients,fields,dateRange};
+ root.EducationCore={KEY,TTL,date,rxKey,seqs,empty,prune,addBatch,defaults,validate,summary,TOPICS,covers,patients,batchSummary,fields,dateRange};
 })(globalThis);

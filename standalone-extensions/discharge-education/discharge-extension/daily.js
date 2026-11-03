@@ -1,6 +1,6 @@
 'use strict';
 (()=>{
- const C=DischargeIncremental,$=id=>document.getElementById(id);let ledger=C.empty(),baseline=structuredClone(ledger),batchDay='',mode='fresh',pending=null,printed=false,initializing,writing=false;
+ const C=DischargeIncremental,$=id=>document.getElementById(id);let ledger=C.empty(),baseline=structuredClone(ledger),batchDay='',mode='fresh',pending=null,printed=false,initializing,writing=false,educationSnapshot=null;
  const read=async()=>C.current((await chrome.storage.local.get(C.KEY))[C.KEY]);
  const write=async value=>{await chrome.storage.local.set({[C.KEY]:value});ledger=value;};
  const locked=fn=>navigator.locks.request('discharge-daily-record',fn);
@@ -38,7 +38,7 @@
   await init();if(await rollover())nextMode='fresh';
   if(nextMode==='fresh'&&ledger.batches&&!confirm('重新開始會清除今天的已列印比對紀錄，重新列出全部符合條件的病人。要繼續嗎？'))return false;
   await locked(async()=>{ledger=await read();if(nextMode==='fresh')await write(C.empty());});
-  mode=nextMode==='incremental'&&ledger.batches?'incremental':'fresh';baseline=structuredClone(ledger);batchDay=C.day();pending=null;printed=false;render();return true;
+  mode=nextMode==='incremental'&&ledger.batches?'incremental':'fresh';baseline=structuredClone(ledger);batchDay=C.day();pending=null;printed=false;educationSnapshot=null;render();return true;
  }
  async function checkNew(){
   try{
@@ -64,10 +64,10 @@
   if(!pending||printed||writing||window.DischargeBlocked)return;
   writing=true;render();try{
    const snapshot=pending;
-   await locked(async()=>{const latest=await read();if(snapshot.day!==C.day()||latest.generation!==snapshot.generation)throw Error('日期或比對紀錄已變更，請重新開始擷取。');const next=C.commit(latest,snapshot.rows,snapshot.settings,snapshot.assignments);await window.DischargeEducation.save(snapshot.rows,snapshot.assignments,{printed:true,dailyLedger:next});ledger=next;});
-   printed=true;pending=null;message('已記錄列印並保存名單七天，可從「七天名單／衛教」批次登錄。下次檢查新增會排除已列印內容。');
+   await locked(async()=>{const latest=await read();if(snapshot.day!==C.day()||latest.generation!==snapshot.generation)throw Error('日期或比對紀錄已變更，請重新開始擷取。');await write(C.commit(latest,snapshot.rows,snapshot.settings,snapshot.assignments));});
+   educationSnapshot={rows:snapshot.rows,assignments:snapshot.assignments,printed:true};printed=true;pending=null;message('已記錄列印。接著可點「登錄衛教紀錄」，或「儲存名單／稍後登錄」。');window.dispatchEvent(new Event('educationlistready'));
   }finally{writing=false;render();}
  }
  function isCurrent(){return !batchDay||batchDay===C.day();}
- window.DischargeDaily={init,begin,print,confirmPrinted,isCurrent,rollover,render,completed(){render();},get mode(){return mode;},get busy(){return writing;},get pending(){return !!pending;},project:rows=>C.project(rows,baseline,mode==='incremental'),isNew:(account,rx)=>mode!=='incremental'||C.isNew(baseline,account,rx)};
+ window.DischargeDaily={init,begin,print,confirmPrinted,isCurrent,rollover,render,completed(){render();},get educationSnapshot(){return printed&&educationSnapshot?structuredClone(educationSnapshot):null;},get mode(){return mode;},get busy(){return writing;},get pending(){return !!pending;},project:rows=>C.project(rows,baseline,mode==='incremental'),isNew:(account,rx)=>mode!=='incremental'||C.isNew(baseline,account,rx)};
 })();
