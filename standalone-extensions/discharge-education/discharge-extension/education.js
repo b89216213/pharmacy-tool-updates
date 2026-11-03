@@ -14,7 +14,11 @@
  function gate(){if(stop)throw Error('已停止後續登錄。');if(window.DischargeBlocked||window.DischargeUpdating)throw Error('工具目前受管理限制或正在更新，已停止登錄。');}
  async function call(action,p={},all=false){
   if(!Number.isInteger(tabId)||tabId<=0||!chrome.scripting)throw Error('請從已登入的 Portal 開啟工具。');
-  let timer;const result=await Promise.race([chrome.scripting.executeScript({target:all?{tabId,allFrames:true}:{tabId,frameIds:[frameId]},world:'MAIN',func:window.educationPageBridge,args:[action,p]}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('讀取 Portal 操作回應逾時。')),8000);})]).finally(()=>clearTimeout(timer));
+  const timeout=8000,expiresAt=Date.now()+timeout;
+  const stage=action==='eduDiscover'?'辨識來源頁面':action==='eduRead'?'確認頁面狀態':action==='eduSend'?'送組長':'操作衛教頁面';
+  // Portal frames may keep loading after their controls are available. Match
+  // the capture bridge: do not queue this call until document_idle.
+  let timer;const result=await Promise.race([chrome.scripting.executeScript({target:all?{tabId,allFrames:true}:{tabId,frameIds:[frameId]},injectImmediately:true,world:'MAIN',func:window.educationPageBridge,args:[action,p,expiresAt]}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('讀取 Portal 操作回應逾時（'+stage+'）。請回來源 Portal 確認頁面狀態。')),timeout);})]).finally(()=>clearTimeout(timer));
   if(all)return result.filter(r=>r.result);
   const r=result[0]?.result;if(!r)throw Error('來源頁面已離開衛教紀錄，請回 Portal 核對。');if(r.error)throw Error(r.error);return r;
  }

@@ -1,5 +1,5 @@
 修改 discharge-extension 來源並遞增 manifest.json/package.json/頁尾版本。
-執行 core、education、management、update checks 與 browser-checks.cjs、education-browser-checks.cjs；瀏覽器測試使用合成 API 和病人頁回覆，不連院內。
+執行 core、education、education-connection、management、update checks 與 browser-checks.cjs、education-browser-checks.cjs；瀏覽器測試使用合成 API 和病人頁回覆，不連院內。
 執行 node scripts/build-update.mjs 產生 release/updates/discharge-education。
 公開庫 main 的 updates/discharge-education/latest.json 與 packages/<version>.json 必須用同一 commit 發布。
 保留已發布版本包，不能以不同內容覆寫同一版號。

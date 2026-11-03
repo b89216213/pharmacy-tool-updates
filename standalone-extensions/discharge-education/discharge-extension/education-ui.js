@@ -3,6 +3,7 @@
  const C=EducationCore,A=DischargeEducation,$=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const make=(tag,html)=>{const e=document.createElement(tag);e.innerHTML=html;return e;};
  let people=[],filter={batchId:'',pharmacist:''},selected=new Set(),resetSelection=true,persist=Promise.resolve(),edited;
+ const draftForms=new Map();
  const dialog=make('dialog',`<header class="edu-head"><div><h2>七天名單與衛教登錄</h2><p>同一病人合併各領藥號的全部出院處方，包含停用處方。</p></div><button id="eduClose" type="button" aria-label="關閉衛教名單">×</button></header>
  <div class="edu-filters"><label>已儲存名單<select id="eduBatch"></select></label><label>衛教藥師<select id="eduPharmacist"><option value="">全部</option></select></label><div id="eduExpiry" class="muted"></div></div>
  <p class="edu-note">請依實際衛教結果填寫；未完成者會登錄原因。紀錄建立者為目前 Portal 登入者，名單上的藥師分組只用於篩選。</p>
@@ -18,7 +19,7 @@
  const time=t=>new Date(t).toLocaleString('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
  const eligible=p=>!p.error&&!p.uncertain&&p.pending.length>0;
  const available=()=>!window.DischargeBlocked&&!window.DischargeUpdating&&!window.CaptureRunning&&!A.busy;
- function queueDraft(p){persist=persist.then(()=>A.draft(p.account,p.form));persist.catch(e=>msg('儲存填寫內容失敗：'+e.message,true));}
+ function queueDraft(p){const form=structuredClone(p.form);draftForms.set(p.account,form);persist=persist.then(()=>A.draft(p.account,form));persist.catch(e=>msg('儲存填寫內容失敗：'+e.message,true));}
  function gates(){topButton.disabled=!!window.CaptureRunning||!!window.DischargeBlocked||!!window.DischargeUpdating;saveButton.disabled=!window.DischargePresentation.canPrint()||A.busy;}
  async function render(force=false){
   gates();if(!dialog.open)return;
@@ -29,7 +30,10 @@
   const pharmacists=[...new Set(batches.filter(b=>!filter.batchId||b.id===filter.batchId).flatMap(b=>b.rows.map(p=>p.pharmacist)))].sort((a,b)=>a-b);
   $('eduPharmacist').innerHTML='<option value="">全部藥師</option>'+pharmacists.map(n=>`<option value="${n}">藥師 ${n}</option>`).join('');$('eduPharmacist').value=filter.pharmacist;
   const batch=batches.find(b=>b.id===filter.batchId);$('eduExpiry').textContent=batch?`保留至 ${time(batch.expiresAt)}`:'每份名單自儲存起保留七天；逾期會移除。';
-  people=C.patients(state,filter);const eligiblePeople=people.filter(eligible);
+  // A prior render may finish while a more recent keystroke is still saving.
+  // Keep the current editing session's values across conditional row rebuilds.
+  const accounts=new Set(state.batches.flatMap(b=>b.rows.map(p=>p.account)));for(const a of draftForms.keys())if(!accounts.has(a))draftForms.delete(a);
+  people=C.patients(state,filter);for(const p of people)if(draftForms.has(p.account))p.form=structuredClone(draftForms.get(p.account));const eligiblePeople=people.filter(eligible);
   if(resetSelection){selected=new Set(eligiblePeople.map(p=>p.account));resetSelection=false;}else selected=new Set([...selected].filter(a=>eligiblePeople.some(p=>p.account===a)));
   const careNames=['自我照護','家屬','外傭','其它'];
   $('eduRows').innerHTML=people.map(p=>{
@@ -39,7 +43,7 @@
   }).join('');
   $('eduEmpty').hidden=!!people.length;$('eduStart').disabled=!available()||!selected.size;$('eduStop').hidden=!A.busy;$('eduClose').disabled=A.busy;$('eduBatch').disabled=A.busy;$('eduPharmacist').disabled=A.busy;$('eduCapture').disabled=A.busy;$('eduAll').disabled=A.busy||!eligiblePeople.length;$('eduAll').checked=!!eligiblePeople.length&&selected.size===eligiblePeople.length;$('eduAll').indeterminate=selected.size>0&&selected.size<eligiblePeople.length;
  }
- async function open(batchId){if(!available())return;await A.init();if(batchId)filter.batchId=batchId;resetSelection=true;msg('');dialog.showModal();await render();}
+ async function open(batchId){if(!available())return;await persist;draftForms.clear();await A.init();if(batchId)filter.batchId=batchId;resetSelection=true;msg('');dialog.showModal();await render();}
  topButton.onclick=()=>void open();
  saveButton.onclick=async()=>{try{if(!available()||!DischargePresentation.canPrint())return;const id=await A.save(visibleRows,DischargePresentation.assignments());notice('已儲存名單，七天內可登錄衛教。');await open(id);}catch(e){notice(e.message,true);}};
  $('eduClose').onclick=()=>{if(!A.busy)dialog.close();};dialog.addEventListener('cancel',e=>{if(A.busy)e.preventDefault();});

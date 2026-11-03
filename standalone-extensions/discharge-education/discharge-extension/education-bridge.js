@@ -1,16 +1,21 @@
 'use strict';
 // Runs only in the user's already-open hospital tab. No direct requests or stored credentials.
-window.educationPageBridge=function(action,p={}){
+window.educationPageBridge=function(action,p={},expiresAt){
  try{
   const path='/WebApplication/PharManagement/CareEducationRecord.aspx',capture='/WebApplication/PharManagement/InMedicationProcess.aspx';
   if(location.origin!=='https://ihisaw.ntuh.gov.tw'||![path,capture].includes(location.pathname))return null;
+  const readOnly=['eduDiscover','eduRead','eduPlanOrders','eduVerify'].includes(action);
+  // Promise.race does not cancel an injection already queued by Chrome.
+  // A late mutation must expire in the hospital page before touching controls.
+  const fresh=()=>{if(!readOnly&&(!Number.isFinite(expiresAt)||Date.now()>=expiresAt))throw Error('這次 Portal 操作已逾時取消，未執行後續操作。');};
+  fresh();
   const $=id=>document.getElementById(id),E='NTUHWeb1_EditorBox_',C=E+'ContentBox_',N='NTUHWeb1_InPatInsertNavigatorBox_',Q=N+'InPatQueryBox_',O=N+'InPatOrderListBox_',D=O+'InPatOrderQueryBox_';
   const clean=s=>String(s??'').normalize('NFKC').replace(/\s+/g,' ').trim(),visible=e=>!!e&&!!(e.offsetWidth||e.offsetHeight||e.getClientRects().length)&&getComputedStyle(e).visibility!=='hidden';
   const text=e=>clean(e?.textContent),date=s=>clean(s).replace(/\D/g,''),key=r=>r.orderDate+'|'+r.number+'|'+r.sequence;
   const busy=()=>document.readyState==='loading'||!!window.Sys?.WebForms?.PageRequestManager?.getInstance()?.get_isInAsyncPostBack();
   const need=id=>{const e=$(id);if(!visible(e)||e.disabled)throw Error('院內欄位尚未就緒：'+id.split('_').slice(-1));return e;};
-  const click=id=>{if(busy())throw Error('院內頁面正在更新，未送出操作。');need(id).click();return {acted:true};};
-  const set=(id,value)=>{const e=need(id);if(['checkbox','radio'].includes(e.type)){if(e.checked!==value)e.click();}else{if(e.maxLength>0&&String(value).length>e.maxLength)throw Error('欄位內容超過院內長度限制。');e.value=String(value);e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}return {acted:true};};
+  const click=id=>{if(busy())throw Error('院內頁面正在更新，未送出操作。');const e=need(id);fresh();e.click();return {acted:true};};
+  const set=(id,value)=>{const e=need(id);fresh();if(['checkbox','radio'].includes(e.type)){if(e.checked!==value)e.click();}else{if(e.maxLength>0&&String(value).length>e.maxLength)throw Error('欄位內容超過院內長度限制。');e.value=String(value);e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}return {acted:true};};
   function rows(id){const t=$(id);if(!visible(t))return [];
    const rs=[...t.rows].filter(r=>r.closest('table')===t),head=rs.find(r=>[...r.cells].some(c=>text(c)==='序號'));
    if(!head)throw Error('處方表格欄位無法辨識。');const labels=[...head.cells].map(text),cols={};for(const label of ['序號','狀態','階段','開方日','處方號']){cols[label]=labels.indexOf(label);if(cols[label]<0)throw Error('處方表格缺少 '+label+'。');}
@@ -28,7 +33,7 @@ window.educationPageBridge=function(action,p={}){
    const errors=[...document.querySelectorAll('[id*="Validator"],[id*="ValidationSummary"]')].filter(visible).map(text).filter(Boolean);
    return {path:location.pathname,ready:!busy(),phase,identity:identity(),fields,chosen:isEditor?chosen():[],created:text($(C+'lblCreateDateTime')),sent:text($(C+'lblSendVerifyDateTime')),status:text($(C+'lblStatusName')),errors,queryMrn:$(Q+'txbChartNo')?.value,baseDate:$(D+'txbBaseDate')?.value,days:$(D+'txbDayRange')?.value};
   }
-  if(action==='eduDiscover')return state();
+  if(action==='eduDiscover')return {path:location.pathname};
   if(action==='eduNavigate'){if(location.pathname===path)return {acted:false};location.assign(location.origin+path);return {acted:true};}
   if(location.pathname!==path)throw Error('請先開啟衛教紀錄頁面。');
   if(action==='eduRead')return state();
@@ -53,6 +58,7 @@ window.educationPageBridge=function(action,p={}){
    if(JSON.stringify(selected.map(key).sort())!==JSON.stringify((p.selected||[]).map(key).sort()))throw Error('處方在核對後發生變更，請重新核對。');
    for(const r of selected)need(r.checkbox);
    // All current prescriptions in each pickup group, including discontinued orders.
+   fresh();
    for(const r of all)if(r.checkbox){const el=$(r.checkbox),value=selected.includes(r);if(el.disabled&&value)throw Error('有處方無法勾選，未送出。');el.checked=value;}
    for(const r of all)if(r.checkbox&&$(r.checkbox).checked!==selected.includes(r))throw Error('處方勾選驗證失敗。');
    const cleanRows=selected.map(({checkbox,button,...r})=>r);const result=click(selected.at(-1).button);return {...result,selected:cleanRows};

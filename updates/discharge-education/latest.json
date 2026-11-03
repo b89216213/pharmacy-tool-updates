@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.9.0",
-  "notes": "新增七天名單保存與批次衛教登錄；每位病人合併出院藥處方（含停用），支援未完成原因與修改衛教內容。",
-  "packagePath": "updates/discharge-education/packages/2.9.0.json",
-  "size": 319012,
-  "sha256": "3648d65a406cd88fc950f6a9a4277d3e9cb8627acf03c0d1ce4ab320adf96e7f"
+  "version": "2.9.1",
+  "notes": "修正衛教功能連接 Portal 時持續逾時；逾時操作不再延遲執行，並保留快速切換欄位時的填寫內容。",
+  "packagePath": "updates/discharge-education/packages/2.9.1.json",
+  "size": 320951,
+  "sha256": "4cff743463d3d5270159f93df1127650ae1d86348c68fced6bec2c6d9131c0ed"
 }

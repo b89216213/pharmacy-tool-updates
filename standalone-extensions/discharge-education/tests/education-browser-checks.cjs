@@ -4,18 +4,39 @@ const server=http.createServer((req,res)=>{const p=path.join(root,new URL(req.ur
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,executablePath:process.env.QA_CHROMIUM_PATH||'/tmp/chromium',args:['--no-sandbox','--single-process','--no-zygote','--disable-dev-shm-usage']});const ctx=await browser.newContext({viewport:{width:1400,height:1000},timezoneId:'Asia/Taipei'}),portal=await ctx.newPage(),page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await portal.route('**/*',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><html><body></body></html>'}));await portal.goto('https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/CareEducationRecord.aspx');await portal.evaluate(install,schema);
- await page.exposeFunction('executePortal',async({action,p,source})=>{if(!action.startsWith('edu'))return [{frameId:0,result:{origin:'https://portal.ntuh.gov.tw',controls:[]}}];const result=await portal.evaluate(({source,action,p})=>(0,eval)('('+source+')')(action,p),{source,action,p});return [{frameId:0,result}];});
+ await page.exposeFunction('executePortal',async({action,p,expiresAt,source})=>{if(!action.startsWith('edu'))return [{frameId:0,result:{origin:'https://portal.ntuh.gov.tw',controls:[]}}];const result=await portal.evaluate(({source,action,p,expiresAt})=>(0,eval)('('+source+')')(action,p,expiresAt),{source,action,p,expiresAt});return [{frameId:0,result}];});
  const manifest=JSON.parse(fs.readFileSync(root+'/discharge-extension/manifest.json'));
  await page.addInitScript(({manifest})=>{
   const now=Date.now(),deviceId='11111111-1111-4111-8111-111111111111';window.fixtureReply={toolId:'ntuh-discharge-education',deviceId,deviceName:'測試電腦',policy:{revision:'0.0',rules:[{scope:'tool:ntuh-discharge-education',disabled:false,minimumVersion:'0',effectiveAt:0,reason:'',revision:0},{scope:'device:'+deviceId,disabled:false,minimumVersion:'0',effectiveAt:0,reason:'',revision:0}],serverTime:now,validUntil:now+86400000}};
-  window.chrome={runtime:{getManifest:()=>manifest,getURL:p=>location.origin+'/discharge-extension/'+p,getContexts:async()=>[],reload(){}},storage:{local:{async get(k){return {[k]:JSON.parse(localStorage.getItem(k)||'null')};},async set(o){for(const [k,v]of Object.entries(o))localStorage.setItem(k,JSON.stringify(v));},async remove(k){localStorage.removeItem(k);}}},scripting:{executeScript:({func,args:[action,p]})=>window.executePortal({source:func.toString(),action,p})},tabs:{async update(){},async get(){return {windowId:1};}},windows:{async update(){}}};
+  window.chrome={runtime:{getManifest:()=>manifest,getURL:p=>location.origin+'/discharge-extension/'+p,getContexts:async()=>[],reload(){}},storage:{local:{async get(k){return {[k]:JSON.parse(localStorage.getItem(k)||'null')};},async set(o){for(const [k,v]of Object.entries(o))localStorage.setItem(k,JSON.stringify(v));},async remove(k){localStorage.removeItem(k);}}},scripting:{executeScript:({func,args:[action,p,expiresAt],injectImmediately})=>{
+   // An unrelated Portal frame has not reached document_idle. Chrome queues
+   // default-timing injections; immediate calls can inspect the ready form.
+   if(action.startsWith('edu')&&!injectImmediately)return new Promise(()=>{});
+   return window.executePortal({source:func.toString(),action,p,expiresAt});
+  }},tabs:{async update(){},async get(){return {windowId:1};}},windows:{async update(){}}};
   const nativeFetch=fetch;window.fetch=async(url,o)=>{if(String(url).startsWith('https://pharmacy-device-console'))return new Response(JSON.stringify(fixtureReply),{headers:{'Content-Type':'application/json'}});if(String(url).startsWith('https://raw.githubusercontent.com'))return new Response('',{status:404});return nativeFetch(url,o);};window.print=()=>{};
  },{manifest});
  const done=x=>console.log('PASS',x),selectRow=()=>page.locator('#eduRows tr').first();
  try{
+  await portal.evaluate(fs.readFileSync(root+'/discharge-extension/education-bridge.js','utf8'));
+  const expired=await portal.evaluate(()=>{
+   const actions=['eduNavigate','eduReturnCapture','eduBegin','eduPatientMode','eduQuery','eduSelectPatient','eduDateQuery','eduSelectOrders','eduField','eduSend'];
+   return {results:actions.map(action=>educationPageBridge(action,{},Date.now()-1)),missing:educationPageBridge('eduBegin'),phase:fixture.phase,sent:fixture.sent.length,changes:fixture.changes.length};
+  });
+  assert(expired.results.every(r=>r.error?.includes('逾時取消')));assert(expired.missing.error.includes('逾時取消'));assert.equal(expired.phase,'home');assert.equal(expired.sent,0);assert.equal(expired.changes,0);done('Expired or missing operation deadlines prevent late navigation, field changes and submission');
   await page.goto(`http://127.0.0.1:${server.address().port}/discharge-extension/tool.html?tab=1&origin=https%3A%2F%2Fportal.ntuh.gov.tw`);await page.locator('#management-name').fill('測試');await page.locator('#management-code').fill('0386');await page.locator('#management-submit').click();await page.waitForFunction(()=>!DischargeBlocked);
   await page.evaluate(async()=>{window.seedPerson=(n=1)=>({account:'26X'+String(n).padStart(8,'0'),mrn:String(900000+n),name:n===1?'合成甲':'合成乙',ward:'12PE',bedNumber:`12PE-0${n}-01`,date:Date.now(),drugStatus:'有',pickupComplete:true,pickups:[{number:'W0021',orderDate:'2026/11/03',sequences:['0001']},{number:'W0022',orderDate:'2026/11/02',sequences:['0003']}]});await DischargeEducation.save([seedPerson()],{wards:{'12PE':2}});});
-  await page.locator('#open-education').click();await page.locator('#eduRows tr').waitFor();await page.locator('#eduStart').click();assert((await page.locator('#eduMessage').innerText()).includes('對象'));done('Blank target and duration prevent submission');
+  await page.locator('#open-education').click();await page.locator('#eduRows tr').waitFor();
+  const preserved=await page.evaluate(async()=>{
+   const read=DischargeEducation.read;let release,captured;
+   const ready=new Promise(r=>{captured=r;}),blocked=new Promise(r=>{release=r;});
+   DischargeEducation.read=async()=>{const s=await read();captured();await blocked;return s;};
+   try{const painting=EducationUI.render(true);await ready;const input=document.querySelector('[data-field="minutes"]');input.value='7';input.dispatchEvent(new Event('input',{bubbles:true}));release();await painting;return document.querySelector('[data-field="minutes"]').value;}
+   finally{release();DischargeEducation.read=read;}
+  });
+  assert.equal(preserved,'7');await selectRow().locator('[data-field="minutes"]').fill('');done('A stale asynchronous repaint preserves the newest typed duration');
+  await page.locator('#eduStart').click();await page.waitForFunction(()=>document.querySelector('#eduMessage').textContent.includes('對象'));done('Blank target and duration prevent submission');
+  if(process.env.QA_EDUCATION_UI_ONLY)return;
   await selectRow().locator('[data-care="1"]').check();await selectRow().locator('[data-field="familyNote"]').fill('女兒');await selectRow().locator('[data-field="minutes"]').fill('15');await page.locator('#eduStart').click();await page.waitForTimeout(150);assert(await page.locator('#edu-review-dialog').isVisible(),await page.locator('#eduMessage').innerText());await page.locator('#eduSend').click();await page.waitForFunction(()=>!DischargeEducation.busy&&document.querySelector('#eduMessage').textContent.includes('皆已完成'),null,{timeout:120000});
   let sent=await portal.evaluate(()=>fixture.sent);assert.equal(sent.length,1);assert.equal(sent[0].selected.length,3);assert(sent[0].selected.some(r=>r.status==='停用'));assert.equal(sent[0].values.txbPatientFamilyNote,'女兒');assert.equal(sent[0].values.ddlPharmacy,'T02');assert.equal(sent[0].values.txbCostMinute,'15');done('One patient, two pickup numbers, and discontinued orders are sent together in exactly one record');
   assert.equal(await page.locator('#eduStart').isEnabled(),false);await page.locator('#eduClose').click();await page.reload();await page.waitForFunction(()=>!DischargeBlocked);await page.locator('#open-education').click();await page.locator('#eduRows tr').waitFor();assert.equal(await page.locator('#eduStart').isEnabled(),false);assert((await page.locator('#eduRows').innerText()).includes('已登錄'));done('Successful records remain excluded after reopening and across overlapping saved lists');
