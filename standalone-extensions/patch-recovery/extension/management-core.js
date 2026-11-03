@@ -17,3 +17,5 @@ export function managementState(record,version,now=Date.now()){
  if(!Number.isSafeInteger(record.expiresAt)||now>=record.expiresAt||now<record.receivedAt-60000)return{state:'offline',reason:'已超過 24 小時未完成管理驗證，請重新連線。原有資料仍保留。'};
  return {state:'allowed',reason:''};
 }
+
+export function enrollmentCode(value){const code=String(value??'').trim();if(!/^[0-9]{4}$/.test(code))throw Error('登記碼請輸入 4 個數字，包含開頭的 0。');return code;}

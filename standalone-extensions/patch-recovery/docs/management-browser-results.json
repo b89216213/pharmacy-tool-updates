@@ -1,8 +1,9 @@
 {
-  "passed": 9,
+  "passed": 10,
   "scope": "Synthetic Chrome runtime and management API; no live hospital network or native extension installation",
   "checks": [
     "First opening requires computer registration before any Portal query",
+    "Enrollment input accepts only four digits and provides a numeric keyboard",
     "Name and one-time code register successfully; only allowed device metadata is transmitted",
     "Remote disable locks new work without altering stored pharmacy data",
     "Update and complete local backup remain accessible while disabled",

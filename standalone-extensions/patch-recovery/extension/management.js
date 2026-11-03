@@ -1,4 +1,4 @@
-import{MANAGEMENT_KEY,TOOL_ID,MANAGEMENT_URL,validateManagementReply,managementState}from'./management-core.js';
+import{MANAGEMENT_KEY,TOOL_ID,MANAGEMENT_URL,validateManagementReply,managementState,enrollmentCode}from'./management-core.js';
 const $=id=>document.getElementById(id);
 export async function mountManagement({isBusy,saveDraft,setBlocked,setLocked,onReady,exportBackup}){
  if(!globalThis.chrome?.runtime?.getManifest){$('open-management').hidden=true;return{blocked:false};}
@@ -8,7 +8,7 @@ export async function mountManagement({isBusy,saveDraft,setBlocked,setLocked,onR
  const status=(s,error=false)=>{$('management-status').textContent=s;$('management-status').classList.toggle('update-error',error);};
  async function request(path,body){const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),12000);try{
   const r=await fetch(MANAGEMENT_URL+'/api/fleet/device/'+path,{method:'POST',headers:{'Content-Type':'application/json',...(path==='heartbeat'?{Authorization:'Bearer '+record.secret}:{})},body:JSON.stringify(body),credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',redirect:'error',signal:abort.signal});
-  if(!r.headers.get('content-type')?.includes('application/json'))throw Error('管理後台尚未開放電腦回報，請聯絡管理員。');
+  if(!r.headers.get('content-type')?.includes('application/json'))throw Error('管理後台未回傳可用資料，請確認網路或聯絡管理員。');
   const text=await r.text();if(text.length>32000)throw Error('管理回覆超過大小限制');const data=JSON.parse(text);if(!r.ok){const e=Error(data.error||'管理驗證失敗');e.status=r.status;throw e;}return validateManagementReply(data);
  }catch(e){if(e.status===401)throw e;if(e.name==='AbortError')throw Error('管理後台連線逾時，請稍後重試。');if(e instanceof TypeError)throw Error('目前無法連線至管理後台，請確認網路。');throw e;}finally{clearTimeout(timer);}}
  function render(){const s=recoverAuth?{state:'offline',reason:'電腦憑證無法驗證，請取得新登記碼重新登記。'}:managementState(record,version);controller.blocked=s.state!=='allowed';
@@ -30,7 +30,7 @@ export async function mountManagement({isBusy,saveDraft,setBlocked,setLocked,onR
  async function heartbeat(){if(networking||!record.registered)return;networking=true;try{const reply=await request('heartbeat',beatBody());record={...record,...reply};recoverAuth=false;networkError='';await persist();await apply();const ack=record.policy.revision+':'+appliedState;if(lastAck!==ack){const renewed=await request('heartbeat',beatBody());record={...record,...renewed};await persist();lastAck=ack;}}catch(e){networkError=e.message;if(e.status===401)recoverAuth=true;}finally{networking=false;await apply();}}
  $('management-form').addEventListener('submit',async event=>{event.preventDefault();if(networking)return;networking=true;status('正在登記電腦…');try{
   if(!record.installationId||recoverAuth){record={installationId:crypto.randomUUID(),secret:[...crypto.getRandomValues(new Uint8Array(32))].map(b=>b.toString(16).padStart(2,'0')).join('')};recoverAuth=false;await persist();}
-  const reply=await request('register',{installationId:record.installationId,secret:record.secret,name:$('management-name').value.trim(),code:$('management-code').value.trim().toLowerCase(),toolId:TOOL_ID,version});record={...record,...reply,registered:true};await persist();recoverAuth=false;networkError='';$('management-code').value='';$('management-dialog').close();await apply();
+  const reply=await request('register',{installationId:record.installationId,secret:record.secret,name:$('management-name').value.trim(),code:enrollmentCode($('management-code').value),toolId:TOOL_ID,version});record={...record,...reply,registered:true};await persist();recoverAuth=false;networkError='';$('management-code').value='';$('management-dialog').close();await apply();
  }catch(e){networkError=e.message;}finally{networking=false;await apply();if(record.registered)void heartbeat();}});
  $('open-management').addEventListener('click',()=>{render();if(!$('management-dialog').open)$('management-dialog').showModal();});
  $('management-close').addEventListener('click',()=>{if(!networking)$('management-dialog').close();});$('management-dialog').addEventListener('cancel',e=>{if(networking)e.preventDefault();});

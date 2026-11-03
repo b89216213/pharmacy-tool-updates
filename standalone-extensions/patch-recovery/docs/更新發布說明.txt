@@ -1,9 +1,9 @@
-貼片回收工具公開更新來源維護（v1.3.0）
+貼片回收工具公開更新來源維護（v1.3.1）
 
 固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
 更新索引：updates/patch-recovery/latest.json。
 程式來源：standalone-extensions/patch-recovery/extension/。
-首次安裝包：downloads/patch-recovery-v1.3.0.zip。
+首次安裝包：downloads/patch-recovery-v1.3.1.zip。
 舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
 
 之後發布新版：
@@ -33,3 +33,7 @@ v1.2.5 在成功檢查到新版時主動顯示更新視窗。同次開啟只提�
 
 v1.3.0 增加 management-core.js、management.js，啟用電腦登記、每分鐘回報、最低版本與停用政策。新增後台 host_permissions 與 CSP connect-src，v1.2.5 必須手動覆蓋同一資料夾再重新載入。後台網站已開放裝置連線，管理 API 仍只限管理員登入；本版發布至 main。正式環境配對及院內網路仍須先以單台電腦驗證。
 管理員設定存於後台 D1；每台裝置使用獨立憑證，API 不提供裝置讀取其他電腦或修改政策的權限。登記碼為一次性 24 小時有效；續報由後台確認版本與執行狀態。
+
+
+v1.3.1：登記碼改為四個數字，10 分鐘有效、一次性、最新碼取代舊碼；五次錯誤後需管理員重新產生。已發出的舊長碼可用到原到期時間，已登記電腦保留憑證。後台新增共同管理員名單，擁有者可新增或移除同事的登入 Email；共同管理員可管理電腦與政策，不能再授權其他管理員。首次登入後綁定 Sites 的穩定使用者識別碼。使用者、電腦與既有政策資料保留，資料庫採新增 migration。
+v1.3.0 → v1.3.1 沒有新增權限，完整套件已用 v1.3.0 manifest 驗證可直接透過工具更新。v1.2.5 或更舊版本仍需手動導入。
