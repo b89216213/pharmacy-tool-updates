@@ -1,0 +1,56 @@
+{
+  "manifest_version": 3,
+  "name": "Portal 管藥藥帳帶入盤點",
+  "version": "1.1.0",
+  "description": "在特殊藥品管理頁選擇管1＋管2或管1＋管2＋管3，將今日未來時段結存量全部帶入盤點後一次確認送出。",
+  "minimum_chrome_version": "122",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/DrugCounting.aspx*",
+        "http://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/DrugCounting.aspx*"
+      ],
+      "js": [
+        "managed-content.js"
+      ],
+      "run_at": "document_start",
+      "world": "ISOLATED",
+      "all_frames": true
+    },
+    {
+      "matches": [
+        "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/DrugCounting.aspx*",
+        "http://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/DrugCounting.aspx*"
+      ],
+      "js": [
+        "managed-main.js",
+        "core.js",
+        "portal.js",
+        "ui.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    }
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://raw.githubusercontent.com/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://raw.githubusercontent.com https://pharmacy-device-console.cx760.chatgpt.site; base-uri 'none'; form-action 'none'"
+  },
+  "action": {
+    "default_title": "管藥盤點：電腦登記與更新"
+  },
+  "options_page": "manager.html"
+}

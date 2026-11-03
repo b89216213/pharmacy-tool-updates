@@ -1,0 +1,9 @@
+{
+  "format": "controlled-inventory-release-v1",
+  "toolId": "ntuh-controlled-inventory",
+  "version": "1.1.0",
+  "notes": "加入自動檢查新版、工具內一鍵更新、4 碼電腦登記與後台版本管理。作業中禁止更新；保留原有作業流程與本機紀錄。首次導入需手動覆蓋原資料夾並重新載入。",
+  "packagePath": "updates/controlled-inventory/packages/1.1.0.json",
+  "size": 115249,
+  "sha256": "7a3337444e01c5afb996f5b9ed5255552ae12de587b79a0c4dd3689c4be464fd"
+}

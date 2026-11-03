@@ -1,3 +1,21 @@
+# 藥局工具更新來源
+
+[管理後台](https://pharmacy-device-console.cx760.chatgpt.site/)
+
+| 工具 | 最新版 | 下載 |
+|---|---|---|
+| Portal 管藥盤點 | 1.1.0 | [安裝包](downloads/controlled-inventory-v1.1.0.zip) |
+| ADC 特殊藥品批次取歸藥 | 1.2.0 | [安裝包](downloads/adc-drugs-v1.2.0.zip) |
+| 貼片回收紀錄 | 1.3.1 | [安裝包](downloads/patch-recovery-v1.3.1.zip) |
+
+兩個管藥工具首次導入，請將新版檔案覆蓋至原本載入的同一資料夾，再到 Chrome 擴充功能重新載入並重新整理 Portal。請勿先移除擴充功能。輸入後台產生的 4 碼完成登記，再指定工具資料夾即可沿用工具內更新。
+
+自動檢查新版，按「更新並重新開啟」套用；正在取歸藥或盤點時禁止更新。同一電腦的多個工具可選擇既有電腦再產生各自的一次性碼。病人、報表、藥帳與作業明細不會回傳此庫或管理後台。
+
+[本次更新與驗證](docs/managed-release-20261103.md)
+
+---
+
 # pharmacy-tool-updates — 貼片回收紀錄 v1.3.1
 
 公開更新來源，正式版本為 **v1.3.1**。
@@ -27,3 +45,4 @@
 [使用說明](standalone-extensions/patch-recovery/使用說明.txt) · [驗證結果](standalone-extensions/patch-recovery/docs/驗證結果.txt)
 
 本次 92 項自動測試通過，包含後台共同管理權限、登記碼防猜測及更新回歸。院內 Windows Chrome、原生資料夾授權與正式後台配對仍需實機確認；請先以一台電腦驗證。電腦數依登記識別碼計算，解壓縮載入的擴充元件不是防竄改的企業裝置管理。
+

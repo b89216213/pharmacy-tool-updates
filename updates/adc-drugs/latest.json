@@ -1,0 +1,9 @@
+{
+  "format": "adc-drugs-release-v1",
+  "toolId": "ntuh-adc-drugs",
+  "version": "1.2.0",
+  "notes": "加入自動檢查新版、工具內一鍵更新、4 碼電腦登記與後台版本管理。作業中禁止更新；保留原有作業流程與本機紀錄。首次導入需手動覆蓋原資料夾並重新載入。",
+  "packagePath": "updates/adc-drugs/packages/1.2.0.json",
+  "size": 175174,
+  "sha256": "f909183807962b2b88b13ba4e4edfbac886c1881dd887c526e7820fb6283cdd0"
+}

@@ -1,0 +1,1 @@
+export const CONFIG=Object.freeze({"slug": "controlled-inventory", "toolId": "ntuh-controlled-inventory", "title": "Portal 管藥盤點", "entry": "manager.html", "managementKey": "controlled-inventoryManagementV1"});
