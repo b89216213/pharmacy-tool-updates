@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.2.1",
-  "notes": "改用公開更新來源，免 GitHub 帳號與憑證；開啟工具自動檢查新版，保留原有紀錄、草稿與資料夾設定。",
-  "packagePath": "updates/patch-recovery/packages/1.2.1.json",
-  "size": 207513,
-  "sha256": "df903377f5b930cca69cf95fd595ee095d2b8b78d7c4735b80382c1f802da49b"
+  "version": "1.2.2",
+  "notes": "更新流程測試版：僅將版號提升至 v1.2.2，功能、操作方式與資料格式均與 v1.2.1 相同。",
+  "packagePath": "updates/patch-recovery/packages/1.2.2.json",
+  "size": 207490,
+  "sha256": "2777437f14b34b9a07f6379fec65ec4fe6f4f2e2d9b777dbd7be1690321504e1"
 }
