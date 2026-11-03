@@ -62,3 +62,12 @@
 [使用說明](standalone-extensions/patch-recovery/使用說明.txt) · [驗證結果](standalone-extensions/patch-recovery/docs/驗證結果.txt)
 
 本次 92 項自動測試通過，包含後台共同管理權限、登記碼防猜測及更新回歸。院內 Windows Chrome、原生資料夾授權與正式後台配對仍需實機確認；請先以一台電腦驗證。電腦數依登記識別碼計算，解壓縮載入的擴充元件不是防竄改的企業裝置管理。
+
+
+## 發布給管理後台的工具索引
+
+後台透過公開的 [updates/catalog.json](updates/catalog.json) 找到工具，再直接讀取各工具的 latest.json 比對最新版，不需要 GitHub Token。
+
+**新增或移除工具時，發布者必須一併更新工具索引**：於儲存庫執行 `python3 scripts/update-catalog.py`，把產生的 `updates/catalog.json` 與新工具一起發布。既有工具改版也建議重新產生索引以更新下載連結；未重新產生時，後台仍會讀取最新版本，但不會把舊版安裝包誤標為新版。
+
+這個流程不授予 GitHub Actions 自動寫入 main 的權限。詳細格式與維護方式見 [索引說明](updates/CATALOG.md)。
