@@ -1,9 +1,9 @@
-貼片回收工具公開更新來源維護（v1.3.1）
+貼片回收工具公開更新來源維護（v1.4.0）
 
 固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
 更新索引：updates/patch-recovery/latest.json。
 程式來源：standalone-extensions/patch-recovery/extension/。
-首次安裝包：downloads/patch-recovery-v1.3.1.zip。
+首次安裝包：downloads/patch-recovery-v1.4.0.zip。
 舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
 
 之後發布新版：
@@ -37,3 +37,6 @@ v1.3.0 增加 management-core.js、management.js，啟用電腦登記、每分�
 
 v1.3.1：登記碼改為四個數字，10 分鐘有效、一次性、最新碼取代舊碼；五次錯誤後需管理員重新產生。已發出的舊長碼可用到原到期時間，已登記電腦保留憑證。後台新增共同管理員名單，擁有者可新增或移除同事的登入 Email；共同管理員可管理電腦與政策，不能再授權其他管理員。首次登入後綁定 Sites 的穩定使用者識別碼。使用者、電腦與既有政策資料保留，資料庫採新增 migration。
 v1.3.0 → v1.3.1 沒有新增權限，完整套件已用 v1.3.0 manifest 驗證可直接透過工具更新。v1.2.5 或更舊版本仍需手動導入。
+
+
+v1.4.0：連線時唯讀擷取 Portal 左側登出控制項下的登入姓名（包含相鄰頁框）；儲存旁可自由修改及重新讀取。移除月預設操作入口，保留舊資料／備份相容。A4 直式預覽以實際行高重新分頁，Excel pageSetup 同步為 portrait。沒有新增權限；v1.3.0／v1.3.1 可工具內更新。發布時必須同步 downloads、updates/patch-recovery、來源程式及公開 updates/catalog.json；不包含 QA 截圖、測試資料、備份或帳密。

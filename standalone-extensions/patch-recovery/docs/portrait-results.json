@@ -1,0 +1,18 @@
+{
+  "orientation": "portrait",
+  "paper": "A4",
+  "normal": {
+    "records": 37,
+    "pages": 2
+  },
+  "longDepartment": {
+    "records": 37,
+    "pages": 3
+  },
+  "checked": [
+    "all rows present",
+    "titles and footers on every page",
+    "PDF page counts match preview",
+    "XLSX A4 portrait"
+  ]
+}

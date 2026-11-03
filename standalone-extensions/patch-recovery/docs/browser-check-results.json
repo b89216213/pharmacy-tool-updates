@@ -1,9 +1,11 @@
 {
-  "passed": 21,
+  "passed": 28,
   "checks": [
     "First-run checkboxes save the group; thereafter only quick ward buttons are shown",
     "Switching default wards is immediate and does not re-query Portal",
     "Production UI connects to the existing Portal query engine",
+    "Portal pharmacist is prefilled beside Save with no monthly-default controls",
+    "Changing month preserves a manually edited pharmacist",
     "Batch entry persists both patients and all three dose columns",
     "Reload restores a partially completed batch",
     "Changing ward preserves the pending batch",
@@ -21,6 +23,11 @@
     "Saved records physically reside in separate ward groups",
     "Ward records stay separate and display oldest dates above newest dates",
     "Compact two-column chooser displays at least 16 patients without list scrolling",
+    "Explicit reread applies the Portal name beside Save",
+    "Failed reread keeps a manually entered name and shows an honest fallback",
+    "A fresh batch never falls back to obsolete monthly pharmacist defaults",
+    "Missing pharmacist blocks saving; reading a name never edits existing records",
+    "Portrait pagination measures wrapped text; ordinary and long departments fit with all 37 rows",
     "No browser runtime exceptions"
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "passed": 9,
+  "scope": "Synthetic sidebar DOM and frame results, not the live hospital Portal",
+  "checks": [
+    "Reads a narrow vertical login name immediately below logout",
+    "Line breaks and fullwidth whitespace in the sidebar are normalized",
+    "Hidden names and patient names in the query area are ignored",
+    "Conflicting visible names fail closed instead of picking one",
+    "Navigation labels are not treated as pharmacist names",
+    "Without the login-sidebar anchor, no name is inferred",
+    "A login page does not supply a pharmacist",
+    "Legacy bare text nodes separated by BR are read as one name",
+    "A sibling frame can supply the name; conflicting frames are rejected"
+  ]
+}

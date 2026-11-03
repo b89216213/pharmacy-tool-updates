@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.3.1",
-  "notes": "登記碼改為 4 位數字，後台新增共同管理員。已登記電腦保留原憑證；v1.3.0 可在工具內更新，較舊版本需手動導入。",
-  "packagePath": "updates/patch-recovery/packages/1.3.1.json",
-  "size": 229405,
-  "sha256": "5c6165f8ed2a27b0e3ceee6cf43b40cb8792e097d3835e3f314e8a264e34e39f"
+  "version": "1.4.0",
+  "notes": "Portal 左側藥師姓名自動帶入儲存按鈕旁，可自由修改；移除每月預設藥師。表格與 Excel 列印改為 A4 直式，依文字長度分頁。",
+  "packagePath": "updates/patch-recovery/packages/1.4.0.json",
+  "size": 237404,
+  "sha256": "f9091a6117da74573ba57d37e2ecc29b157ed10d8b08717a839f0257c780d7d9"
 }

@@ -8,7 +8,7 @@
     "Edit retains original values in history and keeps the record identity",
     "Storage writes are serialized; failed write does not claim committed state",
     "Backup merge is idempotent, preserves local changes and restores unsaved drafts",
-    "Print paginates 18 rows, includes blank stamp cells, and escapes patient text",
+    "Print paginates 24 rows, includes blank stamp cells, and escapes patient text",
     "Portal extracts all six fields, clears stale bed filters, and only clicks one ward query",
     "Portal bridge rejects settlement, patient-opening and unknown actions",
     "Portal query waits for refreshed data and reads cleared patients",

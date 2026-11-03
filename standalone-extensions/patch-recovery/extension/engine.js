@@ -80,6 +80,14 @@ export class PortalEngine {
     return d;
   }
   connect(){return this.enqueue(async()=>{await this.discover();return this.ensureList();});}
+  readPharmacist(){return this.enqueue(async()=>{
+    // The login sidebar may be a sibling frame of the patient query form.
+    const results=await this.execute('readPharmacist',{},null);
+    const reads=results.filter(x=>x.result?.ok&&!x.result.login).map(x=>x.result.pharmacist).filter(Boolean);
+    const names=[...new Set(reads.map(x=>x.name).filter(Boolean))];
+    if(reads.some(x=>x.status==='ambiguous')||names.length>1)return {name:'',status:'ambiguous'};
+    return {name:names[0]||'',status:names.length?'found':'missing'};
+  });}
   async installGuard(){await this.checkSource();await this.api.scripting.executeScript({target:{tabId:this.sourceId,frameIds:[this.frame]},world:'MAIN',injectImmediately:true,files:['operation-guard.js']});}
   async toggleSmart(d,checked){
     this.phase='switching-smart-care';this.status(checked?'正在讀取 Smart Care 勾選後的名單…':'正在切回一般病房查詢…');

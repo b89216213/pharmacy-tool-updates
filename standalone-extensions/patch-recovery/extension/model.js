@@ -108,9 +108,10 @@ export class Repository {
   async load(){const result=await this.storage.get(STORE_KEY);this.state=result[STORE_KEY]?validateState(result[STORE_KEY]):emptyState();this.ready=true;return this.state;}
   mutate(fn){const job=this.tail.catch(()=>{}).then(async()=>{if(!this.ready)throw new Error('資料尚未正確載入，未寫入');const next=structuredClone(this.state);const result=fn(next);await this.storage.set({[STORE_KEY]:storageData(next)});this.state=next;return result;});this.tail=job;return job;}
 }
-export function printMarkup(records,month,requestedWard=''){
+export function printMarkup(records,month,requestedWard='',perPage=24){
   const ward=onlyWard(records,requestedWard);
-  const esc=escapeHTML,perPage=18,pages=[];const count=Math.max(1,Math.ceil(records.length/perPage));
+  if(!Number.isInteger(perPage)||perPage<1||perPage>24)throw new Error('列印每頁筆數不正確');
+  const esc=escapeHTML,pages=[];const count=Math.max(1,Math.ceil(records.length/perPage));
   for(let i=0;i<count;i++){
     const slice=records.slice(i*perPage,(i+1)*perPage);
     const body=slice.map(r=>'<tr>'+FIELDS.map(k=>`<td>${esc(r.patient[k])}</td>`).join('')+`<td>${esc(r.date.replaceAll('-','/'))}</td>`+DOSES.map(d=>`<td>${r.quantities[d]||''}</td>`).join('')+`<td>${esc(r.pharmacist)}</td><td></td></tr>`).join('');

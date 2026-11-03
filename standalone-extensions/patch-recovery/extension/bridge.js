@@ -1,7 +1,7 @@
 // This function is serialized into the selected portal frame; keep it self-contained.
 export function portalBridge(action, payload = {}) {
   try {
-    if (!["diagnostic","discover","setSmartCare","queryWard","queryMRN","queryPerson","list","return","clearOperation"].includes(action)) throw new Error("貼片工具僅支援名單查詢。");
+    if (!["diagnostic","discover","readPharmacist","setSmartCare","queryWard","queryMRN","queryPerson","list","return","clearOperation"].includes(action)) throw new Error("貼片工具僅支援名單查詢。");
     const Q='NTUHWeb1_InPatientNavigatorBox_QueryInPatientBox_QueryInPatientByBedBox_';
     const GRID='NTUHWeb1_InPatientNavigatorBox_QueryInPatientBox_InPatientListBox_grvInPatientList';
     const MEDGRID='tblMedCareList',MEDSCOPE='divMedCareList';
@@ -25,6 +25,47 @@ export function portalBridge(action, payload = {}) {
       return {ok:true,diagnostic:{readyState:document.readyState,loginVisible:[...document.querySelectorAll('input[type="password"]')].some(visible),hasAjaxManager:!!prm,ajaxBusy:!!prm?.get_isInAsyncPostBack(),wardSelect:{...describe(Q+'ddlListWard'),optionCount:select?.options.length||0,hasInlineChange:!!select?.getAttribute('onchange')},wardInput:describe(Q+'txbWardCode'),queryButton:{...describe(Q+'btnQueryInBed'),labelMatches:clean(button?.value)==='查詢'},clearedButton:describe(Q+'btnQueryDischarge'),smartCare:{present:!!smart,checked:!!smart?.checked,disabled:!!smart?.disabled,hasClickHandler:!!smart?.getAttribute('onclick'),hasChangeHandler:!!smart?.getAttribute('onchange')},listState:parsed,emptyMessage:describe(Q+'lblMsg'),listScope:describe(SCOPE),roomInput:describe(Q+'txbRoomCode'),bedInput:describe(bedInput()?.id||Q+'txbBedNo'),table:{present:!!table,visible:visible(table),rowCount:table?.querySelectorAll('tr').length||0,selectLinkCount:table?[...table.querySelectorAll('a')].filter(a=>a.id.startsWith(GRID+'_')&&a.id.endsWith('_lbtnSelect')).length:0},returnButton:describe(BACK),visibleProgressCount:[...document.querySelectorAll('[aria-busy="true"],[role="progressbar"],[id*="UpdateProgress"]')].filter(visible).length}};
     }
     if([...document.querySelectorAll('input[type="password"]')].some(visible))return {ok:true,login:true,origin:location.origin,recognized:false};
+    if(action==='readPharmacist'){
+      // Read only the visible login sidebar, anchored to its logout control.
+      // Never fall back to a name in the patient grid or query form.
+      const compact=s=>clean(s).replace(/\s+/g,'');
+      const excluded=e=>!e||!!e.closest('script,style,noscript,input,select,textarea,[hidden],#'+GRID+',#'+INFO+',#'+SCOPE+',#'+MEDGRID+',#'+MEDSCOPE+', [id*="_QueryInPatientBox_"]');
+      const leftLimit=Math.min(220,Math.max(80,window.innerWidth*.16));
+      const left=e=>{const r=e.getBoundingClientRect();return r.left>=-2&&r.left<leftLimit&&r.right<=leftLimit+32;};
+      const logout=[...document.querySelectorAll('a,button,input,[role="button"],img')].filter(e=>visible(e)&&left(e)&&/^(?:登出|登出系統|系統登出|logout|logoff|signout)$/i.test(compact(e.value||e.getAttribute('alt')||e.getAttribute('title')||text(e))));
+      const anchors=logout.map(e=>e.getBoundingClientRect());
+      const near=r=>r.width>0&&r.height>0&&r.left>=-2&&r.left<leftLimit&&r.right<=leftLimit+32&&anchors.some(a=>r.top>=a.bottom-3&&r.bottom<=a.bottom+145&&Math.abs(r.left-a.left)<=45);
+      const nameOf=s=>{
+        const raw=clean(s).replace(/^(?:(?:登入|目前|使用者|操作人員|員工|藥師)\s*)*(?:姓名|名稱)?\s*[:：]\s*/,'');
+        const value=/^[\p{Script=Han}\s·・]+$/u.test(raw)?raw.replace(/\s+/g,''):raw;
+        if(/登出|首頁|病人|病房|病室|病床|查詢|處理|帳號|登入|姓名|選單|功能|系統|藥師|版本|錯誤|返回|清床|智能|服務|回收|說明|管理/.test(value))return '';
+        return /^(?:[\p{Script=Han}·・]{2,12}|[A-Za-z][A-Za-z .'-]{1,39})$/u.test(value)?value:'';
+      };
+      const names=new Set(),fragments=new Map();
+      if(anchors.length&&document.body){
+        for(const e of document.querySelectorAll('span,label,font,div,td,p,strong,b')){
+          if(excluded(e)||!visible(e)||!near(e.getBoundingClientRect())||e.querySelector('a,button,input,select,textarea,img'))continue;
+          const name=nameOf(text(e));if(name)names.add(name);
+        }
+        const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+        let node;while((node=walker.nextNode())){
+          const parent=node.parentElement;if(excluded(parent)||!visible(parent)||parent.closest('a,button,[role="button"]')||!clean(node.nodeValue))continue;
+          const range=document.createRange();range.selectNodeContents(node);const rect=range.getBoundingClientRect();if(!near(rect))continue;
+          const name=nameOf(node.nodeValue);if(name)names.add(name);
+          // Legacy narrow sidebars can put each character in its own text node.
+          const part=compact(node.nodeValue);if(/^[\p{Script=Han}]$/u.test(part)){
+            if(!fragments.has(parent))fragments.set(parent,[]);fragments.get(parent).push({part,rect});
+          }
+        }
+        for(const [parent,pieces] of fragments){
+          if(nameOf(text(parent)))continue;
+          pieces.sort((a,b)=>a.rect.top-b.rect.top||a.rect.left-b.rect.left);
+          if(pieces.length<2||pieces.length>12||pieces.some((p,i)=>i&&(p.rect.top-pieces[i-1].rect.bottom>18||Math.abs(p.rect.left-pieces[i-1].rect.left)>32)))continue;
+          const name=nameOf(pieces.map(x=>x.part).join(''));if(name)names.add(name);
+        }
+      }
+      return {ok:true,pharmacist:{name:names.size===1?[...names][0]:'',status:names.size===1?'found':names.size>1?'ambiguous':'missing'}};
+    }
     // randomUUID is unavailable on some HTTP intranet pages. This is only a
     // per-document identity marker, not an authentication or security token.
     const tracker=window.__patientPickerTrackerV1 ||= {doc:window.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),ends:0,errors:0};

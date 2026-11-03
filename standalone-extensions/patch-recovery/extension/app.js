@@ -14,7 +14,8 @@ let draft,engine=null,sourceLink=null,wards=[],patients=[],ward='',campus='兒�
 const wardCache=new Map();
 let groupSelection=new Set(),groupProgress='',groupSubmitting=false,recordWard='';
 const wardCacheKey=(code,source='inbed')=>norm(code)+'|'+source;
-const emptyDraft=()=>({id:uuid(),date:todayKey(),pharmacist:repo.state.defaults[todayKey().slice(0,7)]||'',entries:[]});
+let portalPharmacist={name:'',status:'pending'};
+const emptyDraft=()=>({id:uuid(),date:todayKey(),pharmacist:portalPharmacist.name,pharmacistMode:'portal',entries:[]});
 function showError(message){$('error-text').textContent=message;$('error').hidden=false;}
 function clearError(){$('error').hidden=true;}
 function notice(message){$('notice').textContent=message;$('notice').hidden=false;}
@@ -34,7 +35,7 @@ function writeDraft(){
   return draftWrite;
 }
 async function flushDraft(){clearTimeout(draftTimer);draftTimer=null;await writeDraft();}
-function setTab(next){tab=next;for(const name of ['register','records','settings'])$(name+'-panel').hidden=next!==name;for(const b of document.querySelectorAll('[data-tab]'))b.setAttribute('aria-selected',String(b.dataset.tab===next));if(next==='records'){recordWard=wardKey(ward)||recordWard;renderRecords();}if(next==='settings')renderSettings();}
+function setTab(next){tab=next;for(const name of ['register','records','settings'])$(name+'-panel').hidden=next!==name;for(const b of document.querySelectorAll('[data-tab]'))b.setAttribute('aria-selected',String(b.dataset.tab===next));if(next==='records'){recordWard=wardKey(ward)||recordWard;renderRecords();}}
 function refreshControls(){
   $('connect').disabled=busy;$('source').disabled=!sourceLink;
   $('connection-state').textContent=busy?'Portal 查詢中…':connected?'已連接 Portal':'尚未連接 Portal';
@@ -43,6 +44,8 @@ function refreshControls(){
   $('refresh-group').disabled=busy||!connected;
   for(const b of document.querySelectorAll('[data-quick-ward]'))b.disabled=busy||!connected||!wards.some(w=>norm(w.code)===norm(b.dataset.quickWard));
   $('manual').disabled=saving||fatal;$('save-batch').disabled=saving||fatal||!draft?.entries.length;
+  $('read-pharmacist').disabled=busy||saving||!connected;
+  $('batch-pharmacist').disabled=saving||fatal;
   $('clear-draft').disabled=saving||fatal||!draft?.entries.length;
   $('save-batch').textContent=saving?'正在儲存…':'儲存這批紀錄';
 }
@@ -113,7 +116,7 @@ function renderPatients(){
   refreshControls();
 }
 function renderDraft(){
-  $('batch-date').value=draft.date;$('batch-pharmacist').value=draft.pharmacist;
+  $('batch-date').value=draft.date;$('batch-pharmacist').value=draft.pharmacist;renderPharmacist();
   $('draft-empty').hidden=!!draft.entries.length;$('draft-table').hidden=!draft.entries.length;
   $('draft-count').textContent=draft.entries.length+' 位病人';
   $('draft-rows').innerHTML=[...draft.entries].sort((a,b)=>bedCompare(a.patient,b.patient)).map(entry=>{
@@ -137,7 +140,21 @@ function renderRecords(){
   $('record-rows').innerHTML=rows.map(r=>`<tr${r.deletedAt?' class="deleted"':''}><td>${esc(r.date)}</td><td>${esc(r.patient.ward)} ${esc(shortBed(r.patient))}</td><td>${esc(r.patient.name)}</td><td>${esc(r.patient.account)}</td><td>${esc(r.patient.department)}</td>${DOSES.map(d=>`<td>${r.quantities[d]||''}</td>`).join('')}<td>${esc(r.pharmacist)}</td><td>${r.deletedAt?`<button type="button" data-restore="${esc(r.id)}">復原</button>`:`<button type="button" data-edit="${esc(r.id)}">修改</button><button type="button" data-delete="${esc(r.id)}">作廢</button>`}${r.history.length?`<button type="button" data-history="${esc(r.id)}">歷程</button>`:''}</td></tr>`).join('');
   $('records-empty').hidden=!!rows.length;$('preview').disabled=!records.length;$('export-excel').disabled=!records.length;
 }
-function renderSettings(){const month=$('default-month').value;$('default-name').value=repo.state.defaults[month]||'';$('defaults-list').innerHTML=Object.entries(repo.state.defaults).sort((a,b)=>b[0].localeCompare(a[0])).map(([m,n])=>`<div>${esc(m)}　${esc(n)}</div>`).join('');}
+function renderPharmacist(){
+  const manual=draft.pharmacistMode==='manual',different=clean(draft.pharmacist)!==portalPharmacist.name;
+  $('pharmacist-status').textContent=portalPharmacist.name?'Portal：'+portalPharmacist.name+(different?' · '+(manual?'已手動修改':'保留草稿姓名'):' · 可直接修改'):portalPharmacist.status==='pending'?'連接 Portal 後自動帶入':(portalPharmacist.status==='ambiguous'?'無法確認登入姓名':'未讀取到登入姓名')+'，請手動填寫';
+}
+async function readPharmacist(replace=false){
+  if(!engine)return;
+  const before={id:draft.id,name:draft.pharmacist,mode:draft.pharmacistMode};
+  try{portalPharmacist=await engine.readPharmacist();}catch{portalPharmacist={name:'',status:'missing'};}
+  // Preserve a restored or edited batch. Explicit reread can replace its name.
+  const unchanged=draft.id===before.id&&draft.pharmacist===before.name&&draft.pharmacistMode===before.mode;
+  if(unchanged&&(replace&&portalPharmacist.name||!draft.entries.length&&draft.pharmacistMode!=='manual'||!clean(draft.pharmacist)&&draft.pharmacistMode!=='manual')){
+    draft.pharmacist=portalPharmacist.name;draft.pharmacistMode='portal';
+  }
+  $('batch-pharmacist').value=draft.pharmacist;renderPharmacist();queueDraft();
+}
 async function connect(link){
   if(busy)return;clearError();busy=true;patients=[];renderPatients();
   try{
@@ -146,7 +163,7 @@ async function connect(link){
     if(!sourceLink){const list=await chrome.tabs.query({});const matches=list.filter(t=>/^https:\/\/(portal|ihisaw)\.ntuh\.gov\.tw\//.test(t.url||''));if(matches.length===1)sourceLink={sourceId:matches[0].id,origin:new URL(matches[0].url).origin};}
     if(!sourceLink)throw new Error('請先登入院內「查詢處理」，在該分頁點擊「貼片回收紀錄」擴充元件。');
     engine=new PortalEngine({...sourceLink,status:message=>{$('freshness').textContent=message;}});
-    const result=await engine.connect();wards=normalizeWards(result.control.options);connected=true;wardCache.clear();loadedAt=0;
+    const result=await engine.connect();await readPharmacist();wards=normalizeWards(result.control.options);connected=true;wardCache.clear();loadedAt=0;
     const preferred=[ward,repo.state.prefs.ward,result.control.selectedWard].find(w=>wards.some(x=>x.code===w));ward=preferred||wards[0]?.code||'';campus=wards.find(w=>w.code===ward)?.campus||campus;renderWards();
   }catch(e){connected=false;engine=null;throw e;}finally{busy=false;refreshControls();renderPatients();}
   if(repo.state.prefs.wardGroupConfigured&&(repo.state.prefs.wardGroup||[]).length)await loadWardGroup();
@@ -189,7 +206,7 @@ async function saveBatch(){
   try{
     clearTimeout(draftTimer);draftTimer=null;await draftWrite.catch(()=>{});
     await repo.mutate(s=>{if(proposed.some(p=>s.records.some(r=>r.id===p.id)))throw new Error('這批紀錄已存在，未重複儲存。');s.records.push(...proposed);s.draft=null;});
-    const previous=draft;draft={id:uuid(),date:previous.date,pharmacist:previous.pharmacist,entries:[]};validationShown=false;
+    const previous=draft;draft={id:uuid(),date:previous.date,pharmacist:previous.pharmacist,pharmacistMode:previous.pharmacistMode,entries:[]};validationShown=false;
     $('record-month').value=proposed[0].date.slice(0,7);renderDraft();renderPatients();renderRecent();$('draft-state').textContent='這批已儲存';notice(`已儲存 ${proposed.length} 位病人的回收紀錄，共 ${Object.values(totals(proposed)).reduce((a,b)=>a+b,0)} 片。`);
   }finally{saving=false;$('register-panel').classList.remove('locking');refreshControls();}
 }
@@ -229,15 +246,27 @@ async function markRecord(id,deleted){
   await repo.mutate(s=>{const row=s.records.find(x=>x.id===id),now=new Date().toISOString();row.deletedAt=deleted?now:null;row.updatedAt=now;row.history.push({at:now,action:deleted?'delete':'restore'});});renderRecords();renderRecent();notice(deleted?'已作廢這筆紀錄，可勾選「顯示已作廢」復原。':'已復原這筆紀錄。');
 }
 function history(id){const r=repo.state.records.find(r=>r.id===id);if(!r)return;$('history-content').innerHTML=`<p>${esc(r.patient.name)} · ${esc(r.patient.account)}</p><div class="history-item">建立時間：${esc(new Date(r.createdAt).toLocaleString('zh-TW'))}</div>`+r.history.map(h=>`<div class="history-item"><strong>${esc(new Date(h.at).toLocaleString('zh-TW'))}　${({edit:'修改',delete:'作廢',restore:'復原'})[h.action]||'變更'}</strong>${h.before?`<p>修改前：${esc(h.before.date)}　${esc(h.before.patient?.name)}　${esc(h.before.patient?.account)}<br>${esc(h.before.patient?.ward)} ${esc(shortBed(h.before.patient||{}))}　${esc(h.before.patient?.department)}<br>${DOSES.map(d=>`${d}：${esc(h.before.quantities?.[d]||0)} 片`).join('　')}<br>回收藥師：${esc(h.before.pharmacist)}</p>`:''}</div>`).join('');$('history-dialog').showModal();}
-async function setDefault(month,name){if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)||!clean(name))throw new Error('請選擇月份並填寫藥師姓名');await repo.mutate(s=>{s.defaults[month]=clean(name);});if(draft.date.slice(0,7)===month){draft.pharmacist=clean(name);renderDraft();await flushDraft();}renderSettings();notice(`${month} 預設回收藥師已設為 ${clean(name)}。`);}
 async function exportBackup(){await flushDraft();download(new Blob([JSON.stringify({format:'ntuh-patch-recovery',exportedAt:new Date().toISOString(),data:storageData(repo.state)},null,2)],{type:'application/json'}),`貼片回收_完整備份_${todayKey()}.json`);notice('已匯出完整備份。');}
 async function restoreBackup(file){
   if(!file)return;if(file.size>50*1024*1024)throw new Error('備份檔超過 50 MB，未匯入');
   const input=JSON.parse(await file.text());await flushDraft();const preview=importBackup(repo.state,input);
   if(!await ask('匯入備份',`新增 ${preview.added} 筆，略過 ${preview.skipped} 筆相同紀錄。\n現有紀錄與目前草稿會保留。`,'合併匯入'))return;
-  await repo.mutate(s=>{const result=importBackup(s,input);Object.assign(s,result.next);});draft=repo.state.draft?structuredClone(repo.state.draft):emptyDraft();renderDraft();renderWards();renderPatients();renderRecent();renderRecords();renderSettings();notice(`已匯入 ${preview.added} 筆紀錄。`);
+  await repo.mutate(s=>{const result=importBackup(s,input);Object.assign(s,result.next);});draft=repo.state.draft?structuredClone(repo.state.draft):emptyDraft();renderDraft();renderWards();renderPatients();renderRecent();renderRecords();notice(`已匯入 ${preview.added} 筆紀錄。`);
 }
-function previewPrint(){const month=$('record-month').value,records=selectedMonthRecords();if(!records.length)return;$('print-pages').innerHTML=printMarkup(records,month,recordWard);$('app-shell').hidden=true;$('print-view').hidden=false;window.scrollTo(0,0);}
+async function previewPrint(){
+  const month=$('record-month').value,records=selectedMonthRecords();if(!records.length)return;
+  $('app-shell').hidden=true;$('print-view').hidden=false;$('print-now').disabled=true;
+  try{
+    $('print-pages').innerHTML=printMarkup(records,month,recordWard);await document.fonts.ready;
+    // Measure wrapped text at actual A4 content width, keeping every row and
+    // stamp cell together. Long departments/names reduce rows per page.
+    for(let size=24;size>=1;size--){
+      if(size!==24)$('print-pages').innerHTML=printMarkup(records,month,recordWard,size);
+      if([...document.querySelectorAll('.paper')].every(p=>p.querySelector('.paper-footer').getBoundingClientRect().bottom-p.getBoundingClientRect().top-parseFloat(getComputedStyle(p).paddingTop)<274*96/25.4))break;
+    }
+    window.scrollTo(0,0);
+  }finally{$('print-now').disabled=false;}
+}
 function bind(){
   for(const type of ['click','input','change','keydown','submit'])document.addEventListener(type,event=>{if(managedBlocked&&event.target.closest?.('#app-shell')&&!event.target.closest('#open-update,#open-management')){event.preventDefault();event.stopImmediatePropagation();}},true);
   document.addEventListener('click',run(async event=>{
@@ -267,9 +296,9 @@ function bind(){
   $('ward-group-dialog').addEventListener('cancel',event=>{event.preventDefault();run(closeWardGroup)();});
   $('read-page').addEventListener('click',run(readPage));$('lookup-account').addEventListener('click',run(lookupAccount));
   $('connect').addEventListener('click',run(()=>connect()));$('source').addEventListener('click',run(()=>engine?.focusSource()));
-  $('batch-date').addEventListener('change',()=>{if(!validDate($('batch-date').value))return;const previousMonth=draft.date.slice(0,7);draft.date=$('batch-date').value;if(previousMonth!==draft.date.slice(0,7))draft.pharmacist=repo.state.defaults[draft.date.slice(0,7)]||'';renderDraft();queueDraft();});
-  $('batch-pharmacist').addEventListener('input',()=>{draft.pharmacist=$('batch-pharmacist').value;queueDraft();});
-  $('save-default').addEventListener('click',run(()=>setDefault(draft.date.slice(0,7),draft.pharmacist)));
+  $('batch-date').addEventListener('change',()=>{if(!validDate($('batch-date').value))return;draft.date=$('batch-date').value;renderDraft();queueDraft();});
+  $('batch-pharmacist').addEventListener('input',()=>{draft.pharmacist=$('batch-pharmacist').value;draft.pharmacistMode='manual';renderPharmacist();queueDraft();});
+  $('read-pharmacist').addEventListener('click',run(async()=>{if(busy||saving)return;busy=true;refreshControls();try{await readPharmacist(true);}finally{busy=false;refreshControls();}}));
   $('save-batch').addEventListener('click',run(saveBatch));
   $('clear-draft').addEventListener('click',run(async()=>{if(!await ask('清空這批草稿？',`將移除 ${draft.entries.length} 位病人的未儲存內容。已儲存的紀錄不受影響。`,'清空'))return;draft.entries=[];validationShown=false;renderDraft();renderPatients();await flushDraft();}));
   $('manual').addEventListener('click',()=>openEntry('manual'));$('entry-form').addEventListener('submit',submitEntry);
@@ -278,21 +307,20 @@ function bind(){
   $('history-close').addEventListener('click',()=>$('history-dialog').close());
   $('all-records').addEventListener('click',()=>setTab('records'));
   for(const id of ['record-month','record-search','show-deleted'])$(id).addEventListener(id==='record-search'?'input':'change',renderRecords);
-  $('default-month').addEventListener('change',renderSettings);$('set-default').addEventListener('click',run(()=>setDefault($('default-month').value,$('default-name').value)));
   $('backup').addEventListener('click',run(exportBackup));$('import').addEventListener('click',()=>$('import-file').click());$('import-file').addEventListener('change',run(async()=>{try{await restoreBackup($('import-file').files[0]);}finally{$('import-file').value='';}}));
   $('preview').addEventListener('click',previewPrint);$('print-now').addEventListener('click',()=>window.print());$('print-back').addEventListener('click',()=>{$('print-view').hidden=true;$('app-shell').hidden=false;});
   $('export-excel').addEventListener('click',()=>{const month=$('record-month').value;download(workbook(selectedMonthRecords(),month,recordWard),`貼片回收紀錄_${recordWard}_${month}.xlsx`);});
   $('dismiss-error').addEventListener('click',clearError);
-  $('diagnostic').addEventListener('click',run(async()=>{if(!engine)throw new Error('請先連接 Portal');download(new Blob([JSON.stringify({tool:'貼片回收紀錄',version:'1.2.0',...(await engine.diagnostics())},null,2)],{type:'application/json'}),'貼片回收_相容性資訊.json');}));
+  $('diagnostic').addEventListener('click',run(async()=>{if(!engine)throw new Error('請先連接 Portal');download(new Blob([JSON.stringify({tool:'貼片回收紀錄',version:chrome.runtime.getManifest().version,...(await engine.diagnostics())},null,2)],{type:'application/json'}),'貼片回收_相容性資訊.json');}));
   if(globalThis.chrome?.runtime?.onMessage)chrome.runtime.onMessage.addListener(message=>{if(message?.kind==='patch-source'&&!busy&&!updating&&!managedBlocked)run(()=>connect({sourceId:message.sourceId,origin:message.origin}))();});
   window.addEventListener('beforeunload',event=>{if(draftTimer||draftPending||saving){event.preventDefault();event.returnValue='';}});
 }
 async function start(){
-  const month=todayKey().slice(0,7);$('record-month').value=month;$('default-month').value=month;
+  const month=todayKey().slice(0,7);$('record-month').value=month;
   try{await repo.load();draft=repo.state.draft?structuredClone(repo.state.draft):emptyDraft();ward=repo.state.prefs.ward;campus=repo.state.prefs.campus||'兒醫';$('storage-status').textContent='資料已保存於本機';if(draft.entries.length)notice(`已恢復 ${draft.entries.length} 位病人的未儲存草稿。`);}
   catch(e){fatal=true;draft=emptyDraft();showError(e.message+'。未覆寫既有資料。');$('storage-status').textContent='資料載入失敗';}
-  bind();renderWards();renderDraft();renderPatients();renderRecent();renderSettings();
-  if(fatal){for(const id of ['save-default','set-default','backup','import'])$(id).disabled=true;return;}
+  bind();renderWards();renderDraft();renderPatients();renderRecent();
+  if(fatal){for(const id of ['backup','import'])$(id).disabled=true;return;}
   await mountUpdater({
     isBusy:()=>busy||saving||entrySubmitting||groupSubmitting||fatal||updating||[...document.querySelectorAll('dialog[open]')].some(el=>el.id!=='update-dialog'),
     prepare:async()=>{
