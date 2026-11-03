@@ -26,6 +26,7 @@ export async function mountUpdater({isBusy,prepare,finish}){
     $('update-notes').textContent=latest?.notes||'';
     $('update-new-version').textContent=latest&&compareVersion(latest.version,current.version)>0?'可更新至 v'+latest.version:'';
     $('open-update').textContent=latest&&compareVersion(latest.version,current.version)>0?'更新可用':'工具更新';
+    $('open-update').classList.toggle('update-available',!!latest&&compareVersion(latest.version,current.version)>0);
   }
   async function permission(dir){
     if(await dir.queryPermission({mode:'readwrite'})==='granted')return;
