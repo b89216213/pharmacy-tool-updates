@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "貼片回收紀錄",
+  "version": "1.2.1",
+  "description": "同病房多位病人批次登記 Fentanyl 貼片回收，支援本機保存、每月預設藥師、Excel 匯出及月底列印。",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://portal.ntuh.gov.tw/*",
+    "https://ihisaw.ntuh.gov.tw/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "action": {
+    "default_title": "開啟貼片回收紀錄"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://portal.ntuh.gov.tw/*",
+        "https://ihisaw.ntuh.gov.tw/*"
+      ],
+      "js": [
+        "operation-guard.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://raw.githubusercontent.com; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+  }
+}

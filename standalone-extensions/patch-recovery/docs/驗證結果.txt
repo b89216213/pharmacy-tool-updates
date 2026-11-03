@@ -1,0 +1,17 @@
+v1.2.1 驗證範圍（2026-11-03）
+
+15 項既有資料／Portal 解析測試通過。
+12 項更新核心測試通過：版本比較、錯誤工具、路徑、雜湊、額外權限、資料夾辨識、寫入失敗還原、journal 保存失敗、固定公開來源與錯誤回應等。
+21 項既有瀏覽器回歸測試通過（Chromium 153）：病房選擇、批次登記、草稿恢復、病房各自紀錄／列印、資料備份、Excel 及視窗排版。
+13 項更新操作介面測試通過（Chromium 133）：包含 v1.2.0 舊憑證與快取清除、不需憑證或資料夾即自動檢查、實際 IndexedDB 保存、更新失敗保留原版及成功後資料不變。
+公開網路下載使用匿名 GET，不送 Authorization、Cookie、referrer 或病人資料。
+
+限制：
+- 瀏覽器介面測試使用合成病人與模擬 Portal，未存取院內真實資料。
+- 更新介面測試使用 OPFS 代替作業系統資料夾，資料夾挑選器、安裝位置驗證的來源讀取、GitHub 回應及 runtime.reload 均為測試替身。
+- 無法在本環境完整載入 Chrome 擴充元件，尚未驗證院內 Windows Chrome 的原生資料夾授權、JS 檔寫入與擴充重新載入。
+- v1.2.0 開發時，Chromium 153 的精簡測試執行環境在 OPFS／IndexedDB 更新後重新載入時發生 SIGTRAP；本次更新流程使用 Chromium 133 並通過。無法據此判定一般 Chrome 是否受影響，本版仍作為試行版。
+- 本版改用 raw.githubusercontent.com；從 v1.2.0 升級需手動覆蓋同一資料夾一次，並於 Chrome 擴充元件頁重新載入。
+
+測試檔：tests/checks.cjs、tests/update-checks.cjs、tests/browser-checks.cjs、tests/update-browser-checks.cjs。
+更新操作介面測試可設定 QA_CHROMIUM_PATH、QA_FONT_ROOT；需要 playwright。字型只供截圖檢查，不是工具依賴。

@@ -1,0 +1,26 @@
+貼片回收工具公開更新來源維護（v1.2.1）
+
+固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
+更新索引：updates/patch-recovery/latest.json。
+程式來源：standalone-extensions/patch-recovery/extension/。
+首次安裝包：downloads/patch-recovery-v1.2.1.zip。
+舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
+
+之後發布新版：
+1. 修改程式及 extension/manifest.json 的 version，必須遞增。
+2. 同步頁尾和 package.json 版本，執行 npm test 及瀏覽器回歸測試。
+3. 執行 node scripts/build-update.mjs '本次更新內容'。
+4. 將 release/updates/ 下的新版本包及 latest.json 放到公開庫根目錄的 updates/，與新版來源一起提交。
+   使用同一筆 Git commit 原子發布；保留已發布的版本包，不可用不同內容覆寫同一版號。
+5. 不帶 Authorization、Cookie 讀取公開 raw.githubusercontent.com 來源，核對版本、大小及 SHA-256。
+6. 從舊版試行更新，核對版號、原有回收紀錄、草稿與設定。
+
+v1.2.0 → v1.2.1 因變更下載網址與 Chrome 連線權限，必須先以 ZIP 覆蓋同一 extension 資料夾並重新載入。
+不要移除擴充元件。v1.2.1 之後在權限未擴大的前提下可透過工具內更新。
+更新包只包含 build-update.mjs 白名單中的 16 個程式檔，不掃描使用者資料夾。
+不包含病人紀錄、Chrome 儲存資料、憑證或測試輸出；更新器不寫入回收資料鍵 patchRecoveryV1。
+公開來源不使用 GitHub API、不使用帳號與憑證，也不送出 cookies 或 referrer。
+舊版本機憑證會在首次開啟時刪除，但這不會撤銷 GitHub 帳號上原本建立的 token。
+更新包雜湊用來驗證傳輸完整性，發布者信任來自 GitHub 儲存庫權限，並非獨立數位簽章。
+未封裝資料夾覆蓋不是跨多檔案的檔案系統原子交易；會保存 journal、每檔驗證並最後寫 manifest。
+當整個瀏覽器在更新中突然中止時，可能仍需用原版 ZIP 手動復原。

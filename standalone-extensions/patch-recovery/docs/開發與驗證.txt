@@ -1,0 +1,20 @@
+貼片回收紀錄 v1.1.0
+查詢來源：病人快速選擇 v1.5.3，擷取流程保留，病人開啟與藥帳結清動作已移除。
+只允許 https://portal.ntuh.gov.tw/* 與 https://ihisaw.ntuh.gov.tw/*。
+無遠端函式庫、分析追蹤或資料上傳，擴充頁面的 connect-src 為 none。
+Chrome storage.local 保存紀錄；資料備份格式 ntuh-patch-recovery / schemaVersion 2（recordsByWard 分病房儲存），相容舊版 schemaVersion 1。
+以住院帳號識別病人；同批帳號不得重複。住院帳號格式依現有 Portal 勘查。
+片數限 0–9999 整數，至少一種劑量大於零。
+整批紀錄與草稿清除使用同一個 storage 寫入，失敗不清空畫面。
+使用唯一記錄 ID 防止同批重送，備份合併以 ID 比對、不同版本停止。
+預設病房組合每次啟動依序載入在床名單，切換按鈕使用本次快取；更新可重新查詢。
+暫選病人按自然床號排序，紀錄與列印按日期遞增。
+列印與 Excel 嚴格限制單一病房，混合病房資料會拒絕匯出。
+列印每頁18列；列印合計排除作廢紀錄；Excel 匯出 OOXML，不依賴 Excel 程式。
+
+測試：
+node tests/checks.cjs
+node tests/browser-checks.cjs （需 Playwright 與 Chromium；可設定 QA_CHROMIUM_PATH）
+測試使用合成病人，正式程式沒有示範模式或預載病人。
+驗證結果見 check-results.json 與 browser-check-results.json。
+院內實機驗證仍待使用者確認。

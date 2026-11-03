@@ -1,0 +1,67 @@
+// Browser regression tests use synthetic Portal fixtures, never real patient data.
+const {chromium}=require('playwright'),http=require('node:http'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const {makePortal}=require('./dom-fixture.cjs');
+const root=path.resolve(__dirname,'..');
+const server=http.createServer((req,res)=>{const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname),file=path.join(root,pathname);if(!file.startsWith(root)||!fs.existsSync(file)||fs.statSync(file).isDirectory()){res.writeHead(404);res.end();return;}res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'text/html');res.end(fs.readFileSync(file));});
+(async()=>{
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  const browser=await chromium.launch({headless:true,executablePath:process.env.QA_CHROMIUM_PATH,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+  const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true,locale:'zh-TW',timezoneId:'Asia/Taipei'});
+  const page=await context.newPage(),errors=[],checks=[],fixture=makePortal(path.join(root,'extension/bridge.js'));
+  await page.exposeFunction('portalExecute',async payload=>{if(payload.files){fixture.installGuard();return [];}return [{frameId:0,result:fixture.run(...payload.args)}];});
+  await page.addInitScript(()=>{
+    window.chrome={storage:{local:{async get(key){return {[key]:JSON.parse(localStorage.getItem(key)||'null')};},async set(data){if(window.failStorage)throw new Error('測試：儲存空間不足');for(const [k,v]of Object.entries(data))localStorage.setItem(k,JSON.stringify(v));}},session:{async get(){return {patchSource:{sourceId:7,origin:'https://portal.example.test'}};}}},tabs:{async get(){return {id:7,url:'https://portal.example.test/query',windowId:1};},async query(){return [];},async update(){}},windows:{async update(){}},scripting:{executeScript:payload=>window.portalExecute({args:payload.args,files:payload.files})},runtime:{onMessage:{addListener(){}}}};
+  });
+  page.on('pageerror',e=>errors.push(e.message));
+  const done=label=>{checks.push(label);console.log('PASS',label);};
+  const stored=()=>page.evaluate(async()=>{const {validateState}=await import('/extension/model.js');return validateState(JSON.parse(localStorage.getItem('patchRecoveryV1')));});
+  try{
+    await page.goto(`http://127.0.0.1:${server.address().port}/extension/tool.html`);
+    await page.locator('#ward-group-dialog').waitFor();
+    await page.locator('[data-group-ward="12PE"]').check();await page.locator('[data-group-ward="12PW"]').check();
+    await page.locator('#ward-group-save').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===3&&!document.querySelector('#refresh-group').disabled);
+    assert.deepEqual((await stored()).prefs.wardGroup,['12PE','12PW']);assert.equal(await page.locator('[data-quick-ward]').count(),2);assert.equal(await page.locator('#ward').count(),0);done('First-run checkboxes save the group; thereafter only quick ward buttons are shown');
+    const queries=fixture.clicks.length;await page.locator('[data-quick-ward="12PW"]').click();await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===1);await page.locator('[data-quick-ward="12PE"]').click();await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===3);assert.equal(fixture.clicks.length,queries);done('Switching default wards is immediate and does not re-query Portal');
+    await page.locator('.patient-choice').first().waitFor();
+    assert.equal(await page.locator('.patient-choice').count(),3);done('Production UI connects to the existing Portal query engine');
+    await page.locator('#batch-pharmacist').fill('測試藥師');await page.locator('#save-default').click();
+    await page.locator('.patient-choice').nth(0).click();await page.locator('.patient-choice').nth(1).click();
+    const ids=await page.locator('#draft-rows tr').evaluateAll(rows=>rows.map(r=>r.dataset.entry));
+    await page.locator(`[data-id="${ids[0]}"][data-qty="12.5"]`).fill('2');await page.locator(`[data-id="${ids[0]}"][data-qty="75"]`).fill('1');
+    await page.locator(`[data-id="${ids[1]}"][data-qty="25"]`).fill('3');
+    await page.locator('#draft-state').filter({hasText:'草稿已保存'}).waitFor();
+    await page.screenshot({path:path.join(root,'docs/qa-register.png'),fullPage:true});
+    assert.equal((await stored()).draft.entries.length,2);done('Batch entry persists both patients and all three dose columns');
+    await page.reload();await page.locator('.patient-choice').first().waitFor();assert.equal(await page.locator('#draft-rows tr').count(),2);assert.equal(await page.locator('[data-qty="12.5"]').first().inputValue(),'2');done('Reload restores a partially completed batch');
+    await page.locator('[data-quick-ward="12PW"]').click();await page.waitForFunction(()=>document.querySelector('#freshness').textContent.includes('12PW')&&!document.querySelector('#refresh-group').disabled);
+    assert.equal(await page.locator('#draft-rows tr').count(),2);done('Changing ward preserves the pending batch');
+    await page.locator('#save-batch').click();await page.locator('#notice').filter({hasText:'已儲存 2 位'}).waitFor();
+    assert.equal((await stored()).records.length,2);assert.equal((await stored()).draft,null);done('One commit saves the complete batch and clears its draft');
+    await page.locator('.patient-choice').first().click();await page.locator('#save-batch').click();assert(await page.locator('.row-error').isVisible());assert.equal((await stored()).records.length,2);done('An empty patient row is identified and does not create a partial record');
+    await page.locator('[data-qty="25"]').fill('1');await page.locator('#draft-state').filter({hasText:'草稿已保存'}).waitFor();
+    await page.evaluate(()=>window.failStorage=true);await page.locator('#save-batch').click();await page.locator('#error').filter({hasText:'儲存空間不足'}).waitFor();assert.equal((await stored()).records.length,2);assert.equal(await page.locator('#draft-rows tr').count(),1);await page.evaluate(()=>window.failStorage=false);await page.locator('#save-batch').click();await page.locator('#notice').filter({hasText:'已儲存 1 位'}).waitFor();done('Failed persistence leaves the complete unsaved batch recoverable');
+    await page.locator('[data-tab="records"]').click();await page.locator('#record-rows [data-edit]').first().click();await page.locator('#entry-pharmacist').fill('代班藥師');await page.locator('[name="qty-25"]').fill('4');await page.locator('#entry-form [type="submit"]').click();await page.waitForFunction(()=>!document.querySelector('#entry-dialog').open);assert((await stored()).records.some(r=>r.pharmacist==='代班藥師'&&r.history.length===1));done('Record editing saves pharmacist overrides and an audit history');
+    await page.locator('#record-rows [data-delete]').first().click();await page.locator('#confirm-yes').click();await page.locator('#show-deleted').check();await page.locator('[data-restore]').click();await page.locator('#confirm-yes').click();await page.waitForFunction(()=>!Object.values(JSON.parse(localStorage.getItem('patchRecoveryV1')).recordsByWard).flat().some(r=>r.deletedAt));done('Soft-delete and restore update monthly records');
+    const excelEvent=page.waitForEvent('download');await page.locator('#export-excel').click();const excel=await excelEvent;await excel.saveAs(path.join(root,'docs/ui-export.xlsx'));done('Excel export downloads a real XLSX workbook');
+    await page.locator('#preview').click();assert.equal(await page.locator('.print-table tbody tr').count(),1);assert((await page.locator('.paper-meta').innerText()).includes('12PW'));await page.screenshot({path:path.join(root,'docs/qa-print.png'),fullPage:true});await page.pdf({path:path.join(root,'docs/qa-print.pdf'),format:'A4',landscape:true,printBackground:true,preferCSSPageSize:true});
+    await page.evaluate(async()=>{const {printMarkup}=await import('./model.js');const state=JSON.parse(localStorage.getItem('patchRecoveryV1')),base=Object.values(state.recordsByWard).flat()[0];document.querySelector('#print-pages').innerHTML=printMarkup(Array.from({length:37},(_,i)=>({...base,id:'print-'+i,patient:{...base.patient,name:'歐陽測試欣怡',department:'腫瘤醫學部'}})),document.querySelector('#record-month').value);});
+    await page.pdf({path:path.join(root,'docs/qa-print-37.pdf'),format:'A4',landscape:true,printBackground:true,preferCSSPageSize:true});await page.locator('#print-back').click();
+    await page.locator('[data-tab="settings"]').click();const backupEvent=page.waitForEvent('download');await page.locator('#backup').click();const backup=await backupEvent;const backupPath=path.join(root,'docs/ui-backup.json');await backup.saveAs(backupPath);
+    await page.locator('#import-file').setInputFiles(backupPath);await page.locator('#confirm-yes').click();await page.locator('#notice').filter({hasText:'已匯入 0 筆'}).waitFor();assert.equal((await stored()).records.length,3);done('Backup re-import is idempotent');
+    await page.locator('[data-tab="register"]').click();await page.locator('#cleared').click();await page.waitForFunction(()=>!document.querySelector('#cleared').disabled);assert.equal(await page.locator('.patient-choice .discharge').count(),1);done('Cleared patients can be selected without opening their chart');
+    await page.setViewportSize({width:1050,height:820});await page.screenshot({path:path.join(root,'docs/qa-compact.png'),fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));done('Desktop compact layout has no horizontal page overflow');
+    await page.locator('#edit-ward-group').click();assert.equal(await page.locator('[data-group-ward="12PE"]').isChecked(),true);assert.equal(await page.locator('[data-group-ward="12PW"]').isChecked(),true);await page.locator('#ward-group-cancel').click();done('Saved combination is pre-checked when changing defaults');
+    await page.locator('[data-quick-ward="12PE"]').click();await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===3);
+    await page.locator('[data-patient="26A00000001"]').click();await page.locator('[data-patient="26A00000003"]').click();
+    const beds=await page.locator('#draft-rows .patient-primary strong').allTextContents();assert(beds[0].includes('01'));assert(beds[1].includes('12'));done('Selected patients reorder by numeric bed, independent of click order');
+    const raw=await page.evaluate(()=>JSON.parse(localStorage.getItem('patchRecoveryV1')));assert.deepEqual(Object.keys(raw.recordsByWard).sort(),['12PE','12PW']);done('Saved records physically reside in separate ward groups');
+    await page.evaluate(()=>{const state=JSON.parse(localStorage.getItem('patchRecoveryV1')),base=state.recordsByWard['12PE'][0];state.recordsByWard['12PE']=['2026-11-20','2026-11-01','2026-11-09'].map((date,i)=>({...base,id:'date-test-'+i,date}));localStorage.setItem('patchRecoveryV1',JSON.stringify(state));});
+    await page.reload();await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===3&&!document.querySelector('#refresh-group').disabled);await page.locator('[data-tab="records"]').click();await page.locator('[data-record-ward="12PE"]').click();assert.deepEqual(await page.locator('#record-rows tr td:first-child').allTextContents(),['2026-11-01','2026-11-09','2026-11-20']);assert.equal(await page.locator('#record-rows tr').count(),3);await page.locator('[data-record-ward="12PW"]').click();assert.equal(await page.locator('#record-rows tr').count(),1);done('Ward records stay separate and display oldest dates above newest dates');
+    await page.locator('[data-tab="register"]').click();
+    for(let i=0;i<21;i++)fixture.data.push({account:'26A'+String(70000000+i),ward:'12PE',room:String(Math.floor(i/3)+2),bed:String(i%3+1),name:'測試病人'+i,sex:'M',age:'6歲',mrn:String(80000000+i)});
+    await page.locator('#refresh').click();await page.waitForFunction(()=>document.querySelectorAll('.patient-choice').length===24);await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:path.join(root,'docs/qa-ward-density.png'),fullPage:true});const visible=await page.locator('.patient-list').evaluate(el=>[...el.children].filter(x=>x.getBoundingClientRect().bottom<=Math.min(el.getBoundingClientRect().bottom,innerHeight)).length);assert(visible>=16);done('Compact two-column chooser displays at least 16 patients without list scrolling');
+    assert.deepEqual(errors,[]);done('No browser runtime exceptions');
+    fs.writeFileSync(path.join(root,'docs/browser-check-results.json'),JSON.stringify({passed:checks.length,checks},null,2));
+  }finally{await browser.close();server.close();}
+})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
