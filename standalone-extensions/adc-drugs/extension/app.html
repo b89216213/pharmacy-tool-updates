@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ADC 特殊藥品批次取藥</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<header><div class="brand">ADC</div><div><h1>特殊藥品批次取藥</h1><p>西址住院藥局 · 領藥號 ADC · 備註留白</p></div><span class="local">本機處理</span></header>
+<main>
+  <section class="card source">
+    <div class="sectionhead"><h2><span class="step">1</span>今日報表</h2><span id="dateLabel" class="date"></span></div>
+    <div class="folderline"><div><strong id="folderName">尚未選擇報表根目錄</strong><p id="folderDetail">請選擇包含每日日期子資料夾的上層資料夾。</p></div><div class="buttons"><button id="chooseFolder">選擇根目錄</button><button id="grant" hidden>允許讀取</button><button id="reload">重新讀取</button></div></div>
+    <div class="rule">只讀取今日子資料夾內，檔名時間碼以 <strong>134</strong> 開頭的補藥報表。</div>
+    <details id="fileDetails"><summary id="fileSummary">尚未讀取檔案</summary><div id="fileList"></div></details>
+  </section>
+  <section class="card">
+    <div class="sectionhead"><h2><span class="step">2</span>連接 Portal</h2><span id="connection" class="badge muted">尚未連接</span></div>
+    <div class="portalLine"><select id="portalTabs" aria-label="選擇特殊藥品管理頁面"><option value="">請先在 Portal 開啟特殊藥品管理</option></select><button id="connect">重新偵測並連接</button><button id="showPortal">回 Portal</button></div>
+    <p class="hint">請保持特殊藥品管理頁面開啟。執行期間請勿在該頁面操作其他項目。</p>
+  </section>
+  <section class="card listcard">
+    <div class="sectionhead"><h2><span class="step">3</span>確認取藥清單</h2><span id="counts" class="count">尚無資料</span></div>
+    <div class="toolbar"><input id="search" placeholder="搜尋病房、藥名或八碼" aria-label="搜尋取藥清單"><select id="viewFilter" aria-label="篩選狀態"><option value="all">全部狀態</option><option value="pending">待取藥</option><option value="skipped">略過</option><option value="done">已完成</option><option value="issue">需要處理</option></select><button id="defaults">恢復預設勾選</button><button id="clearSelected">取消全部勾選</button></div>
+    <p class="hint">3E2、3W2 的 Modipanol 預設略過，可自行勾選。5W4-1、5W4-2 分開登錄。</p>
+    <div class="tablewrap"><table><thead><tr><th class="checkcol">取藥</th><th>病房</th><th>藥品</th><th class="qtycol">數量</th><th class="statuscol">狀態</th></tr></thead><tbody id="rows"><tr><td colspan="5" class="empty">選擇根目錄後，這裡會顯示今日取藥清單。</td></tr></tbody></table></div>
+  </section>
+  <section class="card progresscard" id="progressCard"><div class="sectionhead"><h2>執行進度</h2><span id="progressText">尚未開始</span></div><progress id="progress" value="0" max="1"></progress><div id="message" role="status" aria-live="polite">請先選擇報表根目錄。</div></section>
+  <details id="testTools" class="testTools"><summary>測試工具</summary>
+    <div class="testPanel">
+      <div class="sectionhead"><h2>批次歸藥</h2><span id="returnCount" class="count"></span></div>
+      <p class="hint">從本工具已確認成功的取藥紀錄，勾選本次測試要歸還的項目。使用原病房、八碼與數量；領藥號 ADC、備註留白。這會在 Portal 實際新增歸藥紀錄。</p>
+      <div class="toolbar returnToolbar"><select id="returnDate" aria-label="原取藥日期"></select><button id="returnRefresh">重新讀取紀錄</button><button id="returnAll">勾選可歸藥項目</button><button id="returnNone">取消勾選</button></div>
+      <div class="returnTable"><table><thead><tr><th class="checkcol">選取</th><th>病房</th><th>原取藥品</th><th class="qtycol">數量</th><th>歸藥狀態</th></tr></thead><tbody id="returnRows"></tbody></table></div>
+      <div class="returnActions"><span id="returnHint" class="hint"></span><div class="buttons"><button id="enableRetest" disabled>允許重新測試取藥</button><button id="startReturn" disabled>歸還勾選項目</button></div></div>
+      <p class="hint">已歸藥項目不會重複歸還。若要再測一次，勾選已歸藥的今日項目，按「允許重新測試取藥」，再回上方開始取藥。原取藥與歸藥紀錄會保留，並可匯出結果。</p>
+    </div>
+  </details>
+</main>
+<footer><div><strong id="selectedCount">待取藥 0 筆</strong><span id="runHint">完成資料確認後即可開始</span></div><div class="buttons"><button id="exportLog">匯出結果</button><button id="stop" class="danger" hidden>停止</button><button id="start" class="primary" disabled>開始批次取藥</button></div></footer>
+<dialog id="reconcile"><h2>核對登錄結果</h2><p id="reconcileInfo"></p><p>請先回 Portal 的「報表 → 使用明細」核對這筆病房、藥品、數量、領藥號及備註，再選擇結果。</p><div class="dialogButtons"><button id="reconcileClose">返回</button><button id="notRecorded">已確認未登錄，允許重試</button><button id="recorded" class="primary">已確認登錄完成</button></div></dialog>
+<div class="managed-toolbar"><span id="managed-status">正在確認管理狀態…</span><button id="open-managed">電腦登記／工具更新</button></div><script type="module" src="app.js"></script>
+</body></html>
+

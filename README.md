@@ -1,5 +1,23 @@
 # pharmacy-tool-updates — 藥局工具公開更新
 
+## 管藥工具更新
+
+[管理後台](https://pharmacy-device-console.cx760.chatgpt.site/)
+
+| 工具 | 最新版 | 下載 |
+|---|---|---|
+| Portal 管藥盤點 | 1.1.0 | [安裝包](downloads/controlled-inventory-v1.1.0.zip) |
+| ADC 特殊藥品批次取歸藥 | 1.2.0 | [安裝包](downloads/adc-drugs-v1.2.0.zip) |
+| 貼片回收紀錄 | 1.3.1 | [安裝包](downloads/patch-recovery-v1.3.1.zip) |
+
+兩個管藥工具首次導入，請將新版檔案覆蓋至原本載入的同一資料夾，再到 Chrome 擴充功能重新載入並重新整理 Portal。請勿先移除擴充功能。輸入後台產生的 4 碼完成登記，再指定工具資料夾即可沿用工具內更新。
+
+自動檢查新版，按「更新並重新開啟」套用；正在取歸藥或盤點時禁止更新。同一電腦的多個工具可選擇既有電腦再產生各自的一次性碼。病人、報表、藥帳與作業明細不會回傳此庫或管理後台。
+
+[本次更新與驗證](docs/managed-release-20261103.md)
+
+---
+
 ## 病人快速選擇 v1.6.0
 
 [下載安裝包](downloads/patient-query-v1.6.0.zip) · [原始碼與使用說明](standalone-extensions/patient-query/) · [管理後台](https://pharmacy-device-console.cx760.chatgpt.site)

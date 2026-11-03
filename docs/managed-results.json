@@ -1,0 +1,33 @@
+{
+  "passed": 27,
+  "checks": [
+    "controlled-inventory: current release hash, complete package and numeric upgrade",
+    "controlled-inventory: wrong tool, corruption, duplicate and traversal rejected",
+    "controlled-inventory: permissions cannot expand through updater",
+    "controlled-inventory: copied folder proof rejected and cleaned",
+    "controlled-inventory: manifest commits last, local records untouched, exact rollback after failure",
+    "controlled-inventory: journal persistence failure writes nothing",
+    "controlled-inventory: source stays in own update path without credentials or patient payload",
+    "controlled-inventory: unregistered operations denied; four-digit enrollment saves only metadata",
+    "controlled-inventory: batch and updater locks are mutually exclusive and owner-bound",
+    "controlled-inventory: disable waits for active batch and blocks next batch",
+    "controlled-inventory: valid offline lease permitted, expiry and invalid credential denied",
+    "controlled-inventory: interrupted update blocks new hospital operations and unknown sender rejected",
+    "controlled-inventory: original clinical core and bridge byte-identical to previous GitHub source",
+    "adc-drugs: current release hash, complete package and numeric upgrade",
+    "adc-drugs: wrong tool, corruption, duplicate and traversal rejected",
+    "adc-drugs: permissions cannot expand through updater",
+    "adc-drugs: copied folder proof rejected and cleaned",
+    "adc-drugs: manifest commits last, local records untouched, exact rollback after failure",
+    "adc-drugs: journal persistence failure writes nothing",
+    "adc-drugs: source stays in own update path without credentials or patient payload",
+    "adc-drugs: unregistered operations denied; four-digit enrollment saves only metadata",
+    "adc-drugs: batch and updater locks are mutually exclusive and owner-bound",
+    "adc-drugs: disable waits for active batch and blocks next batch",
+    "adc-drugs: valid offline lease permitted, expiry and invalid credential denied",
+    "adc-drugs: interrupted update blocks new hospital operations and unknown sender rejected",
+    "adc-drugs: original clinical core and bridge byte-identical to previous GitHub source",
+    "Inventory page bridge acquires and releases once, including failed native operation"
+  ],
+  "liveHospitalTested": false
+}

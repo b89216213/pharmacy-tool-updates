@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "ADC 特殊藥品批次取藥",
+  "version": "1.2.0",
+  "description": "讀取今日 134 開頭的 ADC 補藥報表，協助西址住院藥局逐筆取藥。",
+  "minimum_chrome_version": "122",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "unlimitedStorage"
+  ],
+  "host_permissions": [
+    "https://ihisaw.ntuh.gov.tw/*",
+    "http://ihisaw.ntuh.gov.tw/*",
+    "https://raw.githubusercontent.com/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "開啟 ADC 批次取藥"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://raw.githubusercontent.com https://pharmacy-device-console.cx760.chatgpt.site; base-uri 'none'; form-action 'none'"
+  }
+}
