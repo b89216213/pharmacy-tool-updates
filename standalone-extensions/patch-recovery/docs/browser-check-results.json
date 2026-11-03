@@ -1,0 +1,26 @@
+{
+  "passed": 21,
+  "checks": [
+    "First-run checkboxes save the group; thereafter only quick ward buttons are shown",
+    "Switching default wards is immediate and does not re-query Portal",
+    "Production UI connects to the existing Portal query engine",
+    "Batch entry persists both patients and all three dose columns",
+    "Reload restores a partially completed batch",
+    "Changing ward preserves the pending batch",
+    "One commit saves the complete batch and clears its draft",
+    "An empty patient row is identified and does not create a partial record",
+    "Failed persistence leaves the complete unsaved batch recoverable",
+    "Record editing saves pharmacist overrides and an audit history",
+    "Soft-delete and restore update monthly records",
+    "Excel export downloads a real XLSX workbook",
+    "Backup re-import is idempotent",
+    "Cleared patients can be selected without opening their chart",
+    "Desktop compact layout has no horizontal page overflow",
+    "Saved combination is pre-checked when changing defaults",
+    "Selected patients reorder by numeric bed, independent of click order",
+    "Saved records physically reside in separate ward groups",
+    "Ward records stay separate and display oldest dates above newest dates",
+    "Compact two-column chooser displays at least 16 patients without list scrolling",
+    "No browser runtime exceptions"
+  ]
+}

@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),ext=path.join(root,'extension');
 const manifest=JSON.parse(await fs.readFile(path.join(ext,'manifest.json'),'utf8'));
 const hash=b=>createHash('sha256').update(b).digest('hex');
-const allowed=['app.css','app.js','background.js','bridge.js','core.js','engine.js','excel.js','manifest.json','model.js','operation-guard.js','patch-tool.json','tool.html','update-core.js','update-network.js','update-store.js','updater.js'];
+const allowed=['app.css','app.js','background.js','bridge.js','core.js','engine.js','excel.js','manifest.json','management-core.js','management.js','model.js','operation-guard.js','patch-tool.json','tool.html','update-core.js','update-network.js','update-store.js','updater.js'];
 const files=[];for(const p of allowed){const b=await fs.readFile(path.join(ext,p));files.push({path:p,size:b.length,sha256:hash(b),base64:b.toString('base64')});}
-const notes=process.argv[2]||'偵測到新版時主動開啟更新視窗；同次開啟只提醒一次，操作或輸入中會延後提醒。維持深綠更新按鈕，僅在工具開啟時檢查；按確認後才套用更新。';
+const notes=process.argv[2]||'新增電腦名稱登記與後台管理：版本回報、指定電腦停用／恢復、最低版本限制。首次導入增加後台連線權限，請使用 ZIP 覆蓋原資料夾並重新載入一次。';
 const pkg={format:'patch-recovery-update-v1',toolId:'ntuh-patch-recovery',version:manifest.version,notes,files};
 const bytes=Buffer.from(JSON.stringify(pkg)),relative=`updates/patch-recovery/packages/${manifest.version}.json`;
 await fs.mkdir(path.join(root,'release/updates/patch-recovery/packages'),{recursive:true});

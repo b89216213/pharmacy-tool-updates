@@ -1,9 +1,9 @@
 {
   "name": "ntuh-patch-recovery",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/checks.cjs && node tests/update-checks.cjs"
+    "test": "node tests/checks.cjs && node tests/update-checks.cjs && node tests/management-checks.cjs"
   }
 }

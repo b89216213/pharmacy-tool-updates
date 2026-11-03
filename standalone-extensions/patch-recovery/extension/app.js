@@ -3,6 +3,9 @@ import {CAMPUS_ORDER,normalizeWards,clean,norm,todayKey,escapeHTML as esc} from 
 import {DOSES,FIELDS,LABELS,Repository,STORE_KEY,patientData,patientKey,shortBed,patientErrors,validateEntry,batchRecords,duplicateRecords,editRecord,monthRecords,totals,filterPatients,importBackup,printMarkup,validDate,storageData,recordsForWard,wardKey,bedCompare,recordCompare} from './model.js';
 import {workbook} from './excel.js';
 import {mountUpdater} from './updater.js';
+import {mountManagement} from './management.js';
+let managedBlocked=false,managementLocked=false;
+const syncInert=()=>{document.getElementById('app-shell').inert=managementLocked||updating;};
 
 const $=id=>document.getElementById(id);
 const uuid=()=>crypto.randomUUID();
@@ -236,6 +239,7 @@ async function restoreBackup(file){
 }
 function previewPrint(){const month=$('record-month').value,records=selectedMonthRecords();if(!records.length)return;$('print-pages').innerHTML=printMarkup(records,month,recordWard);$('app-shell').hidden=true;$('print-view').hidden=false;window.scrollTo(0,0);}
 function bind(){
+  for(const type of ['click','input','change','keydown','submit'])document.addEventListener(type,event=>{if(managedBlocked&&event.target.closest?.('#app-shell')&&!event.target.closest('#open-update,#open-management')){event.preventDefault();event.stopImmediatePropagation();}},true);
   document.addEventListener('click',run(async event=>{
     const b=event.target.closest('button');if(!b)return;
     if(b.dataset.tab){setTab(b.dataset.tab);return;}
@@ -280,7 +284,7 @@ function bind(){
   $('export-excel').addEventListener('click',()=>{const month=$('record-month').value;download(workbook(selectedMonthRecords(),month,recordWard),`貼片回收紀錄_${recordWard}_${month}.xlsx`);});
   $('dismiss-error').addEventListener('click',clearError);
   $('diagnostic').addEventListener('click',run(async()=>{if(!engine)throw new Error('請先連接 Portal');download(new Blob([JSON.stringify({tool:'貼片回收紀錄',version:'1.2.0',...(await engine.diagnostics())},null,2)],{type:'application/json'}),'貼片回收_相容性資訊.json');}));
-  if(globalThis.chrome?.runtime?.onMessage)chrome.runtime.onMessage.addListener(message=>{if(message?.kind==='patch-source'&&!busy&&!updating)run(()=>connect({sourceId:message.sourceId,origin:message.origin}))();});
+  if(globalThis.chrome?.runtime?.onMessage)chrome.runtime.onMessage.addListener(message=>{if(message?.kind==='patch-source'&&!busy&&!updating&&!managedBlocked)run(()=>connect({sourceId:message.sourceId,origin:message.origin}))();});
   window.addEventListener('beforeunload',event=>{if(draftTimer||draftPending||saving){event.preventDefault();event.returnValue='';}});
 }
 async function start(){
@@ -292,11 +296,17 @@ async function start(){
   await mountUpdater({
     isBusy:()=>busy||saving||entrySubmitting||groupSubmitting||fatal||updating||[...document.querySelectorAll('dialog[open]')].some(el=>el.id!=='update-dialog'),
     prepare:async()=>{
-      updating=true;$('app-shell').inert=true;
-      try{await flushDraft();await repo.tail;}catch(e){updating=false;$('app-shell').inert=false;throw e;}
+      updating=true;syncInert();
+      try{await flushDraft();await repo.tail;}catch(e){updating=false;syncInert();throw e;}
     },
-    finish:()=>{updating=false;$('app-shell').inert=false;}
+    finish:()=>{updating=false;syncInert();}
   }).catch(e=>{$('open-update').disabled=true;showError('更新功能暫時無法載入：'+e.message+'。回收登記仍可使用。');});
-  await run(()=>connect())();
+  const management=await mountManagement({
+    isBusy:()=>busy||saving||entrySubmitting||groupSubmitting||updating||[...document.querySelectorAll('dialog[open]')].some(el=>!['update-dialog','management-dialog'].includes(el.id)),
+    saveDraft:async()=>{await flushDraft();await repo.tail;},
+    setBlocked:value=>{managedBlocked=value;},setLocked:value=>{managementLocked=value;syncInert();},
+    onReady:()=>{if(!connected&&!busy&&!updating&&!managedBlocked)void run(()=>connect())();},exportBackup
+  }).catch(e=>{managedBlocked=true;managementLocked=true;syncInert();$('management-lock').hidden=false;$('management-lock-title').textContent='管理功能載入失敗';$('management-lock-reason').textContent=e.message;return{blocked:true};});
+  if(!management.blocked)await run(()=>connect())();
 }
 await start();

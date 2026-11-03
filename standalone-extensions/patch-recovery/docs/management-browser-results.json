@@ -1,0 +1,15 @@
+{
+  "passed": 9,
+  "scope": "Synthetic Chrome runtime and management API; no live hospital network or native extension installation",
+  "checks": [
+    "First opening requires computer registration before any Portal query",
+    "Name and one-time code register successfully; only allowed device metadata is transmitted",
+    "Remote disable locks new work without altering stored pharmacy data",
+    "Update and complete local backup remain accessible while disabled",
+    "Restoring a device unlocks it after the next verified reply",
+    "A policy received during editing waits for the open operation to close and preserves its draft",
+    "A minimum-version requirement exposes the update path while blocking old-version work",
+    "Expired offline authorization blocks Portal work after reopening",
+    "No browser runtime errors"
+  ]
+}

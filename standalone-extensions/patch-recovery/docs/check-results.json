@@ -1,0 +1,20 @@
+{
+  "passed": 15,
+  "checks": [
+    "Batch captures all six fields and dose counts with per-row overrides",
+    "Invalid count, empty selected patient, missing identity and invalid date reject the complete batch",
+    "Duplicate detection is account plus date, with separate episodes and soft-deleted records excluded",
+    "Search treats 2-1 and 02-01 as the same bed without mixing rooms",
+    "Edit retains original values in history and keeps the record identity",
+    "Storage writes are serialized; failed write does not claim committed state",
+    "Backup merge is idempotent, preserves local changes and restores unsaved drafts",
+    "Print paginates 18 rows, includes blank stamp cells, and escapes patient text",
+    "Portal extracts all six fields, clears stale bed filters, and only clicks one ward query",
+    "Portal bridge rejects settlement, patient-opening and unknown actions",
+    "Portal query waits for refreshed data and reads cleared patients",
+    "Portal rejects ambiguous identities and wrong-origin pages",
+    "Ward defaults migrate from old preferences and survive backup restore",
+    "Records are stored under separate ward keys and old flat backups migrate without loss",
+    "Print/export refuse mixed wards, and record dates and bed numbers sort naturally"
+  ]
+}
