@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "病人快速選擇",
+  "version": "1.6.0",
+  "description": "以病房捷徑與搜尋選擇病人，支援多病房在床今日出院與已清床未結清病人逐筆結清，並顯示處理進度。",
+  "minimum_chrome_version": "111",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://portal.ntuh.gov.tw/*",
+    "https://ihisaw.ntuh.gov.tw/*",
+    "https://raw.githubusercontent.com/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*"
+  ],
+  "action": {
+    "default_title": "開啟病人快速選擇"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://portal.ntuh.gov.tw/*",
+        "https://ihisaw.ntuh.gov.tw/*"
+      ],
+      "js": [
+        "operation-guard.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://raw.githubusercontent.com https://pharmacy-device-console.cx760.chatgpt.site; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+  }
+}

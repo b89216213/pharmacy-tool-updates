@@ -1,0 +1,8 @@
+{
+  "version": "1.4.2",
+  "mode": "read-only extraction of discharge remarks from 5 supplied HTML snapshots; no hospital scripts, network queries or submissions",
+  "format": "MM/DD可出院",
+  "noteInstances": 15,
+  "matchingOnRemarkDay": 15,
+  "matchingOnCaptureDay": 0
+}

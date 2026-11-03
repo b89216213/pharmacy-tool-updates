@@ -1,0 +1,17 @@
+{
+  "passed": 12,
+  "checks": [
+    "Version comparison uses numeric parts; downgrade and same version are rejected",
+    "Wrong tool, corruption, duplicate paths and traversal cannot reach disk writes",
+    "Permission expansion and identity or CSP changes require manual installation",
+    "Matching manifest in a different copied folder is rejected without changing existing files",
+    "Installed-folder proof is cleaned after successful validation",
+    "All originals are journaled before writing; manifest commits last; unrelated files remain",
+    "Mid-update write failure restores exact prior bytes and removes new files",
+    "Journal persistence failure leaves original source untouched",
+    "Interrupted transaction can restore from a saved journal",
+    "GitHub requests stay on the fixed repository, omit credentials and referrer, reject redirects and send no patient payload",
+    "Unavailable public source, 404, rate limits, timeout and oversized network bodies are explicit failures",
+    "Release index rejects another tool and mismatched version paths"
+  ]
+}
