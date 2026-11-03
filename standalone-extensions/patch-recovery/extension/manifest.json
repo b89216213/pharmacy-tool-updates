@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "貼片回收紀錄",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "同病房多位病人批次登記 Fentanyl 貼片回收，支援本機保存、每月預設藥師、Excel 匯出及月底列印。",
   "minimum_chrome_version": "111",
   "permissions": [

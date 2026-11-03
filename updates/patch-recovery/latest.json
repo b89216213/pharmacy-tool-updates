@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.2.2",
-  "notes": "更新流程測試版：僅將版號提升至 v1.2.2，功能、操作方式與資料格式均與 v1.2.1 相同。",
-  "packagePath": "updates/patch-recovery/packages/1.2.2.json",
-  "size": 207490,
-  "sha256": "2777437f14b34b9a07f6379fec65ec4fe6f4f2e2d9b777dbd7be1690321504e1"
+  "version": "1.2.3",
+  "notes": "每次開啟工具時自動在背景檢查新版；視窗開著時每 6 小時再檢查，關閉後停止。檢查不跳出視窗、不影響登記；有新版顯示「更新可用」。",
+  "packagePath": "updates/patch-recovery/packages/1.2.3.json",
+  "size": 207898,
+  "sha256": "6a3bb4f8cf580323b7f8b3d0a5667dd9b5523a69f2162765e3268849f8604289"
 }
