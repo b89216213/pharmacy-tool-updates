@@ -1,9 +1,9 @@
-貼片回收工具公開更新來源維護（v1.4.0）
+貼片回收工具公開更新來源維護（v1.4.1）
 
 固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
 更新索引：updates/patch-recovery/latest.json。
 程式來源：standalone-extensions/patch-recovery/extension/。
-首次安裝包：downloads/patch-recovery-v1.4.0.zip。
+首次安裝包：downloads/patch-recovery-v1.4.1.zip。
 舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
 
 之後發布新版：
@@ -40,3 +40,6 @@ v1.3.0 → v1.3.1 沒有新增權限，完整套件已用 v1.3.0 manifest 驗證
 
 
 v1.4.0：連線時唯讀擷取 Portal 左側登出控制項下的登入姓名（包含相鄰頁框）；儲存旁可自由修改及重新讀取。移除月預設操作入口，保留舊資料／備份相容。A4 直式預覽以實際行高重新分頁，Excel pageSetup 同步為 portrait。沒有新增權限；v1.3.0／v1.3.1 可工具內更新。發布時必須同步 downloads、updates/patch-recovery、來源程式及公開 updates/catalog.json；不包含 QA 截圖、測試資料、備份或帳密。
+
+
+v1.4.1：依使用者提供的實際 DOM，姓名改為 #leftContents #vertical 內 font 直接擷取；移除圖片登出定位／座標推測。僅 bridge.js、manifest.json 版號及 tool.html 頁尾改動，其他程式逐檔不變。v1.3.0 以上可工具內更新，既有草稿、姓名修改及直式報表維持原行為。

@@ -1,9 +1,9 @@
-貼片回收紀錄 v1.4.0
+貼片回收紀錄 v1.4.1
 
 資料及操作
 - 病人名單查詢沿用既有流程；不執行退藥、銷毀、結清或病人開啟操作。
-- 新增唯讀 readPharmacist，檢查可見的左側登出控制項與其下方姓名；排除查詢區、病人表格、隱藏元素及一般選單文字。衝突或找不到不推測。
-- 姓名辨識以使用者提供的截圖為依據；尚未取得真實 Portal 的 DOM，也未在院內實機驗證。
+- 唯讀 readPharmacist 直接擷取 #leftContents #vertical 內 font 的可見文字；若沒有 font 包裝則讀同一個 vertical 欄位。移除登出文字／座標／姓名外觀推測。查詢區同名 ID、隱藏欄位及其他側欄文字不會混入；多個不同姓名則拒絕。
+- 使用者提供開發者工具截圖確認實際 DOM：#leftContents > #vertical > font，旁邊 #Logout 是 DIV 包圖片。已重現此結構測試；仍未直接操作院內實機。
 - 新增草稿 pharmacistMode，保存手動改名狀態；不改已儲存紀錄，舊草稿保持姓名。
 - 舊 defaults 欄位繼續讀寫備份，但介面與新批次不使用每月預設。
 - chrome.storage.local 保持 patchRecoveryV1，分病房 recordsByWard，備份 schemaVersion 2，相容 schemaVersion 1。

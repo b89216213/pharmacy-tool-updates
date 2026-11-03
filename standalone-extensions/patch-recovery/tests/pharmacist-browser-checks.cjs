@@ -7,19 +7,22 @@ const server=http.createServer((req,res)=>{const p=path.join(root,decodeURICompo
  const browser=await chromium.launch({headless:true,executablePath:process.env.QA_CHROMIUM_PATH,args:['--single-process','--no-zygote','--in-process-gpu','--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:1763,height:904}}),base=`http://127.0.0.1:${server.address().port}`;
  const done=s=>{checks.push(s);console.log('PASS',s);};
- const shell=(name,extra='')=>`<style>body{margin:0;font:18px sans-serif}#side{position:absolute;left:0;top:100px;width:26px}#out{height:64px;width:26px;padding:0;white-space:normal}#user{display:block;width:26px;overflow-wrap:anywhere;margin-top:12px;line-height:30px}</style><div id="side"><button id="out">登<br>出</button><span id="user">${name}</span>${extra}</div><main style="margin-left:210px"><div id="NTUHWeb1_InPatientNavigatorBox_QueryInPatientBox_divInPatientListBox"><span>病人姓名：測試病人</span><table><tr><td>另一病人</td></tr></table></div></main>`;
+ // Reproduce the supplied DOM: DIV + image logout, a short sidebar container,
+ // then #vertical with FONT and trailing BR. Names remain synthetic.
+ const shell=(name,extra='')=>`<style>body{margin:0;font:18px sans-serif}#vertical{width:1.5em;float:left;display:inline}</style><div id="leftContents" style="position:absolute;top:0;left:0;width:19px;height:70px;z-index:2"><div id="ContentHide"></div><div id="Portal"></div><div id="Logout" onclick="window.logoutClicks=(window.logoutClicks||0)+1"><img id="LogoutImg" width="26" height="64"></div><div id="vertical"><font size="2">${name}<br></font></div>${extra}</div><main style="margin-left:210px"><div id="NTUHWeb1_InPatientNavigatorBox_QueryInPatientBox_divInPatientListBox"><span>病人姓名：測試病人</span><table><tr><td>另一病人</td></tr></table></div><div id="vertical"><font>查詢區病人</font></div></main>`;
  const read=()=>page.evaluate(async()=>{const {portalBridge}=await import('/extension/bridge.js');return portalBridge('readPharmacist');});
  try{
   await page.goto(base+'/extension/patch-tool.json');
-  await page.setContent(shell('測試甲'));assert.deepEqual((await read()).pharmacist,{name:'測試甲',status:'found'});done('Reads a narrow vertical login name immediately below logout');
+  await page.setContent(shell('測試甲'));assert.deepEqual((await read()).pharmacist,{name:'測試甲',status:'found'});assert.equal(await page.evaluate(()=>window.logoutClicks||0),0);done('Reads the confirmed leftContents/vertical/font DOM with DIV-image logout without clicking it');
   await page.setContent(shell('測<br>試<br>乙'));assert.equal((await read()).pharmacist.name,'測試乙');done('Line breaks and fullwidth whitespace in the sidebar are normalized');
-  await page.setContent(shell('測試甲','<span style="display:none">隱藏姓名</span>'));assert.equal((await read()).pharmacist.name,'測試甲');done('Hidden names and patient names in the query area are ignored');
-  await page.setContent(shell('測試甲','<span style="display:block;position:absolute;left:35px;top:78px">測試乙</span>'));assert.equal((await read()).pharmacist.status,'ambiguous');assert.equal((await read()).pharmacist.name,'');done('Conflicting visible names fail closed instead of picking one');
-  await page.setContent(shell('查詢處理'));assert.equal((await read()).pharmacist.status,'missing');done('Navigation labels are not treated as pharmacist names');
+  await page.setContent(shell('測試甲','<span>另一側欄名字</span><div id="vertical" style="display:none"><font>隱藏姓名</font></div>'));assert.equal((await read()).pharmacist.name,'測試甲');done('Unrelated sidebar text, hidden fields and identically named patient-area elements are ignored');
+  await page.setContent(shell('測試甲','<div id="vertical"><font>測試乙</font></div>'));assert.equal((await read()).pharmacist.status,'ambiguous');assert.equal((await read()).pharmacist.name,'');done('Conflicting names in the exact login field fail closed');
+  await page.setContent(shell('　'));assert.equal((await read()).pharmacist.status,'missing');done('An empty login field does not infer a name from nearby text');
   await page.setContent(shell('測試甲'));
-  await page.evaluate(()=>document.querySelector('#out').remove());assert.equal((await read()).pharmacist.status,'missing');done('Without the login-sidebar anchor, no name is inferred');
+  await page.evaluate(()=>{document.querySelector('#Logout').remove();document.querySelector('#leftContents').style.cssText='position:absolute;top:300px;left:400px;width:19px;height:70px';});assert.equal((await read()).pharmacist.name,'測試甲');done('Name extraction is independent of logout labels and screen coordinates');
   await page.setContent(shell('測試甲')+'<input type="password">');assert.equal((await read()).login,true);done('A login page does not supply a pharmacist');
-  await page.setContent('<style>body{margin:0;font:18px sans-serif;line-height:30px}</style><button style="width:26px;height:64px">登出</button><br>測<br>試<br>丙');assert.equal((await read()).pharmacist.name,'測試丙');done('Legacy bare text nodes separated by BR are read as one name');
+  await page.setContent(shell('測試丙'));await page.evaluate(()=>document.querySelector('#leftContents #vertical').innerHTML='測<br>試<br>丙');assert.equal((await read()).pharmacist.name,'測試丙');done('The same verified field supports text nodes without a FONT wrapper');
+  await page.setContent('<button>登出</button><span>測試甲</span>');assert.equal((await read()).pharmacist.status,'missing');done('Without the confirmed field, nearby name-like text is never guessed');
   const engineResult=await page.evaluate(async()=>{
     const {PortalEngine}=await import('/extension/engine.js');let response=[],target;
     const api={tabs:{get:async()=>({url:'https://portal.example.test/query'})},scripting:{executeScript:async p=>{target=p.target;return response;}}};
@@ -27,6 +30,6 @@ const server=http.createServer((req,res)=>{const p=path.join(root,decodeURICompo
     response=[{frameId:0,result:{ok:true,pharmacist:{name:'',status:'missing'}}},{frameId:2,result:{ok:true,pharmacist:{name:'測試甲',status:'found'}}}];const found=await e.readPharmacist();
     response.push({frameId:3,result:{ok:true,pharmacist:{name:'測試乙',status:'found'}}});const conflict=await e.readPharmacist();return{found,conflict,target};
   });assert.equal(engineResult.found.name,'測試甲');assert.equal(engineResult.conflict.status,'ambiguous');assert.equal(engineResult.target.allFrames,true);done('A sibling frame can supply the name; conflicting frames are rejected');
-  fs.writeFileSync(path.join(root,'docs/pharmacist-browser-results.json'),JSON.stringify({passed:checks.length,scope:'Synthetic sidebar DOM and frame results, not the live hospital Portal',checks},null,2));
+  fs.writeFileSync(path.join(root,'docs/pharmacist-browser-results.json'),JSON.stringify({passed:checks.length,scope:'User-confirmed sidebar DOM reproduced with synthetic names, plus simulated frame results; not live hospital access',checks},null,2));
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});

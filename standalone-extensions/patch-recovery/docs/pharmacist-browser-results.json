@@ -1,15 +1,16 @@
 {
-  "passed": 9,
-  "scope": "Synthetic sidebar DOM and frame results, not the live hospital Portal",
+  "passed": 10,
+  "scope": "User-confirmed sidebar DOM reproduced with synthetic names, plus simulated frame results; not live hospital access",
   "checks": [
-    "Reads a narrow vertical login name immediately below logout",
+    "Reads the confirmed leftContents/vertical/font DOM with DIV-image logout without clicking it",
     "Line breaks and fullwidth whitespace in the sidebar are normalized",
-    "Hidden names and patient names in the query area are ignored",
-    "Conflicting visible names fail closed instead of picking one",
-    "Navigation labels are not treated as pharmacist names",
-    "Without the login-sidebar anchor, no name is inferred",
+    "Unrelated sidebar text, hidden fields and identically named patient-area elements are ignored",
+    "Conflicting names in the exact login field fail closed",
+    "An empty login field does not infer a name from nearby text",
+    "Name extraction is independent of logout labels and screen coordinates",
     "A login page does not supply a pharmacist",
-    "Legacy bare text nodes separated by BR are read as one name",
+    "The same verified field supports text nodes without a FONT wrapper",
+    "Without the confirmed field, nearby name-like text is never guessed",
     "A sibling frame can supply the name; conflicting frames are rejected"
   ]
 }

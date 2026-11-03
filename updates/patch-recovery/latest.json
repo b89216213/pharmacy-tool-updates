@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.4.0",
-  "notes": "Portal 左側藥師姓名自動帶入儲存按鈕旁，可自由修改；移除每月預設藥師。表格與 Excel 列印改為 A4 直式，依文字長度分頁。",
-  "packagePath": "updates/patch-recovery/packages/1.4.0.json",
-  "size": 237404,
-  "sha256": "f9091a6117da74573ba57d37e2ecc29b157ed10d8b08717a839f0257c780d7d9"
+  "version": "1.4.1",
+  "notes": "修正 Portal 藥師姓名讀取失敗：直接讀取已確認的左側登入姓名欄位，不受圖片式登出或座標影響。",
+  "packagePath": "updates/patch-recovery/packages/1.4.1.json",
+  "size": 234142,
+  "sha256": "cd77c5ec740f39efdc1384a0adc151b7f7ad66c6e778ea772c0c3a724fc1e91f"
 }
