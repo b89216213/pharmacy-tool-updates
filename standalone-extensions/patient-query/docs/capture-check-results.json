@@ -1,0 +1,50 @@
+{
+  "mode": "read-only replay of supplied DOM snapshots with DOM adapter; no portal scripts, navigation or submissions executed",
+  "snapshots": [
+    {
+      "asset": "19537518be99ae",
+      "checked": true,
+      "medVisible": false,
+      "ready": false,
+      "rows": 0,
+      "serviceItems": 0,
+      "diagnosticOK": true
+    },
+    {
+      "asset": "938e4177188c0b",
+      "checked": true,
+      "medVisible": true,
+      "ready": true,
+      "rows": 32,
+      "serviceItems": 40,
+      "diagnosticOK": true
+    },
+    {
+      "asset": "b7a156d8d642cd",
+      "checked": true,
+      "medVisible": true,
+      "ready": true,
+      "rows": 32,
+      "serviceItems": 40,
+      "diagnosticOK": true
+    },
+    {
+      "asset": "c2cb376502dd57",
+      "checked": false,
+      "medVisible": true,
+      "ready": false,
+      "rows": 0,
+      "serviceItems": 0,
+      "diagnosticOK": true
+    },
+    {
+      "asset": "cfd056be52617c",
+      "checked": false,
+      "medVisible": false,
+      "ready": true,
+      "rows": 32,
+      "serviceItems": 0,
+      "diagnosticOK": true
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "format": "patient-query-release-v1",
+  "toolId": "ntuh-patient-picker",
+  "version": "1.6.0",
+  "notes": "新增自動檢查更新、4 位數電腦登記與後台版本／停用管理。v1.5.3 首次需手動覆蓋原 extension 資料夾並重新載入。",
+  "packagePath": "updates/patient-query/packages/1.6.0.json",
+  "size": 274613,
+  "sha256": "6d6df2b6848b0721ca399973a56638bc8d225c1bd7b4e15c7b7c75284d62ed1b"
+}

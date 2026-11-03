@@ -1,0 +1,9 @@
+{
+  "format": "discharge-education-release-v1",
+  "toolId": "ntuh-discharge-education",
+  "version": "2.8.0",
+  "notes": "新增同日增量名單、跨日重置、自動檢查更新與電腦後台管理。首次請手動覆蓋原資料夾。",
+  "packagePath": "updates/discharge-education/packages/2.8.0.json",
+  "size": 252843,
+  "sha256": "42839a877a43ae2b0abeb0c6306fc24a5b99dc1b4e2585112da341b105d3db7d"
+}

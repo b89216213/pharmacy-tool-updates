@@ -1,0 +1,21 @@
+病人快速選擇 1.6.0 — 發布與更新
+
+公開來源：https://github.com/b89216213/pharmacy-tool-updates
+私有開發存放庫：https://github.com/b89216213/pharmacy-tools
+管理後台：https://pharmacy-device-console.cx760.chatgpt.site
+
+安裝使用：請先閱讀「使用說明.txt」的手動更新、電腦登記及工具內更新章節。
+v1.5.3 以下沒有更新模組，首次必須手動覆蓋相同 extension 資料夾並重新載入；
+保留同一路徑可保留常用病房。v1.6.0 需首次登記，之後自動檢查更新、點擊套用。
+
+維護者發布流程
+1. 修改 extension 檔案，遞增 manifest.json 與 package.json 版本。
+2. 執行 npm test；新增功能應補適當驗證。執行 npm run build:update。
+3. 將 release/updates/patient-query/ 的公告及版本 package 放到公開庫對應 updates 路徑。
+   新包、公告、安裝 ZIP 與來源在同一個 commit 發布，保留舊包。
+4. 固定下載來源為公開 main；package 只打包 16 個 extension 檔案，使用 SHA-256。
+   權限或 CSP 擴張不允許工具內自動套用，這類版本請提供手動覆蓋說明。
+5. 後台的最低版本要求只在可下載的新版本確認發布後設定。本次不變更實際電腦政策。
+
+本次測試全部使用合成資料；沒有任何病人資料、錄製快照、使用者憑證或後台資料庫
+進入 GitHub、安裝包或更新檔。docs 內舊擷取驗證檔僅含計數與布林值等彙總結果。

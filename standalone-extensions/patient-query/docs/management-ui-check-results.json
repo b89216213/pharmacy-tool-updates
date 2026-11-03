@@ -1,0 +1,14 @@
+{
+  "passed": 8,
+  "mode": "synthetic controller; no production enrollment",
+  "checks": [
+    "First opening remains locked before any network registration or Portal action",
+    "Four-digit registration preserves leading zeros and sends only the declared device metadata",
+    "A live restriction blocks new work immediately but acknowledges locking only after the active operation ends",
+    "An allowed policy restores use without replacing preferences or registering another installation",
+    "A minimum-version policy retains an accessible update path",
+    "Cross-tool replies cannot alter a stored policy or unlock this tool",
+    "Revoked credentials require re-enrollment and do not silently allow work",
+    "Heartbeats and persistent management state contain no patient, ward, query or settlement payload"
+  ]
+}

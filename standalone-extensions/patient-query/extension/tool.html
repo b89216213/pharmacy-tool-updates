@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>病人快速選擇</title><link rel="stylesheet" href="app.css"><script type="module" src="app.js"></script></head>
+<body id="picker">
+<div id="app-shell">
+  <header class="pc-header"><div class="pc-logo" aria-hidden="true">選</div><h1>選擇病人</h1><span class="pc-subtitle">查詢處理</span><div class="header-actions"><span class="pc-demo">本機處理</span><button id="open-management" type="button">登記電腦</button><button id="open-update" type="button">工具更新</button><button id="source" type="button">原系統 ↗</button><button id="connect" type="button">重新連接</button></div></header>
+  <div id="error" class="error" role="alert" hidden><span id="error-text"></span><button id="diagnostic" type="button">匯出相容性資訊</button><button id="dismiss-error" type="button" aria-label="收起錯誤訊息">×</button></div>
+  <div class="pc-shell">
+    <nav id="ward-navigation" class="pc-sidebar" aria-label="病房導航">
+      <div class="pc-sidebar-scroll">
+        <p id="ward-batch-side-hint" class="pc-ward-batch-side-hint" hidden>勾選要處理的病房，可切換院區繼續選。</p>
+        <h2>★ 常用病房</h2><div id="favorites" class="pc-favorites"></div>
+        <h2 class="pc-ward-section">病房</h2><div id="campuses" class="pc-campuses" aria-label="院區"></div>
+        <div class="pc-campus-meta"><span id="campus-name"></span><span id="ward-count"></span></div><div id="wards" class="pc-wards"></div>
+      </div>
+      <div class="pc-sidebar-footer">
+        <div id="ward-batch-selection-tools" class="pc-ward-selection-tools" hidden><strong id="ward-batch-selection-count">已選 0 個病房</strong><button id="ward-batch-clear" type="button">清除病房勾選</button></div>
+        <button id="ward-batch-toggle" class="pc-ward-batch-toggle" type="button" aria-expanded="false" aria-controls="ward-batch-panel">跨病房批次結清</button>
+      </div>
+    </nav>
+    <main class="pc-main">
+      <section id="ward-batch-panel" class="pc-ward-batch-panel" aria-labelledby="ward-batch-title" hidden>
+        <div id="ward-batch-heading" class="pc-ward-batch-head"><h2 id="ward-batch-title">跨病房批次結清</h2><button id="ward-batch-close" type="button" aria-label="收起跨病房批次結清">×</button></div>
+        <div id="ward-batch-config">
+          <div class="pc-ward-batch-selection"><span>處理順序</span><div id="ward-batch-selected" class="pc-ward-batch-chips" aria-label="已選病房"></div></div>
+          <div class="pc-ward-batch-options" role="group" aria-label="要結清的病人">
+            <label><input id="ward-batch-inbed" type="checkbox" checked><span><strong>在床病人</strong>今日出院的病人</span></label>
+            <label><input id="ward-batch-cleared" type="checkbox" checked><span><strong>已清床</strong>所有藥帳未結清的病人</span></label>
+          </div>
+        </div>
+        <div id="ward-batch-setup-actions" class="pc-ward-batch-actions"><p id="ward-batch-hint">從左側勾選病房，再按開始結清。</p><button id="ward-batch-start" class="pc-batch-primary" type="button" disabled>開始結清</button></div>
+        <section id="ward-batch-progress" class="pc-ward-batch-progress" aria-label="跨病房結清進度" hidden>
+          <div class="pc-ward-progress-line"><h2 id="ward-batch-current"></h2><span id="ward-batch-position"></span></div>
+          <div class="pc-ward-progress-line pc-ward-current-action" role="status" aria-live="polite" aria-atomic="true"><p id="ward-batch-action"></p><span id="ward-batch-patient-position"></span></div>
+          <div class="pc-ward-progress-line"><p id="ward-batch-summary"></p><button id="ward-batch-stop" type="button" hidden>停止後續處理</button></div>
+          <details id="ward-batch-details"><summary>查看處理紀錄</summary><div id="ward-batch-report" class="pc-ward-batch-report"></div></details>
+          <section id="ward-batch-attention" class="pc-ward-batch-attention" aria-labelledby="ward-batch-attention-title" hidden><h3 id="ward-batch-attention-title">需要查看的病人</h3><ul id="ward-batch-issues" class="pc-ward-batch-issues"></ul></section>
+        </section>
+      </section>
+      <div class="pc-top">
+        <div class="pc-ward-context"><h2 id="list-title">病人名單</h2><span id="ward-campus"></span><button type="button" id="pin" aria-label="加入常用病房" hidden>☆</button><span id="source-mode" class="pc-source-mode" role="status" hidden>在床病人</span></div>
+        <label for="search" class="pc-sr">搜尋病房、床號、病歷號、住院帳號或身分證號</label>
+        <div class="pc-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="病房／床號、病歷號、住院帳號、身分證號" autocomplete="off" spellcheck="false" aria-controls="results" aria-describedby="search-hint"><button type="button" id="clear" aria-label="清除搜尋" hidden>×</button><button type="button" id="lookup" class="pc-search-submit">搜尋</button></div>
+      </div>
+      <div class="pc-search-note"><p id="search-hint">正在讀取病房選單…</p><div id="scope" class="pc-scope" role="group" aria-label="搜尋範圍" hidden><button id="scope-current" type="button">本病房</button><button id="scope-all" type="button">已載入病房</button></div></div>
+      <div class="pc-toolbar">
+        <div class="pc-sources" role="group" aria-label="病人名單來源"><button id="inbed" type="button" aria-pressed="true"><span class="pc-source-check" aria-hidden="true">✓</span>在床病人<span id="inbed-count" class="pc-count">—</span></button><button id="cleared" type="button" aria-pressed="false"><span class="pc-source-check" aria-hidden="true">✓</span>已清床<span id="cleared-count" class="pc-count">—</span></button></div>
+        <div class="pc-tools"><label id="smart-label" class="pc-smart" hidden><input id="smart" type="checkbox"><span>智能藥事服務</span>Smart Care</label><button id="refresh" type="button" class="pc-refresh">↻ 重新整理</button></div>
+      </div>
+      <div class="pc-list-meta"><span id="list-meta" aria-live="polite"></span><div class="pc-list-meta-right"><span id="freshness"></span><span>ⓘ 完整資訊</span></div></div>
+      <div id="batch-toolbar" class="pc-batch-toolbar" aria-label="批次結清" hidden>
+        <div class="pc-batch-pick"><label class="pc-select-all"><input id="select-all" type="checkbox" aria-controls="results">全選目前清單</label><button id="select-today-discharge" type="button" aria-controls="results" title="只勾選目前清單中出院日期為今天的病人，取代原勾選。" hidden disabled>全選今日出院（0）</button><button id="select-unsettled" type="button" aria-controls="results" title="只勾選目前清單中藥帳未結清的病人，取代原勾選。" hidden disabled>全選藥帳未結清（0）</button><span id="selection-count" aria-live="polite">已選 0 位</span></div>
+        <div class="pc-batch-actions"><button id="selection-clear" type="button" disabled>取消勾選</button><button id="batch-settle" class="pc-batch-primary" type="button" disabled>批次結清</button><button id="batch-stop" type="button" hidden>停止後續處理</button></div>
+        <p id="batch-scope" class="pc-batch-scope" hidden>切換病房、名單或搜尋條件會清除勾選。</p>
+        <div id="batch-progress" class="pc-batch-progress" hidden><progress id="batch-meter" max="1" value="0" aria-label="批次結清進度"></progress><div class="pc-batch-status"><p id="batch-current" role="status" aria-live="polite"></p><p id="batch-summary"></p></div><button id="batch-dismiss" type="button" class="pc-close" aria-label="收起批次結果">×</button></div>
+      </div>
+      <p id="loading" class="loading" role="status" aria-live="polite"></p>
+      <p id="partial" class="partial" hidden>原系統使用分頁，目前僅顯示已讀取的一頁；完整名單請查看原系統。</p>
+      <div id="ward-hits" class="pc-ward-hits" hidden></div>
+      <div id="results" class="pc-results" aria-label="病人名單"></div>
+      <div id="empty" class="pc-empty"><h3 id="empty-title">正在連接院內頁面</h3><p id="empty-message">請保留已登入的查詢處理分頁。</p></div>
+      <div class="pc-footer"><span id="order-label">依床號排列</span><span>Enter 搜尋 · ↑ ↓ 選定後 Enter 開啟 · 勾選框用於批次結清</span></div>
+      <div id="notice" class="pc-notice" role="status" hidden></div>
+    </main>
+  </div>
+  <section id="detail" class="pc-detail" role="dialog" aria-labelledby="detail-title" hidden>
+    <div class="pc-detail-head"><div><h3 id="detail-title"></h3><div id="detail-person" class="pc-detail-person"></div></div><button id="detail-close" type="button" class="pc-close" aria-label="關閉病人資訊">×</button></div>
+    <dl id="detail-fields"></dl><div id="detail-actions" class="pc-detail-actions"></div>
+  </section>
+  <div id="announcement" class="pc-sr" role="status" aria-live="polite"></div>
+</div>
+<dialog id="update-dialog" class="update-dialog" aria-labelledby="update-title">
+  <div class="section-title"><div><h2 id="update-title">工具更新</h2><p id="update-version"></p></div><button id="update-close" type="button" aria-label="關閉更新視窗">×</button></div>
+  <div class="update-summary"><strong id="update-new-version"></strong><p id="update-status" role="status" aria-live="polite">正在讀取更新設定…</p><p id="update-notes"></p></div>
+  <div class="update-actions"><button id="update-check" type="button">檢查新版</button><button id="update-apply" class="primary" type="button" hidden>更新並重新開啟</button><button id="update-recover" type="button" hidden>還原原版檔案</button></div>
+  <section class="update-setup"><h3>這台電腦的更新設定</h3><p class="muted small">每次開啟工具時自動檢查；視窗開著時每 6 小時再檢查，關閉後停止。找到新版會主動開啟更新視窗；操作中會延後提醒，同次開啟只提醒一次。結清進行中不會套用更新。</p>
+    <div class="update-folder-row"><div><strong>工具資料夾</strong><p id="update-directory" class="muted small"></p></div><button id="update-folder" type="button">指定資料夾</button></div>
+    <p class="muted small">請選擇原本在 Chrome 載入的 extension 資料夾，內有 manifest.json。Chrome 可能再次要求寫入授權。</p>
+    <p class="muted small">使用公開更新來源，不需 GitHub 帳號或憑證。</p>
+  </section><p class="muted small update-footnote">只下載工具程式；病人名單、結清內容與常用病房設定不會傳到 GitHub。更新期間請保持視窗開啟。</p>
+</dialog>
+<div id="management-pending" class="management-pending" hidden role="status">已收到管理限制，完成目前病人的核對後停止，不再開始下一位或下一個病房。</div>
+<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><span class="management-icon">選</span><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">常用病房設定會保留；可更新工具或重新連線。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button></div></div></section>
+<dialog id="management-dialog" class="update-dialog" aria-labelledby="management-title"><div class="section-title"><div><h2 id="management-title">這台電腦</h2><p id="management-name-display"></p><p id="management-id-display" class="muted small"></p></div><button id="management-close" type="button" aria-label="關閉電腦設定">×</button></div><p id="management-status" role="status" aria-live="polite"></p><form id="management-form"><section id="management-setup"><p class="muted small">第一次使用請輸入辨識名稱與管理員提供的 4 位數字登記碼（10 分鐘內有效）。</p><label>電腦名稱<input id="management-name" required maxlength="60" autocomplete="off" placeholder="例如：兒醫住院藥局－調劑台 01"></label><label>登記碼<input id="management-code" required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="4 個數字，例如 0386"></label><button id="management-submit" type="submit" class="primary">登記並開始使用</button></section></form><p id="management-check-time" class="muted small"></p><button id="management-retry" type="button">重新連線</button><p class="muted small">只回報電腦識別、工具版本與管理狀態。關閉工具後停止；最後驗證後可離線使用 24 小時，已接收的停用或升級限制仍有效。</p></dialog>
+</body>
+</html>

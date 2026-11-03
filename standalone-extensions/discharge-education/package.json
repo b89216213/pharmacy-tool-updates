@@ -1,0 +1,1 @@
+{"name":"ntuh-discharge-education","version":"2.8.0","type":"module","private":true,"scripts":{"test":"node tests/core-checks.cjs","build:update":"node scripts/build-update.mjs"}}

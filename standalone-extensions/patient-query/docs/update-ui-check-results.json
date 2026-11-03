@@ -1,0 +1,11 @@
+{
+  "passed": 5,
+  "mode": "synthetic update controller; native folder writes covered by update-core checks",
+  "checks": [
+    "Opening checks for newer versions without writing files or interrupting active work",
+    "The update reminder opens after work becomes idle",
+    "Clicking apply during settlement cannot begin an update",
+    "Multiple picker windows with different query strings prevent concurrent updates",
+    "Successful updates preserve only source tab context and a source-file journal before reload, never a settlement queue"
+  ]
+}

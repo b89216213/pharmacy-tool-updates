@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="color-scheme" content="light">
+<title>出院藥衛教名單擷取工具｜瀏覽器版</title>
+<link rel="stylesheet" href="tool.css">
+<link rel="stylesheet" href="services.css">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="17" rx="3"/><path d="M8 2v4m8-4v4M4 10h16m-12 5 2 2 5-5"/></svg></div><div><h1><span class="screen-title">出院藥衛教名單擷取工具</span><span class="print-title">出院用藥教育紀錄表</span></h1><p class="subtitle">直接擷取住院清單，合併多個病房的出院名單</p></div></div>
+    <div class="local">本機處理・無雲端傳送</div>
+  </header>
+
+  <section class="panel browser-panel" aria-labelledby="browserTitle">
+    <div class="browser-title"><h2 id="browserTitle">病房範圍</h2><span class="count" id="savedCount">尚未擷取</span></div>
+    <div class="connection-line"><p class="browser-status" id="browserStatus" role="status">正在連接來源頁面…</p><button id="retryConnection" type="button" hidden>重新連接</button></div>
+    <div class="ward-area" id="wardArea" hidden>
+      <div class="ward-picker">
+      <div class="ward-search"><label for="wardFilter">搜尋病房 <span class="search-scope">全部病房</span></label><input type="search" id="wardFilter" placeholder="例如 14PE 05W1 09HN（多個病房以空格分隔）" autocomplete="off"></div>
+      <div class="ward-categories" aria-label="病房分類"><button type="button" data-category="child" aria-pressed="true">兒醫</button><button type="button" data-category="west" aria-pressed="false">西址</button><button type="button" data-category="health" aria-pressed="false">健大</button><button type="button" data-category="east" aria-pressed="false">東址</button></div>
+      <p class="category-prompt" id="categoryPrompt">請先選擇病房分類</p>
+      <div class="ward-grid" id="wardGrid" aria-label="病房多選"></div>
+      <div class="ward-tools"><button id="selectShown" type="button" disabled>勾選目前顯示</button></div>
+      </div><aside class="ward-selection" aria-label="已選病房與預帶設定">
+      <div class="selected-area"><strong id="selectionCount">已勾選 0 個病房</strong><div id="selectedWards" class="selected-wards" aria-live="polite"></div><div class="selection-actions"><button id="selectNone" type="button" class="clear-selection">取消全部勾選</button></div></div>
+      <div class="preset-box"><div class="preset-buttons"><button id="saveWardPreset" type="button" class="primary">儲存預帶病房</button><button id="applyWardPreset" type="button" disabled>套用預帶病房</button></div><p id="presetStatus" role="status" aria-live="polite"></p></div>
+      </aside>
+    </div>
+    <div class="batch-actions"><button id="startBatch" type="button" class="primary">開始擷取</button><button id="stopBatch" type="button" class="stop" disabled>停止擷取</button></div>
+  </section>
+  <section class="panel progress-panel" id="progressPanel" aria-labelledby="progressHeading">
+    <div class="section-top"><h2 id="progressHeading">擷取進度</h2><strong id="progressCount">尚未開始</strong></div>
+    <progress id="batchProgress" class="progress" value="0" max="1" aria-label="病房擷取進度"></progress>
+    <p class="run-status" id="runStatus" role="status" aria-live="polite">勾選病房後開始擷取</p><div class="run-log" id="runLog"></div>
+  </section>
+  <div class="partial-banner" id="partialBanner" hidden></div>
+
+  <section class="panel controls" aria-label="出院日期篩選">
+    <div><label class="field-label" for="baseDate">基準日期</label><div class="date-line"><input id="baseDate" type="date" required><button id="today" class="link" type="button">今天</button></div></div>
+    <div><span class="field-label" id="daysLabel">查看幾天內出院</span><div class="days" role="group" aria-labelledby="daysLabel">
+      <button class="day" data-days="1" aria-pressed="true" type="button">1 天內</button><button class="day" data-days="2" aria-pressed="false" type="button">2 天內</button><button class="day" data-days="3" aria-pressed="false" type="button">3 天內</button><button class="day" data-days="4" aria-pressed="false" type="button">4 天內</button><button class="day" data-days="5" aria-pressed="false" type="button">5 天內</button><button class="day" data-days="6" aria-pressed="false" type="button">6 天內</button><button class="day" data-days="7" aria-pressed="false" type="button">7 天內</button>
+    </div><div class="range-line"><span id="rangeLabel"></span><label class="check"><input type="checkbox" id="includeToday" checked>也包含基準日當天</label></div></div>
+  </section>
+  <div class="workarea">
+    <section class="panel input-panel" aria-labelledby="inputTitle">
+      <div class="section-top"><h2 id="inputTitle"><span class="step">01</span>貼上原始資料</h2><button type="button" id="clear" class="link">清空</button></div>
+      <p class="hint">可直接貼上整頁文字，選單與頁首會自動略過。</p>
+      <label for="source" class="field-label" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">住院病人清單原始文字</label>
+      <textarea id="source" class="paste" placeholder="在這裡按 Ctrl + V 貼上…&#10;&#10;支援原始清單中的標註：&#10;10/02可出院&#10;10/03 可出院&#10;&#10;貼上後即自動整理，不必刪除其他文字。" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+      <div class="source-footer"><span id="inputStat">尚未貼上資料</span><span>貼上即更新</span></div>
+      <div class="input-actions"><button type="button" class="primary" id="analyze">擷取出院名單</button><button type="button" id="demo">試用範例</button></div>
+      <details class="rules"><summary>擷取規則與使用說明</summary><ul>
+        <li>「明天」指基準日的隔天；「2 天內」包含隔天與第 2 天，依此類推。可另外勾選納入基準日當天。</li>
+        <li>依備註中明確相連的日期與「可出院」「預計出院」「預定出院」擷取；不把入院日期當成出院日期。</li>
+        <li>日期支援 10/02、10-02、10月2日、2026/10/02、2026-10-02；也支援「可出院：10/02」。只寫月日時，採與基準日最接近的合理年份。</li>
+        <li>床號＝病房－病室－病床。帳號目前支援「2 位數字＋1 個英文字母＋8 位數字」格式。</li>
+        <li>重複貼上相同病人只列一次。資料互相矛盾、日期無法判讀或含否定語意，會列入「待核對」，不自行猜測。</li>
+        <li>病人資料只在本機記憶體中處理，不傳送到外部服務，也不儲存於擴充功能。僅儲存按下「儲存預帶病房」時的病房代碼；批次切換使用已登入的院內頁面。關閉工具視窗後請重新擷取。</li>
+      </ul></details>
+    </section>
+    <div>
+      <section class="panel result-panel" aria-labelledby="resultTitle">
+        <div class="result-head"><div class="result-title"><h2 id="resultTitle"><span class="step">02</span><span id="resultHeading">明天可出院</span></h2><span id="count" class="count">0 人</span></div><p id="stats" class="meta">依備註日期整理，結果按床號排序。</p><p class="print-meta" id="printMeta"></p><div class="toolbar"><button type="button" id="copy" disabled>複製表格</button><button type="button" id="csv" disabled>下載 CSV</button><button type="button" id="print" disabled>列印名單</button></div></div>
+        <div id="tableSection" class="table-wrap" hidden><table><thead><tr><th scope="col">床號</th><th scope="col">姓名</th><th scope="col">病歷號</th><th scope="col"><span class="screen-date-label">出院日期</span><span class="print-date-label">出院日期</span></th><th scope="col">領藥號／狀態／時間</th><th scope="col" class="print-only handwriting-header"><span>衛教對象</span><span>／花費時間</span></th><th scope="col" class="print-only">備註</th></tr></thead><tbody id="rows"></tbody></table></div>
+        <div class="empty" id="empty"><div class="empty-symbol" aria-hidden="true">≡</div><strong id="emptyTitle">貼上清單，名單就準備好了</strong><p id="emptyHint">在左側貼上住院清單，再選擇需要查看的天數。</p></div>
+        <div class="result-foot">依原始清單標註擷取。只採用「批次／急單」紀錄；狀態保留原值，刷出時間與列印時間分別讀取。</div>
+      </section>
+      <details id="review" class="review" hidden open><summary id="reviewTitle">待核對</summary><ul id="reviewList"></ul></details>
+      <div class="notice" id="notice" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.8.0</span></footer>
+</main>
+<script src="incremental.js"></script>
+<script src="daily.js"></script>
+<script src="app.js"></script>
+<script src="bridge.js"></script>
+<script src="batch.js"></script>
+<dialog id="update-dialog" class="update-dialog" aria-labelledby="update-title">
+  <div class="section-title"><div><h2 id="update-title">工具更新</h2><p id="update-version"></p></div><button id="update-close" type="button" aria-label="關閉更新視窗">×</button></div>
+  <div class="update-summary"><strong id="update-new-version"></strong><p id="update-status" role="status" aria-live="polite">正在讀取更新設定…</p><p id="update-notes"></p></div>
+  <div class="update-actions"><button id="update-check" type="button">檢查新版</button><button id="update-apply" class="primary" type="button" hidden>更新並重新開啟</button><button id="update-recover" type="button" hidden>還原原版檔案</button></div>
+  <section class="update-setup"><h3>這台電腦的更新設定</h3><p class="muted small">每次開啟工具時自動檢查；視窗開著時每 6 小時再檢查，關閉後停止。找到新版會主動開啟更新視窗；操作中會延後提醒，同次開啟只提醒一次。套用前會等待目前擷取完成；已確認列印的紀錄會保留。</p>
+    <div class="update-folder-row"><div><strong>工具資料夾</strong><p id="update-directory" class="muted small"></p></div><button id="update-folder" type="button">指定資料夾</button></div>
+    <p class="muted small">請選擇原本在 Chrome 載入的 discharge-extension 資料夾，內有 manifest.json。Chrome 可能再次要求寫入授權。</p>
+    <p class="muted small">使用公開更新來源，不需 GitHub 帳號或憑證。</p>
+  </section><p class="muted small update-footnote">只下載工具程式；病人資料與當日列印比對紀錄不會傳到 GitHub。更新期間請保持視窗開啟。</p>
+</dialog>
+<div id="management-pending" class="management-pending" hidden role="status">已收到管理限制，完成目前擷取後將暫停新的作業。</div>
+<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><span class="management-icon">衛</span><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>
+<dialog id="management-dialog" class="update-dialog" aria-labelledby="management-title"><div class="section-title"><div><h2 id="management-title">這台電腦</h2><p id="management-name-display"></p><p id="management-id-display" class="muted small"></p></div><button id="management-close" type="button" aria-label="關閉電腦設定">×</button></div><p id="management-status" role="status" aria-live="polite"></p><form id="management-form"><section id="management-setup"><p class="muted small">第一次使用請輸入辨識名稱與管理員提供的 4 位數字登記碼（10 分鐘內有效）。</p><label>電腦名稱<input id="management-name" required maxlength="60" autocomplete="off" placeholder="例如：兒醫住院藥局－調劑台 01"></label><label>登記碼<input id="management-code" required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="4 個數字，例如 0386"></label><button id="management-submit" type="submit" class="primary">登記並開始使用</button></section></form><p id="management-check-time" class="muted small"></p><button id="management-retry" type="button">重新連線</button><p class="muted small">只回報電腦識別、工具版本與管理狀態。關閉工具後停止；最後驗證後可離線使用 24 小時，已接收的停用或升級限制仍有效。</p></dialog>
+
+<script type="module" src="services.js"></script>
+</body>
+</html>
