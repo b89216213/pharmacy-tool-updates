@@ -1,3 +1,4 @@
+importScripts('education-core.js');
 'use strict';
 // A single tool window prevents concurrent captures and conflicting print baselines.
 let opening=Promise.resolve();
@@ -13,3 +14,5 @@ chrome.action.onClicked.addListener(tab=>{
  opening=opening.catch(()=>{}).then(()=>openTool('?tab='+tab.id+'&origin='+encodeURIComponent(origin)));
 });
 (async()=>{const {dischargeUpdateReopen:value}=await chrome.storage.local.get('dischargeUpdateReopen');if(!value)return;await chrome.storage.local.remove('dischargeUpdateReopen');if(Date.now()-value.at<120000&&typeof value.search==='string')await openTool(value.search);})();
+
+if(globalThis.navigator?.locks)navigator.locks.request('discharge-education-records',async()=>{const v=await chrome.storage.local.get(EducationCore.KEY);await chrome.storage.local.set({[EducationCore.KEY]:EducationCore.prune(v[EducationCore.KEY])});}).catch(()=>{});

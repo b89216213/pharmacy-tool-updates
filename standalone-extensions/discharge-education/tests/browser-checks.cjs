@@ -19,7 +19,7 @@ const server=http.createServer((req,res)=>{const urlPath=decodeURIComponent(new 
    if(action==='patientReturnState')result={origin,returnable:true};if(action==='returnPatientList')result={origin,ok:true};
    return [{frameId:0,result}];}}};
   const nativeFetch=fetch;window.fetch=async(url,o)=>{if(String(url).startsWith('https://pharmacy-device-console')){fixtureRequests.push(JSON.parse(o.body));return new Response(JSON.stringify(fixtureReply),{headers:{'Content-Type':'application/json'}});}if(String(url).startsWith('https://raw.githubusercontent.com'))return new Response('',{status:404});return nativeFetch(url,o);};
-  const timer=setInterval;window.setInterval=(fn,ms)=>{if(ms===60000)window.fixtureHeartbeat=fn;return timer(fn,ms);};
+  const timer=setInterval,minuteTasks=[];window.fixtureHeartbeat=async()=>{for(const fn of minuteTasks)await fn();};window.setInterval=(fn,ms)=>{if(ms===60000)minuteTasks.push(fn);return timer(fn,ms);};
   window.print=()=>{window.fixturePrinted=(window.fixturePrinted||0)+1;dispatchEvent(new Event('afterprint'));};
  },{manifest});
  const done=x=>console.log('PASS',x),waitDone=async()=>{await page.waitForFunction(()=>window.CaptureSession?.status==='complete'&&!window.CaptureRunning,null,{timeout:45000});};

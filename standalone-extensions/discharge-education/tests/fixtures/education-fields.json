@@ -1,0 +1,627 @@
+{
+  "rdbEducationType_0": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "一般",
+    "disabled": false,
+    "value": "E001",
+    "checked": false
+  },
+  "rdbEducationType_1": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "出院",
+    "disabled": false,
+    "value": "E002",
+    "checked": true
+  },
+  "rdbEducationType_2": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "移植",
+    "disabled": false,
+    "value": "E003",
+    "checked": false
+  },
+  "rdbEducationType_3": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "心衰竭",
+    "disabled": false,
+    "value": "E004",
+    "checked": false
+  },
+  "rdbEducationType_4": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "肺阻塞",
+    "disabled": false,
+    "value": "E005",
+    "checked": false
+  },
+  "rdbEducationType_5": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "心肌梗塞",
+    "disabled": false,
+    "value": "E006",
+    "checked": false
+  },
+  "rdbIsComplete_0": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "是",
+    "disabled": false,
+    "value": "Y",
+    "checked": true
+  },
+  "rdbIsComplete_1": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "否",
+    "disabled": false,
+    "value": "N",
+    "checked": false
+  },
+  "chkCareGiverType_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "自我照護",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareGiverType_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "家屬",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareGiverType_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "外傭",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareGiverType_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "其它",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "國語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "台語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "客語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "英語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_4": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "日語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_5": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "原住民語",
+    "disabled": false,
+    "checked": false
+  },
+  "chkLanguageType_6": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "其它",
+    "disabled": false,
+    "checked": false
+  },
+  "rdbLearningObstacleNO": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "無",
+    "disabled": false,
+    "value": "rdbLearningObstacleNO",
+    "checked": true
+  },
+  "rdbLearningObstacleYES": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "有",
+    "disabled": false,
+    "value": "rdbLearningObstacleYES",
+    "checked": false
+  },
+  "chkPatientSpeciality_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "聽障",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "視障",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "失語",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "語言不同",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_4": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "認知功能損傷",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_5": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "其它",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_6": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "重聽",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_7": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "溝通困難",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_8": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "不識字",
+    "disabled": true,
+    "checked": false
+  },
+  "chkPatientSpeciality_9": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "缺乏病識感",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbUnderstandDegree_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "瞭解",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "部分瞭解",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "不瞭解",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "病況不適或無意願",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_4": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "技術熟練",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_5": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "可操作部分技術",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_6": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "不會操作",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_7": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "尚未實際操作",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbUnderstandDegree_8": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "優",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbUnderstandDegree_9": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "良",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbUnderstandDegree_10": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "劣",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbNeedEvaluate_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "口頭表示理解",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbNeedEvaluate_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "可施行所學技巧",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbNeedEvaluate_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "已收到指導單張",
+    "disabled": false,
+    "checked": false
+  },
+  "ckbNeedEvaluate_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "是",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbNeedEvaluate_4": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "否",
+    "disabled": true,
+    "checked": false
+  },
+  "rdbProhibitionNO": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "無",
+    "disabled": false,
+    "value": "rdbProhibitionNO",
+    "checked": true
+  },
+  "rdbProhibitionYES": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "有",
+    "disabled": false,
+    "value": "rdbProhibitionYES",
+    "checked": false
+  },
+  "txbProhibitionText": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "rdbLearningWill_0": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "高",
+    "disabled": false,
+    "value": "LW01",
+    "checked": false
+  },
+  "rdbLearningWill_1": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "普通",
+    "disabled": false,
+    "value": "LW02",
+    "checked": false
+  },
+  "rdbLearningWill_2": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "低",
+    "disabled": false,
+    "value": "LW03",
+    "checked": false
+  },
+  "txbLearningWillText": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "rdbLearningAffectNO": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "無",
+    "disabled": false,
+    "value": "rdbLearningAffectNO",
+    "checked": true
+  },
+  "rdbLearningAffectYES": {
+    "tag": "input",
+    "type": "radio",
+    "labelExcerpt": "有",
+    "disabled": false,
+    "value": "rdbLearningAffectYES",
+    "checked": false
+  },
+  "ckbLearningAffect_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "記掛心事",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbLearningAffect_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "疲倦",
+    "disabled": true,
+    "checked": false
+  },
+  "ckbLearningAffect_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "疼痛",
+    "disabled": true,
+    "checked": false
+  },
+  "txbLearningAffectText": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "txbCostMinute": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "chkCareOpinionItem_0": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "藥品名稱",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_1": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "作用",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_2": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "適應症",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_3": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "用法",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_4": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "藥品食物交互作用",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_5": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "不良反應",
+    "disabled": false,
+    "checked": false
+  },
+  "chkCareOpinionItem_6": {
+    "tag": "input",
+    "type": "checkbox",
+    "labelExcerpt": "藥品其它相關資訊",
+    "disabled": false,
+    "checked": false
+  },
+  "btnFillCareOpinionDefaultText": {
+    "tag": "input",
+    "type": "submit",
+    "labelExcerpt": "帶入內容",
+    "disabled": false
+  },
+  "btnCleanCareOpinionDefaultText": {
+    "tag": "input",
+    "type": "submit",
+    "labelExcerpt": "清空內容",
+    "disabled": false
+  },
+  "txbCareOpioion": {
+    "tag": "textarea",
+    "type": null,
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "ddlPharmacy": {
+    "tag": "select",
+    "type": null,
+    "labelExcerpt": "總院門診藥局(含1,2樓) 總院西址住院藥局 總院東址UDD住院藥局 總院急診藥局 TPN藥局 總院西址化療藥局 總院東址化療藥局 臨床試驗用藥管理中心藥局 總院東址藥庫 總院ADC管理 總院西址藥庫 兒醫藥局 總院門診藥局(連處) 總院兒心藥局 藥品管理組 開刀房藥局 總院健康大樓藥局 總院健康大樓開刀房藥局 總院戶外藥局",
+    "disabled": false,
+    "options": [
+      {
+        "value": "",
+        "text": ""
+      },
+      {
+        "value": "T01",
+        "text": "總院門診藥局(含1,2樓)"
+      },
+      {
+        "value": "T02",
+        "text": "總院西址住院藥局"
+      },
+      {
+        "value": "T03",
+        "text": "總院東址UDD住院藥局"
+      },
+      {
+        "value": "T04",
+        "text": "總院急診藥局"
+      },
+      {
+        "value": "T05",
+        "text": "TPN藥局"
+      },
+      {
+        "value": "T06",
+        "text": "總院西址化療藥局"
+      },
+      {
+        "value": "T07",
+        "text": "總院東址化療藥局"
+      },
+      {
+        "value": "T08",
+        "text": "臨床試驗用藥管理中心藥局"
+      },
+      {
+        "value": "T09",
+        "text": "總院東址藥庫"
+      },
+      {
+        "value": "T0A",
+        "text": "總院ADC管理"
+      },
+      {
+        "value": "T0B",
+        "text": "總院西址藥庫"
+      },
+      {
+        "value": "T0C",
+        "text": "兒醫藥局"
+      },
+      {
+        "value": "T0D",
+        "text": "總院門診藥局(連處)"
+      },
+      {
+        "value": "T0E",
+        "text": "總院兒心藥局"
+      },
+      {
+        "value": "T0F",
+        "text": "藥品管理組"
+      },
+      {
+        "value": "T0G",
+        "text": "開刀房藥局"
+      },
+      {
+        "value": "T0H",
+        "text": "總院健康大樓藥局"
+      },
+      {
+        "value": "T0J",
+        "text": "總院健康大樓開刀房藥局"
+      },
+      {
+        "value": "T0K",
+        "text": "總院戶外藥局"
+      }
+    ]
+  },
+  "txbPatientFamilyNote": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "txbOtherCareGiver": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "txbOtherLanguage": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "txbNotCompleteCause": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  },
+  "txbOtherPatientSpeciality": {
+    "tag": "input",
+    "type": "text",
+    "labelExcerpt": "",
+    "disabled": false
+  }
+}

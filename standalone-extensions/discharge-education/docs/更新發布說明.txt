@@ -1,8 +1,9 @@
-修改 extension 來源並遞增 manifest.json/package.json/頁尾版本。
-執行 core、management、update checks 與 browser-checks.cjs；瀏覽器測試使用合成 API 和病人頁回覆，不連院內。
+修改 discharge-extension 來源並遞增 manifest.json/package.json/頁尾版本。
+執行 core、education、management、update checks 與 browser-checks.cjs、education-browser-checks.cjs；瀏覽器測試使用合成 API 和病人頁回覆，不連院內。
 執行 node scripts/build-update.mjs 產生 release/updates/discharge-education。
 公開庫 main 的 updates/discharge-education/latest.json 與 packages/<version>.json 必須用同一 commit 發布。
 保留已發布版本包，不能以不同內容覆寫同一版號。
 私人庫路徑 pharmacy-tools-github-ready-20261013/standalone-extensions/discharge-education/discharge-extension。
-更新來源固定 b89216213/pharmacy-tool-updates main，只白名單封裝程式檔；禁止包含 Chrome 儲存內容、病人資料、裝置憑證、後台環境變數。
+更新來源固定 b89216213/pharmacy-tool-updates main，只白名單封裝程式檔；禁止包含 Chrome 儲存內容、病人資料、錄影、解密金鑰、裝置憑證、後台環境變數。
+測試表單 schema 只含通用欄位名稱與選項；測試病人與處方皆為合成資料。
 更新包工具 ID ntuh-discharge-education；不得與貼片工具共用封包 ID 或覆蓋其發布路徑。

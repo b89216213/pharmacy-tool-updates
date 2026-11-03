@@ -29,7 +29,7 @@
   })();return initializing;
  }
  async function rollover(){
-  if(ledger.day===C.day())return false;
+  if(ledger.day===C.day()||window.EducationRunning)return false;
   if(window.CaptureRunning){window.DischargeCapture.stop();return true;}
   await locked(async()=>{await write(C.empty());});baseline=structuredClone(ledger);batchDay='';mode='fresh';pending=null;printed=false;
   window.DischargeCapture.reset();$('baseDate').value=todayISO();window.DischargePresentation.restoreAssignments(null);window.DischargePresentation.switchView('input');refresh();render();message('已換日，今天的名單請重新擷取。');return true;
@@ -64,8 +64,8 @@
   if(!pending||printed||writing||window.DischargeBlocked)return;
   writing=true;render();try{
    const snapshot=pending;
-   await locked(async()=>{const latest=await read();if(snapshot.day!==C.day()||latest.generation!==snapshot.generation)throw Error('日期或比對紀錄已變更，請重新開始擷取。');await write(C.commit(latest,snapshot.rows,snapshot.settings,snapshot.assignments));});
-   printed=true;pending=null;message('已記錄這批已完成列印。下次檢查新增會排除已列印內容。');
+   await locked(async()=>{const latest=await read();if(snapshot.day!==C.day()||latest.generation!==snapshot.generation)throw Error('日期或比對紀錄已變更，請重新開始擷取。');const next=C.commit(latest,snapshot.rows,snapshot.settings,snapshot.assignments);await window.DischargeEducation.save(snapshot.rows,snapshot.assignments,{printed:true,dailyLedger:next});ledger=next;});
+   printed=true;pending=null;message('已記錄列印並保存名單七天，可從「七天名單／衛教」批次登錄。下次檢查新增會排除已列印內容。');
   }finally{writing=false;render();}
  }
  function isCurrent(){return !batchDay||batchDay===C.day();}

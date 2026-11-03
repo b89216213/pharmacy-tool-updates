@@ -284,11 +284,11 @@
   }
   let starting=false;
   async function startBatch(mode='fresh'){
-    if(starting||state.running)return;starting=true;
+    if(starting||state.running||window.EducationRunning)return;starting=true;
     try{await navigator.locks.request('discharge-portal-capture',{ifAvailable:true},async lock=>{if(!lock){runStatus('另一個工具視窗正在擷取，請稍後再試。',true);return;}await runBatch(mode);});}finally{starting=false;}
   }
   async function runBatch(mode='fresh'){
-    if(state.running||window.DischargeBlocked||window.DischargeUpdating)return;
+    if(state.running||window.EducationRunning||window.DischargeBlocked||window.DischargeUpdating)return;
     if(typeof mode!=='string')mode='fresh';
     try{if(!await window.DischargeDaily.begin(mode))return;}catch(e){runStatus(e.message,true);return;}
     const wards=selectedWards();state.stop=false;window.dispatchEvent(new Event('capturestart'));setRunning(true);

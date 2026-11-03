@@ -1,6 +1,6 @@
 
 'use strict';
-// All patient parsing is local. No network calls, external libraries, or persistence.
+// Patient parsing stays local; explicit saved lists are handled by education.js.
 const DischargeParser = (() => {
   const DAY = 86400000;
   const pad = n => String(n).padStart(2, '0');
@@ -311,7 +311,7 @@ refresh();
     return [...wards.values()].sort((a,b)=>a.code.localeCompare(b.code,'en',{numeric:true}));
   }
   function pharmacistFor(ward){const n=assignments.get(ward);return n&&n<=pharmacistCount?n:1;}
-  function canPrint(){if(window.DischargeBlocked||window.DischargeUpdating)return false;const wards=wardStats().filter(w=>w.total);return complete()&&wards.length>0&&wards.every(w=>pharmacistFor(w.code)>0&&pharmacistFor(w.code)<=pharmacistCount);}
+  function canPrint(){if(window.DischargeBlocked||window.DischargeUpdating||window.EducationRunning)return false;const wards=wardStats().filter(w=>w.total);return complete()&&wards.length>0&&wards.every(w=>pharmacistFor(w.code)>0&&pharmacistFor(w.code)<=pharmacistCount);}
   function updateGates(){
     const ready=complete()&&!window.DischargeBlocked&&!window.DischargeUpdating;byId('toAssignment').hidden=!ready;byId('assignmentTab').disabled=!ready;byId('outputTab').disabled=!(canPrint()||ready&&window.DischargeDaily?.mode==='incremental');byId('toOutput').disabled=byId('outputTab').disabled;byId('print').disabled=!canPrint();
     byId('inputTab').disabled=!!window.CaptureRunning;byId('progressTab').disabled=!!window.CaptureRunning||!started&&!ready;byId('toProgress').hidden=!started&&!ready;

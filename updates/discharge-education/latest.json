@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.8.0",
-  "notes": "新增同日增量名單、跨日重置、自動檢查更新與電腦後台管理。首次請手動覆蓋原資料夾。",
-  "packagePath": "updates/discharge-education/packages/2.8.0.json",
-  "size": 252843,
-  "sha256": "42839a877a43ae2b0abeb0c6306fc24a5b99dc1b4e2585112da341b105d3db7d"
+  "version": "2.9.0",
+  "notes": "新增七天名單保存與批次衛教登錄；每位病人合併出院藥處方（含停用），支援未完成原因與修改衛教內容。",
+  "packagePath": "updates/discharge-education/packages/2.9.0.json",
+  "size": 319012,
+  "sha256": "3648d65a406cd88fc950f6a9a4277d3e9cb8627acf03c0d1ce4ab320adf96e7f"
 }
