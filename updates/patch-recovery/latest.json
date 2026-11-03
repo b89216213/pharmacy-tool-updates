@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.2.4",
-  "notes": "「更新可用」改為深綠底白字、淡綠圓點與柔和外框，維持原有配色。僅在有新版時突出顯示；沿用開啟時檢查與原有更新方式。",
-  "packagePath": "updates/patch-recovery/packages/1.2.4.json",
-  "size": 208607,
-  "sha256": "a4147980a91c403c67b04c757f6a710032f7c0bcecdcbd857cbea2afc6b3bf0c"
+  "version": "1.2.5",
+  "notes": "偵測到新版時主動開啟更新視窗；同次開啟只提醒一次，操作或輸入中會延後提醒。維持深綠更新按鈕，僅在工具開啟時檢查；按確認後才套用更新。",
+  "packagePath": "updates/patch-recovery/packages/1.2.5.json",
+  "size": 210130,
+  "sha256": "848321707d1a8c98edb6bdbb949b0a1a0efe475b1ddf5c5dc497849820c3dbd5"
 }

@@ -1,9 +1,9 @@
-貼片回收工具公開更新來源維護（v1.2.4）
+貼片回收工具公開更新來源維護（v1.2.5）
 
 固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
 更新索引：updates/patch-recovery/latest.json。
 程式來源：standalone-extensions/patch-recovery/extension/。
-首次安裝包：downloads/patch-recovery-v1.2.4.zip。
+首次安裝包：downloads/patch-recovery-v1.2.5.zip。
 舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
 
 之後發布新版：
@@ -28,3 +28,5 @@ v1.2.0 → v1.2.1 因變更下載網址與 Chrome 連線權限，必須先以 ZI
 v1.2.3 僅在工具視窗開啟時檢查：每次開啟立即檢查、持續開著每 6 小時再檢查。未新增 alarms 權限，也未修改 background.js；v1.2.1／v1.2.2 可直接在工具內更新。
 
 v1.2.4 調整「更新可用」按鈕的視覺提示，沿用既有綠色系；只有較新版本可用時套用，更新完成後恢復一般白底。未新增權限，可直接從 v1.2.3 更新。
+
+v1.2.5 在成功檢查到新版時主動顯示更新視窗。同次開啟只提醒一次；查詢、儲存、其他視窗或欄位編輯中會延後，關閉提醒可繼續使用，按更新才套用。失敗檢查與僅有快取不會觸發提醒；沒有修改背景程式或 Chrome 權限。

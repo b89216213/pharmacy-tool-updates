@@ -14,6 +14,24 @@ export async function mountUpdater({isBusy,prepare,finish}){
     await store('delete','latest');await store('delete','lastCheck');await store('put','source',sourceKey);
   }
   let directory=await store('get','directory'),latest=null,working=false,checking=false,installing=false,journal=await store('get','journal');
+  let reminded=false,reminderPending=false,reminderTimer=null;
+  const hasUpdate=()=>!!latest&&compareVersion(latest.version,current.version)>0;
+  function clearReminder(){reminderPending=false;clearTimeout(reminderTimer);reminderTimer=null;}
+  function openDialog(){
+    render();if(!$('update-dialog').open)$('update-dialog').showModal();
+    if(hasUpdate()){reminded=true;clearReminder();}
+  }
+  function remindWhenReady(){
+    clearTimeout(reminderTimer);reminderTimer=null;
+    if(!reminderPending||reminded||!hasUpdate()||journal){clearReminder();return;}
+    // A manually opened update dialog already counts as seeing this reminder.
+    if($('update-dialog').open){reminded=true;clearReminder();return;}
+    // Wait for queries, saves, other dialogs and active field editing to finish.
+    if(working||checking||installing||isBusy()||document.hidden||document.activeElement?.matches('input,textarea,select,[contenteditable]:not([contenteditable="false"])')){
+      reminderTimer=setTimeout(remindWhenReady,1000);return;
+    }
+    openDialog();
+  }
   const status=(message,error=false)=>{$('update-status').textContent=message;$('update-status').classList.toggle('update-error',error);};
   const locked=value=>{working=value;for(const el of $('update-dialog').querySelectorAll('button,input'))el.disabled=value;};
   const guarded=fn=>async()=>{if(working)return;try{await fn();}catch(e){status(e.name==='AbortError'?'已取消，工具未更動。':e.message||'更新失敗，請稍後再試。',true);}finally{if(!installing){locked(false);render();}}};
@@ -37,11 +55,11 @@ export async function mountUpdater({isBusy,prepare,finish}){
     checking=true;render();
     if(manual)locked(true);
     if(manual||$('update-dialog').open)status('正在檢查新版…');
-    try{latest=parseIndex(await githubFile(SOURCE.index,{max:32000}));await store('put','lastCheck',Date.now());await store('put','latest',latest);if(manual||!working)status(compareVersion(latest.version,current.version)>0?'新版已就緒。完成目前作業後，可按「更新並重新開啟」。':'目前已是最新版本。');render();}
-    catch(e){if(manual||$('update-dialog').open)status(e.message,true);else status('上次檢查未成功，可按「檢查新版」重試。',true);}
-    finally{checking=false;if(manual)locked(false);render();}
+    try{latest=parseIndex(await githubFile(SOURCE.index,{max:32000}));await store('put','lastCheck',Date.now());await store('put','latest',latest);reminderPending=!reminded&&hasUpdate();if(manual||!working)status(hasUpdate()?'新版已就緒。可按「更新並重新開啟」，或先關閉視窗繼續使用。':'目前已是最新版本。');render();}
+    catch(e){clearReminder();if(manual||$('update-dialog').open)status(e.message,true);else status('上次檢查未成功，可按「檢查新版」重試。',true);}
+    finally{checking=false;if(manual)locked(false);render();remindWhenReady();}
   }
-  $('open-update').addEventListener('click',()=>{render();$('update-dialog').showModal();});
+  $('open-update').addEventListener('click',openDialog);
   $('update-close').addEventListener('click',()=>{if(!working)$('update-dialog').close();});
   $('update-dialog').addEventListener('cancel',event=>{if(working)event.preventDefault();});
   $('update-folder').addEventListener('click',guarded(async()=>{
