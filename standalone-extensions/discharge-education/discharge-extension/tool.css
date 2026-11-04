@@ -65,3 +65,6 @@
 
 /* Keep the offscreen page measurable with the same printable area during beforeprint. */
 @media print{.measure-area{display:block!important}.measure-area>.sheet{width:194mm;height:280mm;min-height:0;padding:0}.measure-area>.sheet.oversize{height:auto}}
+
+/* Fixed dimensions keep the approved logo compact, including while its image loads. */
+.topbar .brand{flex-direction:row;align-items:center;gap:10px}.brand-logo{display:block;width:36px;height:36px;max-width:36px;max-height:36px;flex:0 0 36px;object-fit:contain;border-radius:8px}

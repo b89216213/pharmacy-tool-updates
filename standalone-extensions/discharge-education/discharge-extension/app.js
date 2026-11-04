@@ -239,7 +239,7 @@ refresh();
   const top=make('header','topbar','<div class="brand-label">出院藥衛教名單擷取工具 <small></small></div><nav class="stepnav" aria-label="操作步驟"><button type="button" class="step-btn" id="inputTab" aria-selected="true"><span class="num">1</span>擷取設定</button><span class="arrow">›</span><button type="button" class="step-btn" id="progressTab" aria-selected="false" disabled><span class="num">2</span>擷取進度</button><span class="arrow">›</span><button type="button" class="step-btn" id="assignmentTab" aria-selected="false" disabled><span class="num">3</span>分配衛教藥師</button><span class="arrow">›</span><button type="button" class="step-btn" id="outputTab" aria-selected="false" disabled><span class="num">4</span>列印</button></nav>');
   top.querySelector('small').textContent=version.replace('瀏覽器擴充版 ','v').replace('離線單檔版 ','v');
   const portal=make('section','panel portal-notice','請開啟 Portal 的「查詢處理」頁面'),brand=make('div','brand');
-  const brandLabel=top.querySelector('.brand-label');brandLabel.before(brand);brand.append(brandLabel);
+  const brandLabel=top.querySelector('.brand-label');brandLabel.before(brand);const logo=make('img','brand-logo');logo.src='icons/icon48.png';logo.srcset='icons/icon48.png 1x, icons/icon128.png 2x';logo.width=36;logo.height=36;logo.alt='';logo.setAttribute('aria-hidden','true');brand.append(logo,brandLabel);
   top.append(make('div','top-tools','<span class="local-tag">本機處理</span><button id="open-management" type="button">登記電腦</button><button id="open-update" type="button">工具更新</button>'));
   const capture=make('section','screen');capture.id='screenInput';
   const scroll=make('div','capture-scroll'),wrap=make('div','capture-wrap');scroll.append(wrap);capture.append(scroll);

@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.10.0",
-  "notes": "統一登錄衛教紀錄與單份名單進度；家屬必填、未完成只填原因；加速填寫並使用摘要全選，改由原頁選單連結切換 Portal。",
-  "packagePath": "updates/discharge-education/packages/2.10.0.json",
-  "size": 330494,
-  "sha256": "b446e30b441b465ee54ff9772c4f4ae4976cbd21b56cc1a93cd7b28a39597dbe"
+  "version": "2.10.1",
+  "notes": "套用純色版出院藥衛教 logo 至工具列、視窗與程式左上角；移除啟動時短暫放大的舊圖示。",
+  "packagePath": "updates/discharge-education/packages/2.10.1.json",
+  "size": 355317,
+  "sha256": "bc5fa83ac3492908a7ac1149a3526bdfc07d199995409f0a13bdf20765f3a7bf"
 }

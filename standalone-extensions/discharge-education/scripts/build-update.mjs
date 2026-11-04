@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),ext=path.join(root,'discharge-extension');
 const manifest=JSON.parse(await fs.readFile(path.join(ext,'manifest.json'),'utf8'));
 const hash=b=>createHash('sha256').update(b).digest('hex');
-const allowed=['education-core.js','education-bridge.js','education.js','education-ui.js','education.css','app.js', 'background.js', 'batch.js', 'bridge.js', 'daily.js', 'discharge-tool.json', 'incremental.js', 'management-core.js', 'management.js', 'manifest.json', 'services.css', 'services.js', 'tool.css', 'tool.html', 'update-core.js', 'update-network.js', 'update-store.js', 'updater.js'];
+const allowed=['icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png','education-core.js','education-bridge.js','education.js','education-ui.js','education.css','app.js', 'background.js', 'batch.js', 'bridge.js', 'daily.js', 'discharge-tool.json', 'incremental.js', 'management-core.js', 'management.js', 'manifest.json', 'services.css', 'services.js', 'tool.css', 'tool.html', 'update-core.js', 'update-network.js', 'update-store.js', 'updater.js'];
 const files=[];for(const p of allowed){const b=await fs.readFile(path.join(ext,p));files.push({path:p,size:b.length,sha256:hash(b),base64:b.toString('base64')});}
-const notes=process.argv[2]||'統一登錄衛教紀錄與單份名單進度；家屬必填、未完成只填原因；加速填寫並使用摘要全選，改由原頁選單連結切換 Portal。';
+const notes=process.argv[2]||'套用純色版出院藥衛教 logo 至工具列、視窗與程式左上角；移除啟動時短暫放大的舊圖示。';
 const pkg={format:'discharge-education-update-v1',toolId:'ntuh-discharge-education',version:manifest.version,notes,files};
 const bytes=Buffer.from(JSON.stringify(pkg)),relative=`updates/discharge-education/packages/${manifest.version}.json`;
 await fs.mkdir(path.join(root,'release/updates/discharge-education/packages'),{recursive:true});
