@@ -1,9 +1,9 @@
 {
   "format": "barcode-return-release-v1",
   "toolId": "ntuh-barcode-return",
-  "version": "1.1.1",
-  "notes": "統一單字圖示「碼」：工具列、頁面及管理視窗一致，保留原有退藥流程。",
-  "packagePath": "updates/barcode-return/packages/1.1.1.json",
-  "size": 166849,
-  "sha256": "1a2733f26da8f02f09fb34f8cd3fcdac87324e2a5b548939677145f6804c4865"
+  "version": "1.1.2",
+  "notes": "修正處方清單「完」與退藥頁「完成」的狀態對照，單筆完成處方可正常讀取。保留重複處方逐筆核對、餘量與送出結果檢查；管理、更新及「碼」圖示不變。",
+  "packagePath": "updates/barcode-return/packages/1.1.2.json",
+  "size": 167440,
+  "sha256": "643cfcb0cedb04117363d72ad363043ec825c16c4f7817bf629090aae35b15aa"
 }

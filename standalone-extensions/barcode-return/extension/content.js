@@ -29,7 +29,7 @@
   </style>
   
   <section id="app" hidden aria-label="刷條碼退藥輔助">
-    <header><img class="tool-icon" src="${chrome.runtime.getURL('icons/icon48.png')}" width="32" height="32" alt=""><strong>刷條碼退藥</strong><span>v1.1.1</span><button type="button" id="management">電腦登記／工具更新</button><button type="button" id="native">回原畫面</button></header>
+    <header><img class="tool-icon" src="${chrome.runtime.getURL('icons/icon48.png')}" width="32" height="32" alt=""><strong>刷條碼退藥</strong><span>v1.1.2</span><button type="button" id="management">電腦登記／工具更新</button><button type="button" id="native">回原畫面</button></header>
     <main>
       <div id="management-notice" class="status" role="status">開啟後驗證電腦登記。</div>
       <form id="scan-form" class="scan"><label for="barcode">處方條碼<input id="barcode" type="text" maxlength="18" autocomplete="off" spellcheck="false" placeholder="刷入條碼後按 Enter"></label><button type="submit" class="primary" id="query">查詢並開始退藥</button><button type="button" id="read">讀取目前處方</button></form>

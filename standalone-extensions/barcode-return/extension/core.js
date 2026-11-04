@@ -15,7 +15,7 @@
     const text = clean(value).replace(/,/g, '');
     return text !== '' && /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text) ? Number(text) : null;
   };
-  const status = value => ({ '停': '停用', '確': '確認' }[clean(value)] || clean(value));
+  const status = value => ({ '停': '停用', '確': '確認', '完': '完成' }[clean(value)] || clean(value));
   const date = value => clean(value).replace(/\D/g, '').slice(0, 8);
   const day = value => /^\d{8}$/.test(date(value)) ? date(value).replace(/^(\d{4})(\d{2})(\d{2})$/, '$1/$2/$3') : clean(value);
   const directRows = table => table ? Array.from(table.rows).filter(row => row.closest('table') === table) : [];

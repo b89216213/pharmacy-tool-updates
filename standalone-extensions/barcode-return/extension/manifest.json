@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "刷條碼退藥輔助",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "在院內刷條碼退藥頁面，自動讀取處方與發退藥紀錄、全選處方，手動輸入並確認退藥。",
   "minimum_chrome_version": "122",
   "action": {
