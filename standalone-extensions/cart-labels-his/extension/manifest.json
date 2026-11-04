@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "藥車標籤列印（HIS 擴充）",
+  "version": "2.9.0",
+  "description": "在 HIS 查詢處理頁面一鍵帶入病人清單，轉成 A4 藥車標籤（65 格）預覽與列印。資料只在本機處理。",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs",
+    "webNavigation"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "藥車標籤列印",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.ntuh.gov.tw/WebApplication/*",
+        "http://*.ntuh.gov.tw/WebApplication/*"
+      ],
+      "js": [
+        "arm.js",
+        "content.js",
+        "auto.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ],
+  "minimum_chrome_version": "116",
+  "host_permissions": [
+    "https://*.ntuh.gov.tw/*",
+    "http://*.ntuh.gov.tw/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "options_page": "manager.html"
+}

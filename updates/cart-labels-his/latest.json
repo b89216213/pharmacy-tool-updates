@@ -1,0 +1,9 @@
+{
+  "format": "cart-labels-his-release-v1",
+  "toolId": "ntuh-cart-labels-his",
+  "version": "2.9.0",
+  "packagePath": "updates/cart-labels-his/packages/2.9.0.json",
+  "size": 433771,
+  "sha256": "3105a1b15cc19dccde9aba017bd069c70679b630d2afe38bc750616c32d7715f",
+  "notes": "加入四位數電腦登記、後台停用與最低版本、版本回報及工具內更新；保留原操作介面與本機資料。"
+}
