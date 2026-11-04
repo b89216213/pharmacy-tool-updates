@@ -1,4 +1,4 @@
-貼片回收紀錄 v1.4.1
+貼片回收紀錄 v1.4.2
 
 資料及操作
 - 病人名單查詢沿用既有流程；不執行退藥、銷毀、結清或病人開啟操作。
@@ -29,3 +29,8 @@ node tests/management-browser-checks.cjs
 瀏覽器檢查需 Playwright、Chromium；可設定 QA_CHROMIUM_PATH。
 PDF 另核對直式尺寸、頁數、每頁表頭／頁尾、37 筆完整性及長文字換頁。
 詳見驗證結果.txt 與各 results.json。院內連線、Windows Chrome 原生授權及實際印表機仍需實機核對。
+
+圖示
+- extension/icons/icon-{16,32,48,128}.png 為使用者確認的新 logo；保留透明背景。
+- manifest.icons / action.default_icon、tool.html favicon／頁首／管理提示均使用同一組本地圖片。
+- 更新包白名單納入全部四張 PNG，原更新器已支援 PNG 與子目錄，無須更動執行邏輯。

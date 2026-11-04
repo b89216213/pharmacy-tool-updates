@@ -1,0 +1,31 @@
+{
+  "version": "1.4.2",
+  "date": "2026-11-04",
+  "oldUpdater": "1.4.1",
+  "packageFileCount": 22,
+  "iconSizes": [
+    16,
+    32,
+    48,
+    128
+  ],
+  "alpha": true,
+  "headerImages": [
+    {
+      "complete": true,
+      "w": 128,
+      "h": 128,
+      "src": "icons/icon-128.png"
+    },
+    {
+      "complete": true,
+      "w": 128,
+      "h": 128,
+      "src": "icons/icon-128.png"
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "Native Windows Chrome toolbar and hospital Portal not exercised."
+  ]
+}

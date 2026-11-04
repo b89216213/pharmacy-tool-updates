@@ -1,9 +1,9 @@
-貼片回收工具公開更新來源維護（v1.4.1）
+貼片回收工具公開更新來源維護（v1.4.2）
 
 固定來源：公開儲存庫 b89216213/pharmacy-tool-updates，main 分支。
 更新索引：updates/patch-recovery/latest.json。
 程式來源：standalone-extensions/patch-recovery/extension/。
-首次安裝包：downloads/patch-recovery-v1.4.1.zip。
+首次安裝包：downloads/patch-recovery-v1.4.2.zip。
 舊私人庫的 patch-recovery-updates 分支保留 v1.2.0 歷史，不再作為本版更新來源。
 
 之後發布新版：
@@ -17,7 +17,7 @@
 
 v1.2.0 → v1.2.1 因變更下載網址與 Chrome 連線權限，必須先以 ZIP 覆蓋同一 extension 資料夾並重新載入。
 不要移除擴充元件。v1.2.1 之後在權限未擴大的前提下可透過工具內更新。
-更新包只包含 build-update.mjs 白名單中的 18 個程式檔，不掃描使用者資料夾。
+更新包只包含 build-update.mjs 白名單中的 22 個程式與圖示檔，不掃描使用者資料夾。
 不包含病人紀錄、Chrome 儲存資料、憑證或測試輸出；更新器不寫入回收資料鍵 patchRecoveryV1。
 公開來源不使用 GitHub API、不使用帳號與憑證，也不送出 cookies 或 referrer。
 舊版本機憑證會在首次開啟時刪除，但這不會撤銷 GitHub 帳號上原本建立的 token。
@@ -43,3 +43,6 @@ v1.4.0：連線時唯讀擷取 Portal 左側登出控制項下的登入姓名（
 
 
 v1.4.1：依使用者提供的實際 DOM，姓名改為 #leftContents #vertical 內 font 直接擷取；移除圖片登出定位／座標推測。僅 bridge.js、manifest.json 版號及 tool.html 頁尾改動，其他程式逐檔不變。v1.3.0 以上可工具內更新，既有草稿、姓名修改及直式報表維持原行為。
+
+
+v1.4.2：工具列／擴充功能清單、頁籤／視窗、頁首及管理限制提示統一採用已確認的新 logo；manifest、favicon 與頁面以本地 PNG 引用。沒有新增權限或更動回收、Portal、列印、儲存及更新執行邏輯。build-update.mjs 明列 4 個圖示，確保原版更新器可一併安裝。

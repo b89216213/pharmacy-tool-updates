@@ -18,7 +18,7 @@
 |---|---|---|
 | Portal 管藥盤點 | 1.1.0 | [安裝包](downloads/controlled-inventory-v1.1.0.zip) |
 | ADC 特殊藥品批次取歸藥 | 1.2.0 | [安裝包](downloads/adc-drugs-v1.2.0.zip) |
-| 貼片回收紀錄 | 1.4.1 | [安裝包](downloads/patch-recovery-v1.4.1.zip) |
+| 貼片回收紀錄 | 1.4.2 | [安裝包](downloads/patch-recovery-v1.4.2.zip) |
 
 兩個管藥工具首次導入，請將新版檔案覆蓋至原本載入的同一資料夾，再到 Chrome 擴充功能重新載入並重新整理 Portal。請勿先移除擴充功能。輸入後台產生的 4 碼完成登記，再指定工具資料夾即可沿用工具內更新。
 
@@ -44,10 +44,11 @@
 
 ---
 
-## 貼片回收紀錄 v1.4.1
+## 貼片回收紀錄 v1.4.2
 
-[下載安裝包](downloads/patch-recovery-v1.4.1.zip) · [使用說明](standalone-extensions/patch-recovery/使用說明.txt) · [管理後台](https://pharmacy-device-console.cx760.chatgpt.site)
+[下載安裝包](downloads/patch-recovery-v1.4.2.zip) · [使用說明](standalone-extensions/patch-recovery/使用說明.txt) · [管理後台](https://pharmacy-device-console.cx760.chatgpt.site)
 
+- v1.4.2 統一工具列、視窗與頁首的新 logo，圖示隨工具更新一併安裝。
 - v1.4.1 修正姓名讀取失敗：依使用者確認的 DOM，直接讀取 `#leftContents #vertical` 內的姓名文字，支援圖片式登出與直排。姓名顯示在「儲存這批紀錄」旁，可直接修改或重新讀取。
 - 取消每月預設藥師操作；跨病房、跨月份及重開草稿保留輸入，已儲存紀錄維持原姓名。讀不到或有衝突時提示手動填寫。
 - 報表與 Excel 列印均改 A4 直式。依文字換行調整每頁筆數，保留核章空間、各病房獨立及日期由舊到新。

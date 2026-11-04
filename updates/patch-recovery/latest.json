@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.4.1",
-  "notes": "修正 Portal 藥師姓名讀取失敗：直接讀取已確認的左側登入姓名欄位，不受圖片式登出或座標影響。",
-  "packagePath": "updates/patch-recovery/packages/1.4.1.json",
-  "size": 234142,
-  "sha256": "cd77c5ec740f39efdc1384a0adc151b7f7ad66c6e778ea772c0c3a724fc1e91f"
+  "version": "1.4.2",
+  "notes": "新 logo：工具列、擴充功能管理頁、工具視窗與左上角統一使用貼片＋回收箭頭圖示，圖檔隨工具更新安裝。",
+  "packagePath": "updates/patch-recovery/packages/1.4.2.json",
+  "size": 259755,
+  "sha256": "8511efe96074525111888ce97e5acbcc12d14407c1349864684c14350ce94611"
 }
