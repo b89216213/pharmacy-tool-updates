@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "074bc6465d90fc6ee77702df4342396a60a6a473",
+  "sourceCommit": "401dbcb7865f29a310f21cfd616340ae1fc4ead0",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -27,8 +27,8 @@
       "id": "ntuh-discharge-education",
       "name": "出院藥衛教名單擷取工具",
       "slug": "discharge-education",
-      "version": "2.10.2",
-      "downloadPath": "downloads/discharge-education-v2.10.2.zip"
+      "version": "2.11.0",
+      "downloadPath": "downloads/discharge-education-v2.11.0.zip"
     },
     {
       "id": "ntuh-patch-recovery",

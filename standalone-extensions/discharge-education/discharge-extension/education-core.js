@@ -39,7 +39,7 @@
  }
  function batchSummary(raw,batchId,now=Date.now()){
   const ps=patients(raw,{batchId},now).filter(p=>p.pickups.length),total=ps.length,done=ps.filter(p=>!p.pending.length&&!p.error&&!p.uncertain).length,uncertain=ps.filter(p=>p.uncertain).length;
-  return {total,done,pending:total-done,uncertain,label:!total?'無須登錄':uncertain?'待核對':done===total?'已完成登錄':done?'部分完成':'未登錄'};
+  return {total,done,pending:total-done,uncertain,unsent:ps.filter(p=>p.unsent).length,label:!total?'無須登錄':uncertain?'待核對':done===total?'已完成登錄':done?'部分完成':'未登錄'};
  }
  function covers(p,receipt){return (receipt.pickups||[]).some(x=>rxKey(x)===rxKey(p)&&(!seqs(p).length||seqs(p).every(n=>seqs(x).includes(n))));}
  function patients(raw,{batchId='',pharmacist=''}={},now=Date.now()){
@@ -54,6 +54,8 @@
   return [...out.values()].map(p=>{
    const receipts=s.receipts.filter(x=>x.account===p.account&&x.mrn===p.mrn);
    p.pending=p.pickups.filter(rx=>!receipts.some(r=>covers(rx,r)));
+   const relevant=receipts.filter(r=>p.pickups.some(x=>(r.pickups||[]).some(y=>rxKey(x)===rxKey(y))));
+   p.unsent=relevant.some(r=>r.actionMode==='store');p.lastReceipt=relevant.at(-1);
    p.uncertain=s.attempts.find(a=>a.account===p.account&&['sending','uncertain'].includes(a.status)&&a.pickups.some(x=>p.pickups.some(y=>rxKey(x)===rxKey(y))));
    p.error=p.conflict?'同一住院帳號的病人資料不一致':!/^\d+$/.test(p.mrn)?'尚未取得病歷號':!p.pickupComplete?'領藥號清單尚未完整':p.pending.some(x=>!date(x.orderDate)||!x.number)?'領藥號或開方日期不完整':'';
    p.pharmacists=[...new Set(p.pharmacists)].sort();p.form={...defaults(),...clone(s.drafts[p.account]||{})};return p;

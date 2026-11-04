@@ -15,7 +15,7 @@
  async function call(action,p={},all=false){
   if(!Number.isInteger(tabId)||tabId<=0||!chrome.scripting)throw Error('請從已登入的 Portal 開啟工具。');
   const timeout=8000,expiresAt=Date.now()+timeout;
-  const stage=action==='eduDiscover'?'辨識來源頁面':action==='eduRead'?'確認頁面狀態':action==='eduSend'?'送組長':'操作衛教頁面';
+  const stage=action==='eduDiscover'?'辨識來源頁面':action==='eduRead'?'確認頁面狀態':action==='eduSend'?'送組長':action==='eduStore'?'暫存':'操作衛教頁面';
   // Portal frames may keep loading after their controls are available. Match
   // the capture bridge: do not queue this call until document_idle.
   let timer;const result=await Promise.race([chrome.scripting.executeScript({target:all?{tabId,allFrames:true}:{tabId,frameIds:[frameId]},injectImmediately:true,world:'MAIN',func:window.educationPageBridge,args:[action,p,expiresAt]}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('讀取 Portal 操作回應逾時（'+stage+'）。請回來源 Portal 確認頁面狀態。')),timeout);})]).finally(()=>clearTimeout(timer));
@@ -26,7 +26,7 @@
   const until=Date.now()+30000;let same='',since=0,last;
   while(Date.now()<until){
    if(!sent)gate();
-   try{last=await call('eduRead');if(last.ready&&test(last)){const sig=JSON.stringify([last.phase,last.identity,last.fields,last.created,last.sent,last.chosen]);if(sig===same&&Date.now()-since>=120)return last;if(sig!==same){same=sig;since=Date.now();}}else same='';}catch(e){if(!/frame|document|removed|離開|No tab|context/i.test(e.message))throw e;}
+   try{last=await call('eduRead');if(last.ready&&test(last)){const sig=JSON.stringify([last.phase,last.identity,last.fields,last.created,last.sent,last.status,last.errors,last.chosen]);if(sig===same&&Date.now()-since>=120)return last;if(sig!==same){same=sig;since=Date.now();}}else same='';}catch(e){if(!/frame|document|removed|離開|No tab|context/i.test(e.message))throw e;}
    await pause(60);
   }
   throw Error(sent?'送出後尚未確認結果，請先回 Portal 核對，勿重複送出。':'等候衛教頁面更新逾時，請回 Portal 確認。');
@@ -50,7 +50,8 @@
  const connect=()=>navigate('education');
  const samePatient=(s,p)=>s.identity.account===p.account&&s.identity.mrn===p.mrn&&s.identity.name===p.name;
  function selectedPickups(rows){const m=new Map();for(const r of rows){const k=C.rxKey(r);if(!m.has(k))m.set(k,{orderDate:r.orderDate,number:r.number,sequences:[]});m.get(k).sequences.push(r.sequence);}return [...m.values()];}
- async function one(p){
+ async function one(p,actionMode){
+  const storing=actionMode==='store';
   const fields=C.fields(p.form);status(p,'查詢病人…');
   await action('eduBegin',{},s=>s.phase==='query');
   await action('eduPatientMode',{},s=>s.phase==='query');
@@ -74,20 +75,22 @@
    await fill({txbCareOpioion:fields.txbCareOpioion});
   }else await fill(fields);
   await call('eduVerify',{patient:p,selected,fields});gate();
-  const attempt={id:crypto.randomUUID(),account:p.account,mrn:p.mrn,name:p.name,bedNumber:p.bedNumber,pickups:selectedPickups(selected),complete:p.form.complete,form:structuredClone(p.form),status:'sending',expiresAt:p.expiresAt,createdAt:Date.now()};
+  const attempt={id:crypto.randomUUID(),account:p.account,mrn:p.mrn,name:p.name,bedNumber:p.bedNumber,pickups:selectedPickups(selected),complete:p.form.complete,actionMode,form:structuredClone(p.form),status:'sending',expiresAt:p.expiresAt,createdAt:Date.now()};
   await mutate(s=>{s.attempts.push(attempt);});
-  status(p,'正在送組長…');
+  status(p,storing?'正在暫存…':'正在送組長…');
   try{
-   // Exactly one send attempt. Lost acknowledgements must be reconciled by a person.
-   gate();let sendError;try{await call('eduSend',{patient:p,selected,fields});}catch(e){sendError=e;}
+   // Exactly one save/submit attempt. Lost acknowledgements require manual reconciliation.
+   gate();let sendError;try{await call(storing?'eduStore':'eduSend',{patient:p,selected,fields});}catch(e){sendError=e;}
    if(sendError&&!/frame|document|removed|context/i.test(sendError.message))throw sendError;
-   const result=await wait(s=>s.phase==='editor'&&samePatient(s,p)&&!!s.created&&!!s.sent&&!!s.status,{sent:true});
+   const result=await wait(s=>s.phase==='editor'&&samePatient(s,p)&&!!s.created&&!!s.status&&!s.errors.length&&(storing?!s.sent:!!s.sent),{sent:true});
+   if(storing&&!Object.entries(fields).every(([k,v])=>result.fields[k]?.value===v))throw Error('暫存後的衛教欄位不一致，請人工核對。');
    const actual=result.chosen.map(x=>x.orderDate+'|'+x.number+'|'+x.sequence).sort(),wanted=selected.map(x=>x.orderDate+'|'+x.number+'|'+x.sequence).sort();if(JSON.stringify(actual)!==JSON.stringify(wanted))throw Error('送出後的處方清單不一致，請人工核對。');
-   await mutate(s=>{s.receipts.push({id:attempt.id,account:p.account,mrn:p.mrn,pickups:attempt.pickups,complete:p.form.complete,createdAt:Date.now(),expiresAt:Date.now()+C.TTL,portalCreated:result.created,portalSent:result.sent,portalStatus:result.status});s.attempts=s.attempts.filter(a=>a.id!==attempt.id);});
-   status(p,p.form.complete==='Y'?'已登錄':'已登錄（未完成衛教）');return true;
+   await mutate(s=>{s.receipts.push({id:attempt.id,account:p.account,mrn:p.mrn,pickups:attempt.pickups,complete:p.form.complete,actionMode,createdAt:Date.now(),expiresAt:Date.now()+C.TTL,portalCreated:result.created,portalSent:result.sent,portalStatus:result.status});s.attempts=s.attempts.filter(a=>a.id!==attempt.id);});
+   status(p,(p.form.complete==='Y'?'已登錄':'已登錄（未完成衛教）')+(storing?' · 已暫存，尚未送組長':' · 已送組長'));return true;
   }catch(e){await mutate(s=>{const a=s.attempts.find(x=>x.id===attempt.id);if(a){a.status='uncertain';a.message=e.message;}});status(p,'結果待核對，已停止批次',true);throw e;}
  }
- async function run(accounts,filter){
+ async function run(accounts,filter,actionMode='send'){
+  if(!['send','store'].includes(actionMode))throw Error('請選擇全部暫存或全部送組長。');
   if(running||window.CaptureRunning||window.DischargeDaily.busy)throw Error('目前有其他作業進行中。');stop=false;
   if(!filter?.batchId)throw Error('請選擇一份名單後再登錄。');
   await navigator.locks.request('discharge-portal-capture',{ifAvailable:true},async lock=>{
@@ -97,13 +100,13 @@
    for(const p of ps){if(p.error||p.uncertain||!p.pending.length)throw Error(p.error||'選取的名單含已登錄或待核對項目。');C.validate(p.form);progress.delete(p.account);}
    running=true;stop=false;window.EducationRunning=true;emit();window.dispatchEvent(new Event('capturerunningchange'));
    let active;
-   try{await connect();for(const p of ps){gate();if(Date.now()>=p.expiresAt)throw Error('名單已超過七天，未繼續登錄。');active=p;await one(p);}}
+   try{await connect();for(const p of ps){gate();if(Date.now()>=p.expiresAt)throw Error('名單已超過七天，未繼續登錄。');active=p;await one(p,actionMode);}}
    catch(e){if(active&&!progress.get(active.account)?.error)status(active,e.message,true);throw e;}
    finally{running=false;window.EducationRunning=false;emit();window.dispatchEvent(new Event('capturerunningchange'));}
   });
  }
  async function resolve(id,registered){
-  if(running)throw Error('請等目前作業結束。');await mutate(s=>{const a=s.attempts.find(x=>x.id===id);if(!a)throw Error('此待核對紀錄已到期。');if(registered)s.receipts.push({id:a.id,account:a.account,mrn:a.mrn,pickups:a.pickups,complete:a.complete,createdAt:Date.now(),expiresAt:Date.now()+C.TTL,manualVerified:true});s.attempts=s.attempts.filter(x=>x.id!==id);progress.delete(a.account);});
+  if(running)throw Error('請等目前作業結束。');await mutate(s=>{const a=s.attempts.find(x=>x.id===id);if(!a)throw Error('此待核對紀錄已到期。');if(registered)s.receipts.push({id:a.id,account:a.account,mrn:a.mrn,pickups:a.pickups,complete:a.complete,actionMode:a.actionMode||'send',createdAt:Date.now(),expiresAt:Date.now()+C.TTL,manualVerified:true});s.attempts=s.attempts.filter(x=>x.id!==id);progress.delete(a.account);});
  }
  async function focus(){await chrome.tabs.update(tabId,{active:true});const t=await chrome.tabs.get(tabId);if(t.windowId)await chrome.windows.update(t.windowId,{focused:true});}
  window.addEventListener('beforeunload',e=>{if(running){e.preventDefault();e.returnValue='';}});

@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.10.3",
-  "notes": "選擇衛教未完成時，原因空白會預帶 Portal 原有罐頭；可自行修改，切換完成狀態與重新開啟保留已填內容。",
-  "packagePath": "updates/discharge-education/packages/2.10.3.json",
-  "size": 342899,
-  "sha256": "8d8b9d3c53d8278bc936afced5c587fb18c3858e6e7439325e013ffb2d907dc3"
+  "version": "2.11.0",
+  "notes": "批次登錄可選全部暫存或全部送組長。暫存成功同樣算登錄完成並排除重複登錄；名單與完成訊息提醒紀錄尚未送組長；請自行至 Portal 送出，程式不再檢查。暫存結果不明時保留待核對。",
+  "packagePath": "updates/discharge-education/packages/2.11.0.json",
+  "size": 345512,
+  "sha256": "9afa68aca7a97fe36a3652f8454861abb708d9916e92b84a4c2c3840ef98d740"
 }

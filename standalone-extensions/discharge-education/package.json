@@ -1,6 +1,6 @@
 {
   "name": "ntuh-discharge-education",
-  "version": "2.10.3",
+  "version": "2.11.0",
   "type": "module",
   "private": true,
   "scripts": {

@@ -93,11 +93,11 @@ window.educationPageBridge=function(action,p={},expiresAt){
    }
    return {done:true,changed};
   }
-  if(action==='eduVerify'||action==='eduSend'){
+  if(action==='eduVerify'||action==='eduSend'||action==='eduStore'){
    checkChosen();const s=state();if(s.created||s.sent)throw Error('此紀錄已儲存，未重複送出。');
    for(const [k,v]of Object.entries(p.fields||{}))if(!s.fields[k]||s.fields[k].disabled||s.fields[k].value!==v)throw Error('衛教欄位核對不符：'+k+'。');
    if(action==='eduVerify')return {verified:true};
-   return click(E+'btnTeamLeader');
+   return click(E+(action==='eduStore'?'btnStore':'btnTeamLeader'));
   }
   throw Error('未知衛教操作。');
  }catch(e){return {error:e.message};}
