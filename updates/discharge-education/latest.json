@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.10.2",
-  "notes": "統一單字圖示「出」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
-  "packagePath": "updates/discharge-education/packages/2.10.2.json",
-  "size": 342569,
-  "sha256": "21f254863c364811275b3ccd3cf2b0965b2434c145b4dd556fbc34f31dd18ffc"
+  "version": "2.10.3",
+  "notes": "選擇衛教未完成時，原因空白會預帶 Portal 原有罐頭；可自行修改，切換完成狀態與重新開啟保留已填內容。",
+  "packagePath": "updates/discharge-education/packages/2.10.3.json",
+  "size": 342899,
+  "sha256": "8d8b9d3c53d8278bc936afced5c587fb18c3858e6e7439325e013ffb2d907dc3"
 }

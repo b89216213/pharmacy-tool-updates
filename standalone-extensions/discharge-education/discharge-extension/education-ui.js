@@ -1,6 +1,7 @@
 'use strict';
 (()=>{
  const C=EducationCore,A=DischargeEducation,$=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const INCOMPLETE_REASON='無任何可衛教之對象(病人及其家屬皆不在病房)';
  const make=(tag,html)=>{const e=document.createElement(tag);e.innerHTML=html;return e;};
  let people=[],filter={batchId:'',pharmacist:''},selected=new Set(),resetSelection=true,persist=Promise.resolve(),edited,saving=false,savedSignature='';
  const draftForms=new Map();
@@ -64,7 +65,7 @@
  $('eduRows').addEventListener('change',async e=>{const tr=e.target.closest('[data-account]'),p=people.find(p=>p.account===tr?.dataset.account);if(!p)return;
   if(e.target.matches('.edu-select')){e.target.checked?selected.add(p.account):selected.delete(p.account);await render();return;}
   if(e.target.dataset.care!==undefined){const n=+e.target.dataset.care;p.form.caregivers=e.target.checked?[...new Set([...p.form.caregivers,n])]:p.form.caregivers.filter(v=>v!==n);queueDraft(p);await persist;await render(true);}
-  if(e.target.dataset.field){p.form[e.target.dataset.field]=e.target.value;queueDraft(p);if(e.target.dataset.field==='complete'){await persist;await render(true);}}
+  if(e.target.dataset.field){p.form[e.target.dataset.field]=e.target.value;if(e.target.dataset.field==='complete'&&p.form.complete==='N'&&!String(p.form.reason||'').trim())p.form.reason=INCOMPLETE_REASON;queueDraft(p);if(e.target.dataset.field==='complete'){await persist;await render(true);}}
  });
  $('eduRows').addEventListener('click',e=>{const p=people.find(p=>p.account===e.target.closest('[data-account]')?.dataset.account);if(!p)return;if(e.target.matches('.edu-edit')&&p.form.complete==='Y'){edited=p;editFields();detail.showModal();}if(e.target.matches('.edu-recover')){recoveryId=p.uncertain.id;$('eduRecoveryText').textContent=`${p.bedNumber} ${p.name}：${p.uncertain.pickups.map(r=>r.number).join('、')}`;recovery.showModal();}});
  function checks(key,title,labels,values){return `<fieldset><legend>${title}</legend><div class="edu-checks">${labels.map((s,i)=>`<label><input type="checkbox" data-group="${key}" value="${i}" ${values.includes(i)?'checked':''}>${s}</label>`).join('')}</div></fieldset>`;}
