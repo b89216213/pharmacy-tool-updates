@@ -1,10 +1,11 @@
 {
   "name": "ntuh-patient-picker",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node tests/checks.cjs && node tests/update-checks.cjs && node tests/management-checks.cjs && node tests/management-ui-checks.cjs && node tests/update-ui-checks.cjs",
-    "build:update": "node scripts/build-update.mjs"
+    "build:update": "node scripts/build-update.mjs",
+    "build:icons": "node scripts/build-icons.mjs"
   }
 }
