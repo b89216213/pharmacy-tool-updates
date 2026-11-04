@@ -1,5 +1,5 @@
 import './medref-bg.js';
-import {assertManaged,withManagedOperation,internalSender,openManager} from './managed-background.js';
+import {withManagedOperation,internalSender,openManager} from './managed-background.js';
 const pending = new Map();
 const revisions = new Map();
 const WINDOW_KEY = 'medicationFallbackWindowId';
@@ -118,7 +118,7 @@ managedHostListener('read-host-page',(msg, sender, sendResponse) => {
     const text = parts.map(p => p.text).join('\n');
     sendResponse({ ok: true, text, frames: parts.length, chars: text.length });
   })().catch(e => sendResponse({ ok: false,
-    error: '無法讀取此頁面（' + ((e && e.message) || e) + '）。請重新整理頁面、再點一次工具列的 Rx 圖示後重試，或改用全選複製貼上。' }));
+    error: '無法讀取此頁面（' + ((e && e.message) || e) + '）。請重新整理頁面、再點一次工具列的「雲」圖示後重試，或改用全選複製貼上。' }));
   return true;
 });
 
@@ -158,22 +158,48 @@ function rxAutoLoad(opts) {
   async function cloud() {
     const f = find(/^(健保)?雲端(藥歷)?(查詢|資料)?$/);
     if (!f.el) { log.push('雲端' + (f.n ? '：找到 ' + f.n + ' 個可能的按鈕（' + f.list.join('、') + '），未自動按' : '：找不到按鈕')); return ''; }
-    let popup = null;
+    // 同名視窗會被重複使用：剛開時看到的可能還是上一位病人的雲端頁面，必須等視窗換成新的文件才讀
+    let popup = null, firstDoc = null, firstUrl = '';
+    const grabDoc = w => { try { firstDoc = w.document; firstUrl = w.location.href; } catch (e) { firstDoc = null; firstUrl = ''; } };
     const orig = window.open;
-    window.open = function () { const w = orig.apply(this, arguments); if (w) popup = w; return w; };
+    window.open = function () { const w = orig.apply(this, arguments); if (w && !popup) { popup = w; grabDoc(w); } return w; };
+    const t0 = Date.now(), waitMs = opts.cloudWait || 45000;
     try {
       await idle(8000);
       const a = f.el.closest('a');
-      if (a && a.href && /^https?:/.test(a.href) && a.target) popup = orig.call(window, a.href, a.target);
+      if (a && a.href && /^https?:/.test(a.href) && a.target) { popup = orig.call(window, a.href, a.target); if (popup) grabDoc(popup); }
       else f.el.click();
     } finally { setTimeout(() => { window.open = orig; }, 5000); }
-    for (let t = 0; t < (opts.cloudWait || 45000); t += 300) {
+    const reused = () => firstDoc && firstUrl && firstUrl !== 'about:blank';
+    let lastLen = -1, stableSince = 0;
+    while (Date.now() - t0 < waitMs) {
       await sleep(300);
       let txt = '';
       if (popup) {
-        try { txt = popup.document && popup.document.body ? popup.document.body.innerText : ''; }
+        if (popup.closed) { log.push(Date.now() - t0 < 15000 ? '雲端：視窗彈出後馬上關閉（這位病人的雲端藥歷開不起來）' : '雲端：視窗已被關閉'); return ''; }
+        let doc;
+        try { doc = popup.document; txt = doc && doc.body ? doc.body.innerText : ''; }
         catch (e) { log.push('雲端：視窗在其他網域，無法自動讀取，請在雲端視窗全選複製貼上'); return ''; }
-        if (popup.closed) { log.push('雲端：視窗已被關閉'); return ''; }
+        if (reused() && doc === firstDoc) {   // 還是上一位病人的舊頁面
+          if (Date.now() - t0 > 10000) { log.push('雲端：雲端視窗沒有更新（仍是上一位病人的內容），未讀取'); return ''; }
+          continue;
+        }
+        // 視窗已載入完成卻是錯誤訊息（不是雲端藥歷表）：內容穩定 4 秒就停止等待
+        if (doc && doc.readyState === 'complete' && !CLOUD.test(txt)) {
+          if (txt.length !== lastLen) { lastLen = txt.length; stableSince = Date.now(); }
+          else if (txt.trim() && Date.now() - stableSince > 4000 && /查無|錯誤|失敗|無法|逾時|異常|未授權|請插|讀卡|error|fail/i.test(txt)) {
+            log.push('雲端：視窗顯示「' + txt.replace(/\s+/g, ' ').trim().slice(0, 40) + '」，沒有雲端藥歷');
+            return '';
+          }
+        }
+      } else if (Date.now() - t0 > 10000) {
+        // 10 秒內沒有跳出視窗：可能頁面顯示了提示訊息或雲端開不起來
+        let found = '';
+        for (const fr of document.querySelectorAll('iframe')) {
+          try { const d = fr.contentDocument; const tt = d && d.body ? d.body.innerText : ''; if (CLOUD.test(tt)) { found = tt; break; } } catch (e) {}
+        }
+        if (!found) { log.push('雲端：已按，但沒有跳出雲端視窗'); return ''; }
+        txt = found;
       }
       if (!CLOUD.test(txt)) {
         for (const fr of document.querySelectorAll('iframe')) {
@@ -188,14 +214,16 @@ function rxAutoLoad(opts) {
         return txt;
       }
     }
-    log.push(popup ? '雲端：視窗已開啟，但 ' + Math.round((opts.cloudWait || 45000) / 1000) + ' 秒內沒有出現雲端藥歷' : '雲端：已按，但沒有接到跳出的視窗');
+    log.push(popup ? '雲端：視窗已開啟，但 ' + Math.round(waitMs / 1000) + ' 秒內沒有出現雲端藥歷' : '雲端：已按，但沒有接到跳出的視窗');
     return '';
   }
   return (async () => {
     let afterTransfer = '', text = '';
     if (opts.his !== false) {
-      if (await press('轉床', /^轉床(紀錄)?(查詢)?$/, /轉床紀錄/)) afterTransfer = pageText();
-      await press('出院', /^出院(日)?$|^准許出院(日)?$/, /准許出院日/);
+      if (opts.press !== false) {
+        if (await press('轉床', /^轉床(紀錄)?(查詢)?$/, /轉床紀錄/)) afterTransfer = pageText();
+        await press('出院', /^出院(日)?$|^准許出院(日)?$/, /准許出院日/);
+      } else log.push('病人頁面：已讀取');
       text = pageText();
     }
     // 若按「出院」後轉床紀錄被換掉，補回剛才讀到的轉床紀錄段落
@@ -216,13 +244,12 @@ managedHostListener('auto-load-his',(msg, sender, sendResponse) => {
   }
   const keep = setInterval(() => { try { chrome.runtime.getPlatformInfo(() => void chrome.runtime.lastError); } catch (e) {} }, 20000);
   chrome.scripting.executeScript({ target: { tabId: tab.id, frameIds: [0] }, world: 'MAIN', injectImmediately: true, func: rxAutoLoad,
-    args: [{ his: msg.his !== false, cloud: msg.cloud !== false, closePopup: msg.closePopup !== false, cloudWait: 45000 }] })
+    args: [{ his: msg.his !== false, press: msg.press !== false, cloud: msg.cloud !== false, closePopup: msg.closePopup !== false, cloudWait: 45000 }] })
     .then(res => { const r = res && res[0] && res[0].result; if (!r) throw new Error('沒有回傳結果'); sendResponse(Object.assign({ ok: true }, r)); })
-    .catch(e => sendResponse({ ok: false, error: '無法操作此頁面（' + ((e && e.message) || e) + '）。請重新整理頁面、再點一次工具列的 Rx 圖示後重試。' }))
+    .catch(e => sendResponse({ ok: false, error: '無法操作此頁面（' + ((e && e.message) || e) + '）。請重新整理頁面、再點一次工具列的「雲」圖示後重試。' }))
     .finally(() => clearInterval(keep));
   return true;
 });
-
 
 function managedHostListener(type,listener){
  chrome.runtime.onMessage.addListener((msg,sender,reply)=>{

@@ -1,9 +1,9 @@
 {
   "format": "cloud-medication-release-v1",
   "toolId": "ntuh-cloud-medication",
-  "version": "2.9.1",
-  "notes": "統一單字圖示「雲」：工具列、獨立視窗、頁面內小視窗及管理頁同步更新，原有功能與設定保留。",
-  "packagePath": "updates/cloud-medication/packages/2.9.1.json",
-  "size": 796268,
-  "sha256": "f8c5d3c7bc5b982caa12efe007fceb50886422c6b4d7b7b6d1a168ca007f9876"
+  "version": "2.9.3",
+  "notes": "以使用者提供的 2.9.2 更新，保留藥物辨識、圖片大小、病人切換保護與頻率待確認修正，整合「雲」字圖示、電腦登記及工具內更新。",
+  "packagePath": "updates/cloud-medication/packages/2.9.3.json",
+  "size": 846878,
+  "sha256": "cafee41956ad89b0b50a314e6addf7041df7ae0abfed2a6f1dbf0a6514d2cf5b"
 }

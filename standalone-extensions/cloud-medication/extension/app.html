@@ -294,7 +294,10 @@ body.dark .toggle-control input:checked{background:var(--accent)!important}
 .sc-t2 th.sc-sticky,.sc-t2 td.sc-sticky{position:sticky;left:0;z-index:2;background:var(--surface);box-shadow:inset -1px 0 0 var(--line)}
 .sc-t2 th.sc-sticky{background:var(--surface-2);z-index:3}
 .sc-t2 .sc-c-drug{min-width:170px;max-width:230px}
-.sc-t2 .sc-c-self2{min-width:190px}
+.sc-t2 .sc-c-self2{width:210px;min-width:210px;max-width:210px;box-sizing:border-box}
+.sc-t2 .sc-sticky2{left:210px}
+@media(max-width:700px){.sc-t2 .sc-sticky2{position:static!important;box-shadow:none}}
+
 .sc-t2 .sc-c-last{white-space:nowrap;font-size:13px;color:var(--fg-soft)}
 .sc-t2 .sc-visit{min-width:118px;max-width:150px;white-space:normal}
 .sc-vdate{font-family:var(--mono);color:var(--fg);font-size:13px;white-space:nowrap}
@@ -378,6 +381,36 @@ body.dark .toggle-control input:checked{background:var(--accent)!important}
 .ds-note.is-new .ds-note-main{color:#0b5f80}.ds-note.is-changed .ds-note-main{color:#9a4b00}.ds-note.is-same .ds-note-main{color:#2d6a3e}.ds-note.is-stop .ds-note-main{color:#a31b1b}
 .ds-via{font-size:11.5px;color:#9a4b00}
 .ds-dropped.is-screen-only td{background:#fafafa;color:#666}.ds-dropped.is-screen-only img{opacity:.6}.ds-noprint-tag{font-weight:400;font-size:12.5px;color:#9a4b00}
+/* 藥物辨識 */
+.pid-src{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;color:var(--fg)}
+.pid-src-head{width:100%;text-align:left;background:transparent!important;border:0!important;color:var(--fg)!important;font-weight:700;font-size:14px;padding:10px 14px!important;cursor:pointer}
+.pid-src-body{padding:0 14px 12px}
+.pid-src .page-load-msg{color:var(--fg-muted)}.pid-src .page-load-msg.is-bad{color:var(--danger)}.pid-src .handoff-chip{color:var(--ok)}
+.pid-result{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--fg)}
+.pid-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:12px}
+.pid-title{font-weight:700;font-size:16px}.pid-title small{font-weight:400;font-size:13px;color:var(--fg-muted);margin-left:10px}
+.pid-ctl{font-size:13px;color:var(--fg-soft)}.pid-ctl select,.pid-q{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface-2);color:var(--fg);min-height:32px}
+.pid-q{min-width:200px}
+.pid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(230px,calc(var(--pid-h,182px) * 1.3)),1fr));gap:10px}
+.pid-card{border:1px solid var(--line);border-radius:10px;background:var(--surface-2);display:flex;flex-direction:column}
+.pid-card.is-out{opacity:.72}
+.pid-img{height:var(--pid-h,182px);display:flex;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid var(--line);border-radius:10px 10px 0 0}
+.pid-img a{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.pid-img img{max-width:92%;max-height:calc(var(--pid-h,182px) - 10px);object-fit:contain;position:relative;transition:transform .15s ease,box-shadow .15s ease}
+.pid-img img:hover{transform:scale(var(--pid-zoom,2));z-index:30;background:#fff;border-radius:6px;box-shadow:0 10px 36px rgba(0,0,0,.45)}
+.pid-size{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:13px;color:var(--fg-soft)}
+.pid-size button{border:1px solid var(--line-strong);background:var(--surface-2);color:var(--fg-soft);border-radius:6px;padding:2px 9px;min-height:30px;font-size:13px}
+.pid-size button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.pid-size input{width:64px;font:inherit;font-size:13px;padding:3px 6px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface-2);color:var(--fg)}
+.pid-noimg{color:#888;font-size:13px}
+.pid-body{padding:8px 10px;display:flex;flex-direction:column;gap:2px;font-size:13px}
+.pid-zh{font-size:15px;font-weight:700;color:var(--fg)}.pid-en{font-weight:700;color:var(--accent)}.pid-ing{color:var(--fg-soft)}.pid-look{color:var(--warn)}
+.pid-use{color:var(--fg-soft);margin-top:3px;font-family:var(--mono);font-size:12.5px}.pid-st{margin-left:6px;color:var(--ok);font-weight:700;font-family:var(--sans)}.is-out .pid-st{color:var(--fg-muted)}
+.pid-links{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:5px}.pid-links a{color:var(--accent);font-weight:700}.pid-lic{color:var(--fg-muted);font-size:12px}
+.pid-sources{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font-size:13px;color:var(--fg-soft)}
+.pid-sources-title{font-weight:700;color:var(--fg);margin-bottom:4px}.pid-sources ul{margin:0;padding-left:20px;line-height:1.7}.pid-sources b{color:var(--fg)}.pid-sources a{color:var(--accent)}
+.pid-db{margin-top:4px;color:var(--fg-muted)}
+.pid-how{color:var(--fg-muted);font-size:12.5px;line-height:1.5;margin-bottom:2px}
 /* 讀取目前頁面 */
 .page-loader{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:10px 0 12px}
 .page-load-btn{border-color:var(--accent)!important;color:var(--accent)!important;font-weight:700}
@@ -435,4 +468,3 @@ body.dark .admit-sheet input[type=checkbox]{background:#fff!important}
 <link rel="stylesheet" href="managed-ui.css"></head>
 <body><div id="managed-workspace" inert><div id="root"></div>
 </div><script type="module" src="managed-launch.js"></script></body></html>
-

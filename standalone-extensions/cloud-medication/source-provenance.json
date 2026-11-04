@@ -1,0 +1,22 @@
+{
+  "archive": "雲端藥歷小工具20260917.7z",
+  "archiveSha256": "566dda08d42443b2321a11d44c45c5a75989f7c3d39aff0ddb7b403bc100f830",
+  "sourceVersion": "2.9.2",
+  "releaseVersion": "2.9.3",
+  "sourceFiles": {
+    "app.html": "5832e4d1cb6de6da6c49e9757c58f66334c006987399fb97be40a11f775616b2",
+    "app.js": "0854184bf4bb61dd4d8cd9a3fae300f2adf9ffc11d71953621bc1b1e6a77edfa",
+    "background.js": "d5744d685f594e6ef265fae71933a763a178a9ead8195f916643c3396c94af0e",
+    "icons/icon-128.png": "10f08b8ab42b055abe02673227e6d993b5497c1f80df0b6c144b95f9efbbd64a",
+    "icons/icon-16.png": "4c1be9bb8b290f0db1bd2377f56f138dd8086c111f4d1d6b1bfe13749efd3eb7",
+    "icons/icon-32.png": "d24d76fb17a43e683fa2d2577a20d10a83212468c7f76870abce401a3a0694c3",
+    "icons/icon-48.png": "1c75d96a5ad58a85813e8a0f1d0c4b6668f8381d46415804327acf66820d404f",
+    "icons/icon.svg": "717bee3efa7df3025d09df7ab17d4605223a24300f5a812f8e38a1d0a41c545d",
+    "manifest.json": "328f6b1fde02b3b0592b5ef70dc2d0285aa8255b515a38f46bbf21a405c178d2",
+    "medref-bg.js": "a3f45b966dec3ea874aaad4cee92b4966f02d6dca9efe987e9de0a97754a1a51",
+    "overlay.js": "7fab0b873afce7ba472d481017b2a7d0d36af06a98fde6228e0628b54eb89ff7",
+    "settings.js": "a43aa8f7b023b5bba75f7149d9129404e9cb624b42f928130f3d2baa2a25ae02",
+    "window.css": "55fc30a0192022678554847740210dee7a58c708ce08fcaafbba1bc366cbff52",
+    "安裝與使用.txt": "5b6b85cee306558362266f560913dbb533d3700a62f06ec936005f29bb7d0a4d"
+  }
+}

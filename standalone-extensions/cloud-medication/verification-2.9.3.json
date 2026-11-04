@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-04",
+  "results": [
+    {
+      "tool": "cloud-medication",
+      "version": "2.9.3",
+      "oldUpdater": "2.9.1",
+      "packageFiles": 31,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    }
+  ],
+  "limitations": [
+    "Local synthetic browser checks; native Windows toolbar and live hospital workflows not exercised."
+  ],
+  "sourceVersion": "2.9.2",
+  "suppliedSourceVerified": true,
+  "additionalChecks": [
+    "Medication processing differs from supplied source only in logo and toolbar guidance",
+    "Injected rxAutoLoad retains complete supplied source function",
+    "Weekly-frequency parsing",
+    "ASORDER/IRRE/STAT/PRN confirmations",
+    "Identification cards and filtering",
+    "Image size persists across reload",
+    "HTML export contains selected image size and sources",
+    "Medication input is not persisted",
+    "28 management/update checks and 4 launch checks pass",
+    "Combined bundle matches all six current update packages byte-for-byte"
+  ]
+}

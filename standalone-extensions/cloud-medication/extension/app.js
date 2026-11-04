@@ -800,7 +800,18 @@ function getFreqDivisor(freq) {
   };
 
   if (exactMap[f] !== undefined) return exactMap[f];
-  
+
+  // 每週 N 次（如 5XWK、3X/W）、每天 N 次（如 5XD）、每 N 週／N 天一次
+  let nx = f.match(/^(\d+)X\/?(WK|W|WEEK)/);
+  if (nx) return parseInt(nx[1]) / 7;
+  nx = f.match(/^(\d+)X\/?(DAY|D)(?![A-Z])/);
+  if (nx) return parseInt(nx[1]);
+  nx = f.match(/^Q(\d+)(WK|W)(?![A-Z])/);
+  if (nx) return 1 / (7 * parseInt(nx[1]));
+  nx = f.match(/^Q(\d+)D(?![A-Z])/);
+  if (nx) return 1 / parseInt(nx[1]);
+  if (/^QWK/.test(f)) return 1 / 7;
+
   // 模糊匹配
   if (f.includes("QOD")) return 0.5;
   if (f.includes("QID")) return 4;
@@ -1611,9 +1622,13 @@ function HelpModal({
   }), /*#__PURE__*/React.createElement(HelpRow, {
     label: "\u9EDE\u64CA\u65E5\u671F\u6B04",
     desc: "\u9078\u53D6\u4E26\u79FB\u5230\u5DE6\u5074\uFF0C\u81EA\u52D5\u9078\u53D6\u8A72\u65E5\u7684\u85E5\u54C1"
-  })), React.createElement(HelpSection, { title: "自備藥核對" },
+  })), React.createElement(HelpSection, { title: "藥物辨識" },
+    React.createElement(HelpRow, { label: "用途", desc: "讀取健保雲端藥歷（可用「一鍵載入雲端藥歷」），每個健保碼列出最近一次領藥，附食藥署外觀圖、中英文品名、成分含量、外觀描述（形狀、顏色、刻痕、標註、尺寸），以及「仿單／許可證資料」與「外觀圖」連結，供藥師辨識病人帶來的藥品" }),
+    React.createElement(HelpRow, { label: "篩選排序", desc: "範圍可選仍有藥、近 90 天、近 180 天或全部；可依領藥日、顏色、形狀、藥名排序；篩選欄可輸入顏色、形狀、刻字或藥名（例如「白」「P3」）。圖片大小可選小／中／大／特大或自訂 px，滑鼠移到圖片上會放大" }),
+    React.createElement(HelpRow, { label: "匯出", desc: "「匯出 HTML」下載成單一網頁檔（圖片與連結指向食藥署網站，需連網才看得到圖片）；「開新分頁」可直接列印。檔案含病人用藥資料，請依院內規定保存" })),
+  React.createElement(HelpSection, { title: "自備藥核對" },
     React.createElement(HelpRow, { label: "用途", desc: "貼上雲端藥歷與自備藥醫囑，按「核對自備藥」跳到表格結果；「← 返回編輯」可修改後重新核對" }),
-    React.createElement(HelpRow, { label: "整頁貼上", desc: "自備藥欄也可貼整個病人頁面，只會讀自備藥表；頁面內含雲端藥歷且雲端欄空白時直接使用。出院時重新開立的自備藥（起日在出院日當天或之後）與同藥同用法的重複醫囑不重複計入日量，列在結果頁下方" }),
+    React.createElement(HelpRow, { label: "整頁貼上", desc: "自備藥欄也可貼整個病人頁面，只會讀自備藥表；頁面內含雲端藥歷且雲端欄空白時直接使用。不看出院日期；同藥同用法的重複醫囑只計一次日量，列在結果頁下方" }),
     React.createElement(HelpRow, { label: "表一 自備藥 → 雲端", desc: "依醫囑順序對照雲端最近一次領藥，核對品項、含量、每日用量、頻率與剩餘藥量" }),
     React.createElement(HelpRow, { label: "表二 雲端 → 自備藥", desc: "雲端近 3／5／8 次或全部領藥由新到舊排列；綠底＝該次日量與自備藥相同，橘底＝不同，可看出自備藥用法來自哪幾次領藥" }),
     React.createElement(HelpRow, { label: "配對", desc: "先比商品名，再比成分（內建常用商品名對照、雲端成分欄、自訂對照）；同一藥品的多筆醫囑合併計算日量" }),
@@ -1631,11 +1646,11 @@ function HelpModal({
     React.createElement(HelpRow, { label: "出院用藥說明", desc: "結果頁按「出院用藥說明」：依出院處方號（含開立日期）分組，列出外觀圖、中英文藥名、白話用法、天數與總量，以及與入院前的差異；出院自備藥另列；入院前使用、出院未開立的藥在畫面上列出供藥師參考，預設不列印（可勾選列印）。供藥師向病人說明時列印使用，外觀圖預設顯示" }),
     React.createElement(HelpRow, { label: "一鍵複製", desc: "先列出院用藥（標示變化，附入院前用法），再列出院未開；病人資料只在畫面上，不會儲存" })),
   React.createElement(HelpSection, { title: "一鍵載入／讀取目前頁面" },
-    React.createElement(HelpRow, { label: "一鍵載入", desc: "在 HIS 病人頁面點 Rx，到「出院用藥比較」或「自備藥核對」按「⚡ 一鍵載入」：自動按「轉床」「出院」（已顯示就不按，等頁面更新完才按下一個），再按「雲端」，從跳出的雲端視窗讀回雲端藥歷後關閉該視窗。結果與每個步驟（已按／已顯示／找不到按鈕）會顯示在按鈕旁" }),
+    React.createElement(HelpRow, { label: "一鍵載入", desc: "在 HIS 病人頁面點「雲」，到「出院用藥比較」或「自備藥核對」按「⚡ 一鍵載入」：自動按「轉床」「出院」（已顯示就不按，等頁面更新完才按下一個），再按「雲端」，從跳出的雲端視窗讀回雲端藥歷後關閉該視窗。結果與每個步驟（已按／已顯示／找不到按鈕）會顯示在按鈕旁" }),
     React.createElement(HelpRow, { label: "整理結果", desc: "「整理結果」的貼上欄有「⚡ 一鍵載入雲端藥歷」：只按「雲端」，讀回雲端視窗內容後直接整理（不會按轉床、出院）；讀到的雲端藥歷也同步給自備藥核對與出院用藥比較" }),
-    React.createElement(HelpRow, { label: "用法", desc: "在 HIS 病人頁面或健保雲端藥歷頁面點工具列 Rx 開啟本工具，按「讀取目前頁面」直接讀入，不必全選複製。病人頁面會同時帶入「出院用藥比較」與「自備藥核對」；雲端藥歷帶入共用的雲端藥歷欄" }),
+    React.createElement(HelpRow, { label: "用法", desc: "在 HIS 病人頁面或健保雲端藥歷頁面點工具列「雲」 開啟本工具，按「讀取目前頁面」直接讀入，不必全選複製。病人頁面會同時帶入「出院用藥比較」與「自備藥核對」；雲端藥歷帶入共用的雲端藥歷欄" }),
     React.createElement(HelpRow, { label: "跨分頁", desc: "在健保雲端分頁讀取後，30 分鐘內到 HIS 分頁開啟本工具，雲端藥歷欄下方會出現「另一分頁 hh:mm 讀取的健保雲端藥歷」，按「套用」即可；請核對時間與病人。暫存只在瀏覽器記憶體，關閉瀏覽器或按「清除」即刪除" }),
-    React.createElement(HelpRow, { label: "限制", desc: "只在按下按鈕時操作或讀取本工具所在的分頁；按鈕依畫面上的文字「轉床」「出院」「雲端」尋找，同名按鈕不只一個時不會自動按。雲端視窗若在其他網域，需在該視窗全選複製貼上。獨立小視窗（如 IE 模式頁面）無法讀取。重新整理或換頁後需再點一次 Rx" })))));
+    React.createElement(HelpRow, { label: "限制", desc: "只在按下按鈕時操作或讀取本工具所在的分頁；按鈕依畫面上的文字「轉床」「出院」「雲端」尋找，同名按鈕不只一個時不會自動按。雲端視窗若在其他網域，需在該視窗全選複製貼上。獨立小視窗（如 IE 模式頁面）無法讀取。重新整理或換頁後需再點一次「雲」" })))));
 }
 const helpStyles = {
   overlay: {
@@ -2508,7 +2523,7 @@ function scIsFreq(s) {
   const u = (s || "").toUpperCase().replace(/\s+/g, "");
   if (!u) return false;
   if (RECON_FREQ_KW.has(u)) return true;
-  return /^(QD|QOD|BID|TID|QID|QN|Q?HS|PRN|STAT|ONCE|ASORDER|IRRE|QW|BIW|TIW|QAM|QPM|Q\d+(H|D|W|M)|\d+X(DAY|\/DAY|D))([A-Z0-9&+\/]*)$/.test(u);
+  return /^(QD|QOD|BID|TID|QID|QN|Q?HS|PRN|STAT|ONCE|ASORDER|IRRE|QW|QWK|BIW|TIW|QAM|QPM|Q\d+(H|D|W|WK|M)|\d+X\/?(DAY|D|WK|W|WEEK))([A-Z0-9&+\/(),.\-]*)$/.test(u);
 }
 const SC_CODE_ONE = /^[A-Z]{2,3}\d[A-Z]{2}\d{2}$/;
 // 自備藥: 類別 狀態 [藥碼] 藥名 劑量 單位 途徑 頻率 起日 時 迄日 時 [備註] [異動時間]
@@ -2520,7 +2535,12 @@ function parseSelfOrders(raw) {
     if (!line.trim()) continue;
     let cols = (line.indexOf("\t") >= 0 ? line.split(/\t+/) : line.split(/\s{2,}/)).map(c => c.trim()).filter(Boolean);
     let F = -1;
-    const findF = () => { for (let k = cols.length - 1; k >= 3; k--) if (scIsFreq(cols[k])) return k; return -1; };
+    const findF = () => {
+      for (let k = cols.length - 1; k >= 3; k--) if (scIsFreq(cols[k])) return k;
+      // 頻率代碼不認得時（如少見的寫法）：起日（8 碼日期）前一欄就是頻率，且再往前三欄是劑量
+      const d = cols.findIndex((c, k) => k >= 5 && /^\d{8}$/.test(c) && /^\d+(\.\d+)?$/.test(cols[k - 4] || ""));
+      return d > 0 ? d - 1 : -1;
+    };
     F = cols.length >= 5 ? findF() : -1;
     let rec = null;
     if (F >= 4 && /^\d+(\.\d+)?$/.test(cols[F - 3] || "")) {
@@ -2709,7 +2729,7 @@ function buildSelfCheck(cloudRows, selfRowsAll, opts) {
         bump("warn");
         issues.push("雲端已無藥量");
       }
-      if (prn && !scheduled) notes.push("PRN 未比對劑量");
+      if (prn && !scheduled) notes.push(g.items.some(({ r }) => /ASORDER|IRRE/i.test(r.freq || "")) ? "依指示／不定時用藥，未比對劑量" : "PRN 未比對劑量");
       else if (scheduled && p.daily && !SC_NONSCHEDULED.test(p.freq)) {
         let cmp = null;
         if (strengthEq !== false && countOK && selfDaily > 0) {
@@ -2731,6 +2751,11 @@ function buildSelfCheck(cloudRows, selfRowsAll, opts) {
         }
       } else if (scheduled && !p.daily) notes.push("劑量無法換算");
       if (prn && scheduled) notes.push("含 PRN 醫囑");
+      // 自備藥開 ASORDER／IRRE／STAT（依指示、不定時）沒有固定用法，無法確認與雲端相符；PRN 對到雲端固定頻率也一樣
+      const cloudPrn = /PRN/i.test(p.freq || "");
+      if (g.items.some(({ r }) => /ASORDER|IRRE|STAT|ONCE/i.test(r.freq || "") || (/PRN/i.test(r.freq || "") && !cloudPrn && !SC_NONSCHEDULED.test(p.freq || "")))) {
+        bump("warn"); issues.push("頻率待確認");
+      }
       // a different tablet strength is only a reminder when the daily mg still agrees
       if (strengthEq === false) bump(dailyMatch === true ? "info" : "warn");
     }
@@ -2789,6 +2814,7 @@ function scIssueLine(g) {
     if (is === "劑量不同") parts.push(`劑量不同，自備 ${selfUse}${g.selfDailyText ? "（" + g.selfDailyText + "）" : ""}，雲端 ${cloudName} ${scCloudUsage(p)}${g.cloudDailyText ? "（" + g.cloudDailyText + "）" : ""}，${where}`);
     else if (is === "含量不同") parts.push(`含量不同，自備 ${scSelfStrength(g.si) || "?"}，雲端 ${cloudName}${g.dailyMatch === true ? "，日量相同" : ""}`);
     else if (is === "頻率不同") parts.push(`頻率不同，自備 ${g.items[0].r.freq}，雲端 ${p.freq}（${where}）`);
+    else if (is === "頻率待確認") parts.push(`頻率待確認，自備 ${selfUse}，雲端 ${cloudName} ${scCloudUsage(p)}（${where}），請確認實際用法`);
     else if (is === "部分成分相同") parts.push(`成分不完全相同，雲端為 ${cloudName}${p.ingText ? "（" + p.ingText.toLowerCase() + "）" : ""}`);
     else if (is === "雲端已無藥量") parts.push(`雲端已無藥量，最後領藥 ${where} ${p.days}天，${scFmt(p.end)} 用完`);
   }
@@ -3119,6 +3145,7 @@ function adFreqZh(freq) {
     else if (/^(BID|TID)HS$/.test(p)) { p = p.slice(0, 3); hs = true; }
     let text = "";
     const qh = p.match(/^Q(\d+)H$/), qdN = p.match(/^Q(\d+)D$/);
+    const nWk = p.match(/^(\d+)X\/?(WK|W|WEEK)$/), nDay = p.match(/^(\d+)X\/?(DAY|D)$/), qwN = p.match(/^Q(\d+)(WK|W)$/);
     if (AD_COUNT[p]) {
       const n = AD_COUNT[p] + (hs ? 1 : 0), w = adWhen(p, meal);
       text = "每天 " + n + " 次" + (w || hs ? "（" + [w, hs ? "睡前" : ""].filter(Boolean).join("、") + "）" : "");
@@ -3126,6 +3153,10 @@ function adFreqZh(freq) {
     } else if (AD_PLAIN[p]) text = AD_PLAIN[p] + (meal ? "（" + meal + "）" : "");
     else if (qh) text = "每 " + qh[1] + " 小時 1 次";
     else if (qdN) text = "每 " + qdN[1] + " 天 1 次";
+    else if (nWk) text = "每週 " + nWk[1] + " 次";
+    else if (nDay) text = "每天 " + nDay[1] + " 次";
+    else if (qwN) text = "每 " + qwN[1] + " 週 1 次";
+    else if (p === "QWK") text = "每週 1 次";
     else if (!p && prn) text = "";
     else return null;
     return (prn ? "需要時使用" + (text ? "，最多" + text : "") : text);
@@ -3522,8 +3553,10 @@ function buildDischargeCompare(page, opts) {
       if (strEq === false) details.push("含量 " + (dcStrText(base.strengths) || "?") + " → " + (dcStrText(afterStr) || "?"));
       const useMg = strEq === false && base.daily && afterDaily && base.daily.mg != null && afterDaily.mg != null;
       if (same === false) details.push("日量 " + dcDailyText(base.daily, useMg) + " → " + dcDailyText(afterDaily, useMg));
-      const divChange = base.freq && afterFreq && Math.abs(getFreqDivisor(base.freq) - getFreqDivisor(afterFreq)) > 1e-6;
-      if (divChange) details.push("頻率 " + base.freq + " → " + afterFreq);
+      const nonFixed = f => SC_NONSCHEDULED.test(f || "");
+      const freqKindChange = base.freq && afterFreq && (nonFixed(base.freq) !== nonFixed(afterFreq) || /ASORDER|IRRE/i.test(base.freq + afterFreq) && base.freq.toUpperCase() !== afterFreq.toUpperCase());
+      const divChange = freqKindChange || (base.freq && afterFreq && Math.abs(getFreqDivisor(base.freq) - getFreqDivisor(afterFreq)) > 1e-6);
+      if (divChange) details.push("頻率 " + base.freq + " → " + afterFreq + (freqKindChange ? "（請確認）" : ""));
       else if (base.freq && afterFreq && dcFreqCore(base.freq) === dcFreqCore(afterFreq) && base.freq.toUpperCase() !== afterFreq.toUpperCase()) details.push("服用時間 " + base.freq + " → " + afterFreq);
       if (same === null && !divChange && strEq !== false) details.push("劑量無法換算，請確認");
       if (base.kind === "self") details.push("雲端查無入院時用藥，與入院自備藥比較");
@@ -3663,7 +3696,7 @@ function DcDateField({ label, value, auto, manual, onChange, onReset, status, wa
     !value ? (suggestions || []).map(([t, d]) => h("button", { key: t, type: "button", className: "dc-chip", onClick: () => onChange(dcIso(d)) }, t + " " + scFmt(d))) : null);
 }
 
-function DischargeView({ input, setInput, cloudInput, setCloudInput, grace, medref, customMap, snap, setSnap, screen, setScreen, showPills, setShowPills, dates, setDates, visits, setVisits, onOpenSheet, onPageLoad, handoff }) {
+function DischargeView({ input, setInput, cloudInput, setCloudInput, grace, medref, customMap, snap, setSnap, screen, setScreen, showPills, setShowPills, dates, setDates, visits, setVisits, onOpenSheet, onPageLoad, handoff, onCloudMissing }) {
   const h = React.createElement;
   const [error, setError] = useState("");
   const admitRef = React.useRef(null), dcRef = React.useRef(null);
@@ -3824,7 +3857,8 @@ function DischargeView({ input, setInput, cloudInput, setCloudInput, grace, medr
             h("span", null, "新增 ", h("b", null, c.added)),
             h("span", { className: "sc-count-ok" }, "沿用 ", h("b", null, c.kept)),
             h("span", { className: "sc-count-bad" }, "出院未開 ", h("b", null, c.dropped)),
-            h("span", { className: "sc-ref" }, "入院 " + scFmt(res.admitDate) + "（" + res.admitSrc + "）・出院 " + scFmt(res.dischargeDate) + "（" + res.dischargeSrc + "）")),
+            h("span", { className: "sc-ref" }, "入院 " + scFmt(res.admitDate) + "（" + res.admitSrc + "）・出院 " + scFmt(res.dischargeDate) + "（" + res.dischargeSrc + "）"),
+            snap && snap.cloudSrc === "none" ? h("span", { className: "sc-count-bad" }, "⚠ 沒有雲端藥歷，入院前只對照自備藥") : null),
           h("div", { className: "sc-head-actions" },
             h("button", { type: "button", className: "sc-btn", onClick: () => setScreen("edit") }, "← 返回編輯"),
             onOpenSheet ? h("button", { type: "button", className: "sc-btn", onClick: () => onOpenSheet(res) }, "出院用藥說明") : null,
@@ -3841,7 +3875,7 @@ function DischargeView({ input, setInput, cloudInput, setCloudInput, grace, medr
   return h("div", { className: "cross-workspace selfcheck-workspace", style: { width: "100%" } },
     h("div", { className: "sc-intro", style: styles.crossIntro },
       "病人頁面先按「轉床」「出院」，再全選（Ctrl+A）複製貼在左格，或用「讀取目前頁面」直接帶入；健保雲端藥歷貼在右格（與整理結果、自備藥核對共用）。以出院處方與出院自備藥為主，往前對照入院前的雲端藥歷：沿用、用法有變化、新增、出院未開。"),
-    onPageLoad ? h(PageLoader, { onLoad: onPageLoad, fallback: setInput, auto: true, hint: "在 HIS 病人頁面點工具列 Rx 開啟本工具：「一鍵載入」會自動按轉床、出院並從雲端視窗讀回雲端藥歷；「讀取目前頁面」只讀目前畫面上的內容。" }) : null,
+    onPageLoad ? h(PageLoader, { onLoad: onPageLoad, fallback: setInput, auto: true, onCloudMissing: onCloudMissing, hint: "在 HIS 病人頁面點工具列「雲」 開啟本工具：「一鍵載入」會自動按轉床、出院並從雲端視窗讀回雲端藥歷；「讀取目前頁面」只讀目前畫面上的內容。" }) : null,
     h("div", { className: "cross-inputs", style: styles.crossRow },
       h("div", { style: styles.crossCol },
         h("label", { style: styles.label }, "病人頁面"),
@@ -4058,18 +4092,13 @@ function scSplitSelfForAdmit(rows, dischargeDate) {
   if (!use.some(r => !scInactive(r.status))) return { use: rows.slice(), skipped: [] };
   return { use, skipped: rows.map((r, i) => flag.has(i) ? Object.assign({}, r, { skipReason: flag.get(i) }) : null).filter(Boolean) };
 }
-// 貼上的是整個病人頁面時：只取自備藥表，並讀出院日供排除出院帶回的醫囑
+// 貼上的是整個病人頁面時：只取自備藥表。自備藥核對不看出院日期，只把同藥同用法的重複醫囑合併（不重複計入日量）
 function scReadSelfInput(text) {
   const isPage = /病人自備藥查詢|准許出院日|轉床紀錄|序號\s+狀\s+階/.test(text || "");
   const page = isPage ? parseHisPage(text) : null;
   const self = page ? page.self : parseSelfOrders(text);
-  let dc = null;
-  if (page) {
-    const dcOrd = page.orders.filter(o => o.stage === "出院" && !scInactive(o.status)).map(o => scYmd(o.date)).filter(Boolean).sort((x, y) => x - y);
-    dc = page.dischargeDate || dcOrd[0] || null;
-  }
-  const split = scSplitSelfForAdmit(self, dc);
-  return { page, all: self, self: split.use, skipped: split.skipped, dischargeDate: dc };
+  const split = scSplitSelfForAdmit(self, null);
+  return { page, all: self, self: split.use, skipped: split.skipped };
 }
 const scSkippedText = list => list.map(r => r.name + " " + scOrderUsage(r) + "（" + r.skipReason + (r.startDate ? "，起日 " + scFmt(scYmd(r.startDate)) : "") + "）").join("、");
 
@@ -4080,11 +4109,11 @@ function readHostPage(msg, ms) {
   return new Promise(resolve => {
     let done = false;
     const finish = r => { if (!done) { done = true; clearTimeout(t); resolve(r); } };
-    const t = setTimeout(() => finish({ ok: false, error: "讀取逾時（" + Math.round((ms || 10000) / 1000) + " 秒沒有回應）。請重新整理頁面、再點一次工具列的 Rx 圖示後重試，或改用全選複製貼上。" }), ms || 10000);
+    const t = setTimeout(() => finish({ ok: false, error: "讀取逾時（" + Math.round((ms || 10000) / 1000) + " 秒沒有回應）。請重新整理頁面、再點一次工具列的「雲」圖示後重試，或改用全選複製貼上。" }), ms || 10000);
     try {
       chrome.runtime.sendMessage(msg || { type: "read-host-page" }, r => {
-        if (chrome.runtime.lastError) finish({ ok: false, error: "無法讀取頁面：" + chrome.runtime.lastError.message + "。若剛更新過本工具，請重新整理頁面後再點 Rx。" });
-        else finish(r || { ok: false, error: "沒有回應，請重新點一次工具列的 Rx 圖示後再試。" });
+        if (chrome.runtime.lastError) finish({ ok: false, error: "無法讀取頁面：" + chrome.runtime.lastError.message + "。若剛更新過本工具，請重新整理頁面後再點「雲」。" });
+        else finish(r || { ok: false, error: "沒有回應，請重新點一次工具列的「雲」圖示後再試。" });
       });
     } catch (e) { finish({ ok: false, error: "此環境無法讀取頁面（" + e.message + "），請改用全選複製貼上。" }); }
   });
@@ -4126,15 +4155,15 @@ function useHandoff() {
 }
 const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
 // 「讀取目前頁面」按鈕：讀到病人頁面 → 病人頁面／自備藥欄；讀到雲端藥歷 → 雲端藥歷欄並暫存給其他分頁
-function PageLoader({ onLoad, hint, fallback, auto, onCloudLoaded }) {
+function PageLoader({ onLoad, hint, fallback, auto, onCloudLoaded, onCloudMissing }) {
   const h = React.createElement;
   const [busy, setBusy] = useState("");
   const [msg, setMsg] = useState(null);
   // 一鍵載入：自動按「轉床」「出院」，再按「雲端」從跳出視窗讀回雲端藥歷
   async function goAuto() {
-    const cloudOnly = auto === "cloud";
-    setBusy("auto"); setMsg({ text: (cloudOnly ? "正在按「雲端」" : "正在按「轉床」「出院」") + "並開啟雲端視窗讀取，請稍候（雲端最多等 45 秒）…" });
-    const r = await readHostPage({ type: "auto-load-his", his: !cloudOnly }, 90000);
+    const cloudOnly = auto === "cloud", press = auto === true || auto === "full";
+    setBusy("auto"); setMsg({ text: (cloudOnly ? "正在按「雲端」" : press ? "正在按「轉床」「出院」" : "正在讀取病人頁面") + "並開啟雲端視窗讀取，請稍候（雲端最多等 45 秒）…" });
+    const r = await readHostPage({ type: "auto-load-his", his: !cloudOnly, press }, 90000);
     setBusy("");
     if (!r.ok) { setMsg({ bad: true, text: r.error }); return; }
     const out = [], bad = !r.cloudText || (r.log || []).some(s => /找不到|未自動按|沒有出現|無法|沒有接到/.test(s));
@@ -4146,8 +4175,15 @@ function PageLoader({ onLoad, hint, fallback, auto, onCloudLoaded }) {
     let cloudOk = "";
     if (r.cloudText) {
       const kc = classifyPageText(r.cloudText);
-      if (kc.cloudN) { await setHandoff({ text: r.cloudText, at: Date.now(), n: kc.cloudN }); out.push(onLoad(r.cloudText, { his: false, cloudN: kc.cloudN }).text); cloudOk = r.cloudText; }
+      if (kc.cloudN) { await setHandoff({ text: r.cloudText, at: Date.now(), n: kc.cloudN }); out.push(onLoad(r.cloudText, { his: false, cloudN: kc.cloudN, fromAuto: !cloudOnly }).text); cloudOk = r.cloudText; }
       else out.push("雲端視窗讀到的內容沒有辨識到雲端藥歷");
+    }
+    // 這次沒讀到雲端藥歷：清掉上一位病人留下的雲端資料，避免誤用
+    if (!cloudOk) {
+      const cleared = onCloudMissing ? onCloudMissing(auto) : false;
+      if (cleared) await setHandoff(null);
+      out.push(cleared ? "⚠ 沒有讀到這位病人的雲端藥歷，已清空雲端藥歷欄（避免沿用上一位病人的資料），請確認雲端是否開得起來或手動貼上"
+        : "⚠ 這次沒有讀到雲端藥歷，保留同一位病人先前讀到的雲端藥歷");
     }
     setMsg({ bad, text: (r.log || []).join("｜") + "。" + out.join("；") });
     if (cloudOk && onCloudLoaded) onCloudLoaded(cloudOk);
@@ -4169,11 +4205,13 @@ function PageLoader({ onLoad, hint, fallback, auto, onCloudLoaded }) {
   }
   return h("div", { className: "page-loader" },
     auto ? h("button", { type: "button", className: "sc-btn page-load-btn is-auto", onClick: goAuto, disabled: !!busy,
-      title: "在 HIS 病人頁面自動按「轉床」「出院」（已顯示就不按），再按「雲端」並從跳出的視窗讀回雲端藥歷（讀完自動關閉該視窗）" },
-      busy === "auto" ? "載入中…" : auto === "cloud" ? "⚡ 一鍵載入雲端藥歷" : "⚡ 一鍵載入（轉床＋出院＋雲端）") : null,
+      title: auto === "self" ? "讀取 HIS 病人頁面的自備藥，再按「雲端」並從跳出的視窗讀回雲端藥歷（不按轉床、出院）"
+        : auto === "cloud" ? "按「雲端」並從跳出的視窗讀回雲端藥歷後直接整理"
+        : "在 HIS 病人頁面自動按「轉床」「出院」（已顯示就不按），再按「雲端」並從跳出的視窗讀回雲端藥歷（讀完自動關閉該視窗）" },
+      busy === "auto" ? "載入中…" : auto === "cloud" ? "⚡ 一鍵載入雲端藥歷" : auto === "self" ? "⚡ 一鍵載入（自備藥＋雲端）" : "⚡ 一鍵載入（轉床＋出院＋雲端）") : null,
     h("button", { type: "button", className: "sc-btn page-load-btn", onClick: go, disabled: !!busy }, busy === "read" ? "讀取中…" : "⤓ 讀取目前頁面"),
     msg ? h("span", { className: "page-load-msg" + (msg.bad ? " is-bad" : "") }, msg.text)
-      : h("span", { className: "page-load-msg" }, hint || "在 HIS 病人頁面或健保雲端藥歷頁面點工具列 Rx 開啟本工具，按此直接讀取，不必全選複製。"));
+      : h("span", { className: "page-load-msg" }, hint || "在 HIS 病人頁面或健保雲端藥歷頁面點工具列「雲」 開啟本工具，按此直接讀取，不必全選複製。"));
 }
 // 另一分頁讀到的雲端藥歷：顯示時間與筆數，按一下套用
 function CloudHandoffChip({ handoff, current, onApply }) {
@@ -4193,15 +4231,15 @@ function ScVisitTable({ vis, visits, setVisits, title, note }) {
     const p = row.p;
     const linked = row.links.length > 0;
     return h("tr", { key: p.key, className: linked ? "" : p.active ? "is-missing" : "is-old" },
-      h("td", { className: "sc-sticky sc-c-drug" },
-        h("div", { className: "sc-cloud-name" }, h(MedThumb, { e: p.ref }), h("span", { className: "sc-name" }, [p.label, p.strengthText].filter(Boolean).join(" "))),
-        p.ingText ? h("div", { className: "sc-ing" }, p.ingText.toLowerCase()) : null),
-      h("td", { className: "sc-c-self2" }, linked
+      h("td", { className: "sc-sticky sc-c-self2" }, linked
         ? row.links.map(({ g, lv }) => h("div", { key: g.key, className: "sc-link-group" },
             g.items.map(({ r }) => h("div", { key: r.idx, className: "sc-order" },
               h("span", { className: "sc-oname" }, r.name), h("span", { className: "sc-usage" }, scOrderUsage(r)))),
             lv === 1 || lv === 2 || lv === 9 ? h("span", { className: "sc-tag sc-tag-sm" }, SC_LEVEL[lv]) : null))
         : h("span", { className: p.active ? "sc-tag is-warn" : "sc-none" }, p.active ? "未開（仍有藥）" : "未開")),
+      h("td", { className: "sc-sticky sc-sticky2 sc-c-drug" },
+        h("div", { className: "sc-cloud-name" }, h(MedThumb, { e: p.ref }), h("span", { className: "sc-name" }, [p.label, p.strengthText].filter(Boolean).join(" "))),
+        p.ingText ? h("div", { className: "sc-ing" }, p.ingText.toLowerCase()) : null),
       h("td", { className: "sc-c-last" },
         h("div", null, scFmt(p.dispDate)),
         p.end ? h("div", { className: "sc-supply" + (p.active ? "" : " is-out") }, p.active ? "可用至 " + scMd(p.end) : "已用完") : null),
@@ -4227,8 +4265,8 @@ function ScVisitTable({ vis, visits, setVisits, title, note }) {
       h("div", { className: "sc-scroll" },
         h("table", { className: "sc-table sc-t2" },
           h("thead", null, h("tr", null,
-            h("th", { className: "sc-sticky" }, "雲端藥品"),
-            h("th", null, "自備藥醫囑"),
+            h("th", { className: "sc-sticky sc-c-self2" }, "自備藥醫囑"),
+            h("th", { className: "sc-sticky sc-sticky2 sc-c-drug" }, "雲端藥品"),
             h("th", null, "最近領藥"),
             cols.map((c, ci) => {
               const y = c.date ? c.date.getFullYear() : "";
@@ -4246,6 +4284,225 @@ function ScVisitTable({ vis, visits, setVisits, title, note }) {
         vis.notFound.map(g => g.items.map(x => x.r.name).join("／")).join("、")) : null);
   }
   return visitTable();
+}
+
+// ── component: PillIdView（藥物辨識總覽：雲端藥歷 × 食藥署外觀圖，可匯出 HTML）──────────────
+// 外觀圖框高度（px）；預設 182（原 140 放大 30%），滑過放大倍率依大小自動調整
+const PID_PRESETS = [["小", 120], ["中", 182], ["大", 240], ["特大", 320]];
+const pidPx = v => Math.max(60, Math.min(480, Math.round(+v || 182)));
+const pidZoom = px => Math.round(Math.max(1.4, Math.min(3, 420 / px)) * 100) / 100;
+const PID_RANGES = [["active", "仍有藥"], ["90", "近 90 天"], ["180", "近 180 天"], ["all", "全部"]];
+const PID_SORTS = [["date", "領藥日（新→舊）"], ["color", "顏色"], ["shape", "形狀"], ["name", "藥名"]];
+const pidEsc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function pidLook(e) {
+  const a = e && e.app;
+  if (!a) return "";
+  return [a.shape, a.color, a.score && a.score !== "無" ? "刻痕" + a.score : "", a.marks ? "標註 " + a.marks : "", a.size ? a.size + " mm" : ""].filter(Boolean).join("・");
+}
+function pidIngText(p) {
+  const e = p.ref;
+  if (e && e.ings && e.ings.length) return e.ings.map(i => i.label.toLowerCase() + (i.amt !== "" && i.amt != null ? " " + scNum(+i.amt) + " " + (i.unit || "").toLowerCase() : "")).join(" + ");
+  return (p.ingText || "").toLowerCase();
+}
+function buildPillIdItems(cloudRows, ref, grace, range, sort, q) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const rows = enrichCloudRows((cloudRows || []).filter(r => (r.drugName || "").trim() || (r.ingName || "").trim()), ref) || [];
+  let list = scCloudProducts(rows, today, grace);
+  const days = range === "90" ? 90 : range === "180" ? 180 : 0;
+  if (range === "active") list = list.filter(p => p.active);
+  else if (days) list = list.filter(p => p.active || (p.dispDate && scDayDiff(today, p.dispDate) <= days));
+  const needle = (q || "").trim().toLowerCase();
+  if (needle) list = list.filter(p => [p.label, p.strengthText, p.ingText, p.ref && p.ref.zh, p.ref && p.ref.en, pidLook(p.ref)].join(" ").toLowerCase().includes(needle));
+  const col = p => (p.ref && p.ref.app && p.ref.app.color) || "\uffff", shp = p => (p.ref && p.ref.app && p.ref.app.shape) || "\uffff";   // 沒有外觀資料的排最後
+  const cmpName = (x, y) => (x.label || "").localeCompare(y.label || "");
+  if (sort === "color") list.sort((x, y) => col(x).localeCompare(col(y), "zh-Hant") || shp(x).localeCompare(shp(y), "zh-Hant") || cmpName(x, y));
+  else if (sort === "shape") list.sort((x, y) => shp(x).localeCompare(shp(y), "zh-Hant") || col(x).localeCompare(col(y), "zh-Hant") || cmpName(x, y));
+  else if (sort === "name") list.sort(cmpName);
+  return list;
+}
+async function pidResolveShapeUrls(list) {
+  const lics = Array.from(new Set(list.filter(p => p.ref && p.ref.app).map(p => p.ref.lic)));
+  const out = new Map();
+  let i = 0;
+  const worker = async () => {
+    while (i < lics.length) {
+      const L = lics[i++];
+      const url = await Promise.race([mrShapeDetailUrl(L), new Promise(r => setTimeout(() => r(mrShapeListUrl(L)), 6000))]);
+      out.set(L, url);
+    }
+  };
+  await Promise.all([0, 1, 2, 3, 4].map(worker));
+  return out;
+}
+// 資料庫來源（畫面與匯出檔共用）
+const PID_SOURCES = [
+  { name: "健保雲端藥歷", org: "衛生福利部中央健康保險署 健保醫療資訊雲端查詢系統", desc: "病人各院所領藥紀錄",
+    how: "由 HIS 開出的雲端視窗讀取畫面文字（一鍵載入），或手動貼上；本工具不直接連線健保署" },
+  { name: "全部藥品許可證資料集（#36）", org: "衛生福利部食品藥物管理署 開放資料", desc: "許可證字號、中英文品名、註銷狀態", url: "https://data.fda.gov.tw/",
+    how: "從開放資料下載網址 data.fda.gov.tw/data/opendata/export/36/json 整包下載" },
+  { name: "藥品詳細處方成分資料集（#43）", org: "衛生福利部食品藥物管理署 開放資料", desc: "成分名稱、含量（複方完整成分）", url: "https://data.fda.gov.tw/",
+    how: "從 data.fda.gov.tw/data/opendata/export/43/json 整包下載" },
+  { name: "藥品外觀資料集（#42）", org: "衛生福利部食品藥物管理署 開放資料", desc: "外觀圖、形狀、顏色、刻痕、標註、尺寸", url: "https://data.fda.gov.tw/",
+    how: "從 data.fda.gov.tw/data/opendata/export/42/json 整包下載；圖片依資料集提供的外觀圖檔連結，直接由食藥署網站（mcp.fda.gov.tw）載入" },
+  { name: "西藥、醫療器材及化粧品許可證查詢", org: "衛生福利部食品藥物管理署", desc: "「仿單／許可證資料」與「外觀圖」連結頁面", url: "https://mcp.fda.gov.tw/",
+    how: "「仿單／許可證資料」直接連到該許可證頁；「外觀圖」在點擊或匯出時讀取一次該許可證的外觀清單網頁，取最新一筆外觀詳細頁" }
+];
+const PID_HOW_NOTE = "以上食藥署資料是下載公開資料檔（非逐筆呼叫 API），每 7 天自動更新一次，存在瀏覽器本機；健保碼對應許可證、成分與外觀都在本機比對。連線只向食藥署下載公開資料與網頁，不會傳送任何病人資料。";
+function pidDbText(medref) {
+  const r = medref && medref.ref;
+  if (!r) return "本機藥品資料庫尚未下載";
+  const d = new Date(r.updatedAt);
+  return "本機藥品資料庫更新於 " + scFmt(d) + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") +
+    "（每 7 天自動更新；許可證 " + ((r.counts && r.counts.licenses) || 0).toLocaleString() + " 筆、外觀圖 " + ((r.counts && r.counts.images) || 0).toLocaleString() + " 筆）";
+}
+function buildPillIdHtml(list, meta, shapeUrls) {
+  const now = new Date();
+  const stamp = scFmt(now) + " " + String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+  const card = p => {
+    const e = p.ref, look = pidLook(e);
+    const detail = e ? mrDetailUrl(e) : "", shape = e && e.app ? (shapeUrls.get(e.lic) || mrShapeListUrl(e.lic)) : "";
+    const img = e && e.app && e.app.img
+      ? `<a class="img" href="${pidEsc(shape)}" target="_blank" rel="noreferrer"><img src="${pidEsc(e.app.img)}" alt="藥品外觀" referrerpolicy="no-referrer" loading="lazy"></a>`
+      : `<div class="img noimg">${e ? "食藥署無外觀圖" : "查無對應許可證"}</div>`;
+    const use = [scCloudUsage(p), [scFmt(p.dispDate), p.inst, p.days ? p.days + "天" : ""].filter(Boolean).join(" ")].filter(Boolean).join("｜");
+    return `<article class="card${p.active ? "" : " out"}">${img}<div class="body">` +
+      (e && e.zh ? `<div class="zh">${pidEsc(e.zh)}</div>` : "") +
+      `<div class="en">${pidEsc([p.label, p.strengthText].filter(Boolean).join(" "))}</div>` +
+      (e && e.en && e.en.toLowerCase() !== (p.label || "").toLowerCase() ? `<div class="sub">${pidEsc(e.en)}</div>` : "") +
+      `<div class="ing">${pidEsc(pidIngText(p))}</div>` +
+      (look ? `<div class="look">${pidEsc(look)}</div>` : "") +
+      `<div class="use">${pidEsc(use)}<span class="st">${p.active ? "仍有藥" + (p.end ? "（至 " + scFmt(p.end) + "）" : "") : "已用完"}</span></div>` +
+      (e ? `<div class="links"><a href="${pidEsc(detail)}" target="_blank" rel="noreferrer">仿單／許可證資料</a>` +
+        (shape ? `<a href="${pidEsc(shape)}" target="_blank" rel="noreferrer">外觀圖</a>` : "") + `<span class="lic">${pidEsc(e.lic)}</span></div>` : "") +
+      `</div></article>`;
+  };
+  const who = [meta.name ? "姓名 " + meta.name : "", meta.chart ? "病歷號 " + meta.chart : "", meta.bed ? "床號 " + meta.bed : ""].filter(Boolean).join("　");
+  const px = pidPx(meta.px);
+  // 圖片大小切換只用 CSS（radio + :checked），在任何環境開啟都能用，不需要執行程式
+  const sizes = [["sz0", "目前 " + px + "px", px]].concat(PID_PRESETS.filter(([, v]) => v !== px).map(([t, v], i) => ["sz" + (i + 1), t + " " + v + "px", v]));
+  const sizeCss = sizes.map(([id, , v]) => `#${id}:checked~main{--h:${v}px;--z:${pidZoom(v)}}#${id}:checked~header label[for=${id}]{background:#0b5f80;color:#fff;border-color:#0b5f80}`).join("");
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>藥物辨識總覽 ${pidEsc(scFmt(now))}</title><style>
+*{box-sizing:border-box}body{margin:0;padding:24px;font:15px/1.5 "Microsoft JhengHei","PingFang TC",Arial,sans-serif;color:#1d2a33;background:#f4f7f9}
+header{max-width:1200px;margin:0 auto 16px}h1{margin:0 0 6px;font-size:24px;letter-spacing:.06em}.meta{color:#333}.note{font-size:13px;color:#555;margin-top:6px}
+main{--h:${px}px;--z:${pidZoom(px)}}${sizeCss}
+input.sz{position:absolute;opacity:0;pointer-events:none}.sizes{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:#444}
+.sizes label{border:1px solid #9fb3bf;border-radius:999px;padding:2px 10px;cursor:pointer;background:#fff}
+.grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(max(260px,calc(var(--h) * 1.3)),1fr));gap:12px}
+.card{background:#fff;border:1px solid #c9d5dc;border-radius:10px;display:flex;flex-direction:column;break-inside:avoid}
+.card.out{opacity:.78}.img{display:flex;align-items:center;justify-content:center;height:var(--h);background:#fafbfc;border-bottom:1px solid #e3e9ed;border-radius:10px 10px 0 0}
+.img img{max-width:92%;max-height:calc(var(--h) - 10px);object-fit:contain;transition:transform .15s ease,box-shadow .15s ease;position:relative}
+.img img:hover{transform:scale(var(--z));z-index:30;background:#fff;border-radius:6px;box-shadow:0 10px 36px rgba(0,0,0,.35)}.noimg{color:#999;font-size:13px}
+.body{padding:10px 12px;display:flex;flex-direction:column;gap:2px}.zh{font-size:16px;font-weight:700}.en{font-weight:700;color:#0b4f6c}.sub{font-size:12px;color:#666}
+.ing{font-size:13px;color:#444}.look{font-size:13px;color:#7a4b00}.use{font-size:13px;color:#333;margin-top:4px}.st{margin-left:6px;font-size:12px;color:#256b3a;font-weight:700}.out .st{color:#888}
+.links{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px}.links a{color:#0b5f80;font-weight:700}.lic{color:#777;font-size:12px}
+footer{max-width:1200px;margin:18px auto 0;font-size:12.5px;color:#444;border-top:1px solid #c9d5dc;padding-top:10px}footer h2{font-size:14px;margin:0 0 4px}footer ul{margin:0 0 6px;padding-left:20px}footer li{margin-bottom:3px}footer .how{color:#666;font-size:12px}footer p{margin:4px 0}footer a{color:#0b5f80}
+@media print{body{background:#fff;padding:0}.sizes{display:none}.img img:hover{transform:none;box-shadow:none}.grid{grid-template-columns:repeat(auto-fill,minmax(max(200px,calc(var(--h) * 1.2)),1fr));gap:8px}.card{border-color:#999}.links a{color:#000;text-decoration:none}@page{size:A4;margin:10mm}}
+</style></head><body>${sizes.map(([id], i) => `<input type="radio" name="sz" id="${id}" class="sz"${i === 0 ? " checked" : ""}>`).join("")}<header><h1>藥物辨識總覽</h1><div class="meta">${pidEsc(who)}${who ? "　" : ""}製表 ${pidEsc(stamp)}　範圍 ${pidEsc(meta.rangeLabel)}　共 ${list.length} 項</div>
+<div class="note">依健保雲端藥歷整理，每個藥品列出最近一次領藥；外觀圖與連結來自衛生福利部食品藥物管理署（點圖片或「外觀圖」開啟外觀詳細資料，「仿單／許可證資料」開啟許可證與仿單頁）。圖片僅供辨識參考，以實際藥品為準。</div>
+<div class="sizes">圖片大小：${sizes.map(([id, t]) => `<label for="${id}">${pidEsc(t)}</label>`).join("")}<span>（滑鼠移到圖片上可放大）</span></div></header>
+<main class="grid">${list.map(card).join("\n")}</main>
+<footer><h2>資料庫來源</h2><ul>${PID_SOURCES.map(s => `<li><b>${pidEsc(s.name)}</b>　${pidEsc(s.org)}${s.url ? `（<a href="${pidEsc(s.url)}" target="_blank" rel="noreferrer">${pidEsc(s.url.replace(/^https:\/\//, "").replace(/\/$/, ""))}</a>）` : ""}：${pidEsc(s.desc)}<div class="how">取得方式：${pidEsc(s.how)}</div></li>`).join("")}</ul>
+<p>${pidEsc(PID_HOW_NOTE)}</p><p>${pidEsc(meta.dbText || "")}。健保碼依許可證字號對應食藥署資料；外觀圖僅供辨識參考，以實際藥品為準。本檔含病人用藥資料，請依院內規定保存。</p></footer></body></html>`;
+}
+function PillIdView({ cloudInput, setCloudInput, grace, medref, handoff, onPageLoad, onCloudMissing, patientInfo }) {
+  const h = React.createElement;
+  const [range, setRange] = usePersistedState("med-org-pidRange", "180");
+  const [sort, setSort] = usePersistedState("med-org-pidSort", "date");
+  const [pxSaved, setPxSaved] = usePersistedState("med-org-pidPx", 182);
+  const px = pidPx(pxSaved);
+  const [pxDraft, setPxDraft] = useState(String(px));
+  useEffect(() => { setPxDraft(String(px)); }, [px]);
+  const [q, setQ] = useState("");
+  const [busy, setBusy] = useState("");
+  const [srcOpen, setSrcOpen] = useState(!(cloudInput && cloudInput.trim()));
+  const ref = medref ? medref.ref : null;
+  const cloudRows = useMemo(() => { try { return cloudInput && cloudInput.trim() ? parseRows(cloudInput) : []; } catch (e) { return []; } }, [cloudInput]);
+  const list = useMemo(() => buildPillIdItems(cloudRows, ref, grace, range, sort, q), [cloudRows, ref, grace, range, sort, q]);
+  const nImg = list.filter(p => p.ref && p.ref.app).length, nNoLic = list.filter(p => !p.ref).length;
+  const rangeLabel = (PID_RANGES.find(x => x[0] === range) || PID_RANGES[2])[1];
+  const meta = Object.assign({ rangeLabel, dbText: pidDbText(medref), px }, patientInfo || {});
+  async function exportHtml(open) {
+    setBusy(open ? "open" : "save");
+    const urls = await pidResolveShapeUrls(list);
+    const html = buildPillIdHtml(list, meta, urls);
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    if (open) window.open(url, "_blank");
+    else {
+      const now = new Date();
+      // 檔名用英數字，避免部分環境不認中文檔名而存成 download
+      const name = "drug-id_" + scFmt(now).replace(/\//g, "") + "_" + String(now.getHours()).padStart(2, "0") + String(now.getMinutes()).padStart(2, "0") + ".html";
+      const el = document.createElement("a"); el.href = url; el.download = name; el.style.display = "none"; document.body.appendChild(el); el.click();
+      setTimeout(() => el.remove(), 2000);
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    setBusy("");
+  }
+  function card(p) {
+    const e = p.ref, look = pidLook(e);
+    const stop = ev => ev.stopPropagation();
+    return h("article", { key: p.key, className: "pid-card" + (p.active ? "" : " is-out") },
+      h("div", { className: "pid-img" }, e && e.app && e.app.img
+        ? h("a", { href: mrShapeListUrl(e.lic), target: "_blank", rel: "noreferrer", title: "開啟食藥署藥品外觀詳細資料", onClick: ev => mrOpenShape(ev, e.lic) },
+            h("img", { src: e.app.img, alt: "藥品外觀", loading: "lazy", referrerPolicy: "no-referrer" }))
+        : h("span", { className: "pid-noimg" }, e ? "食藥署無外觀圖" : "查無對應許可證")),
+      h("div", { className: "pid-body" },
+        e && e.zh ? h("div", { className: "pid-zh" }, e.zh) : null,
+        h("div", { className: "pid-en" }, [p.label, p.strengthText].filter(Boolean).join(" ")),
+        h("div", { className: "pid-ing" }, pidIngText(p)),
+        look ? h("div", { className: "pid-look" }, look) : null,
+        h("div", { className: "pid-use" }, scCloudUsage(p), h("br"), [scFmt(p.dispDate), p.inst, p.days ? p.days + "天" : ""].filter(Boolean).join(" "),
+          h("span", { className: "pid-st" }, p.active ? "仍有藥" : "已用完")),
+        e ? h("div", { className: "pid-links" },
+          h("a", { href: mrDetailUrl(e), target: "_blank", rel: "noreferrer", onClick: stop }, "仿單／許可證資料"),
+          e.app ? h("a", { href: mrShapeListUrl(e.lic), target: "_blank", rel: "noreferrer", onClick: ev => mrOpenShape(ev, e.lic) }, "外觀圖") : null,
+          h("span", { className: "pid-lic" }, e.lic)) : null));
+  }
+  const select = (label, value, opts, set) => h("label", { className: "pid-ctl" }, label + " ",
+    h("select", { value, onChange: ev => set(ev.target.value) }, opts.map(([v, t]) => h("option", { key: v, value: v }, t))));
+  return h("div", { className: "cross-workspace selfcheck-workspace pid-workspace", style: { width: "100%" } },
+    h("div", { className: "sc-intro", style: styles.crossIntro },
+      "讀取健保雲端藥歷，每個藥品列出最近一次領藥並附衛福部食藥署外觀圖、仿單與外觀圖連結，供藥師辨識病人帶來的藥品；可匯出 HTML 檔另存或列印。"),
+    h("section", { className: "pid-src" },
+      h("button", { type: "button", className: "pid-src-head", onClick: () => setSrcOpen(v => !v), "aria-expanded": srcOpen },
+        (srcOpen ? "▾ " : "▸ ") + "雲端藥歷來源", h("span", { className: cloudRows.length ? "sc-parsed" : "sc-unparsed" },
+          cloudRows.length ? "　已解析 " + cloudRows.length + " 筆（與整理頁共用）" : "　尚未貼上")),
+      srcOpen ? h("div", { className: "pid-src-body" },
+        onPageLoad ? h(PageLoader, { onLoad: onPageLoad, fallback: setCloudInput, auto: "cloud", onCloudMissing,
+          hint: "在 HIS 病人頁面點工具列「雲」 開啟本工具，按「一鍵載入雲端藥歷」自動按「雲端」並讀回；或在下方貼上健保雲端藥歷。" }) : null,
+        h("textarea", { "aria-label": "藥物辨識雲端藥歷", style: { ...styles.textarea, height: 150 }, value: cloudInput || "", spellCheck: false,
+          onChange: e => setCloudInput(e.target.value), placeholder: "貼上健保雲端藥歷（與「整理結果」「自備藥核對」共用同一份資料）" }),
+        h(CloudHandoffChip, { handoff, current: cloudInput, onApply: setCloudInput })) : null),
+    !cloudRows.length ? null : h("section", { className: "pid-result" },
+      h("div", { className: "pid-toolbar" },
+        h("div", { className: "pid-title" }, "藥物辨識總覽",
+          h("small", null, "共 " + list.length + " 項・有外觀圖 " + nImg + " 項" + (nNoLic ? "・查無許可證 " + nNoLic + " 項" : "") +
+            (patientInfo && patientInfo.name ? "・" + patientInfo.name : ""))),
+        select("範圍", range, PID_RANGES, setRange),
+        select("排序", sort, PID_SORTS, setSort),
+        h("input", { type: "search", className: "pid-q", placeholder: "篩選：顏色、形狀、刻字、藥名", value: q, onChange: ev => setQ(ev.target.value), "aria-label": "篩選藥品" }),
+        h("div", { className: "pid-size", role: "group", "aria-label": "圖片大小" }, "圖片",
+          PID_PRESETS.map(([t, v]) => h("button", { key: v, type: "button", className: px === v ? "on" : "", "aria-pressed": px === v, onClick: () => setPxSaved(v) }, t)),
+          h("label", null, h("input", { type: "number", min: 60, max: 480, step: 10, value: pxDraft, "aria-label": "圖片高度（px）",
+            onChange: ev => { setPxDraft(ev.target.value); const n = Math.round(parseFloat(ev.target.value)); if (n >= 60 && n <= 480) setPxSaved(n); },
+            onBlur: () => setPxDraft(String(px)) }), " px")),
+        h("span", { className: "ad-spacer" }),
+        h("button", { type: "button", className: "sc-btn", onClick: () => exportHtml(true), disabled: !!busy || !list.length }, busy === "open" ? "準備中…" : "開新分頁（可列印）"),
+        h("button", { type: "button", className: "sc-btn sc-btn-main", onClick: () => exportHtml(false), disabled: !!busy || !list.length }, busy === "save" ? "準備中…" : "匯出 HTML")),
+      !ref ? h("div", { className: "sc-empty" }, "食藥署藥品資料庫尚未下載完成，外觀圖暫時無法顯示（" + mrStatusText(medref).text + "）。") : null,
+      list.length === 0 ? h("div", { className: "sc-empty" }, "此範圍沒有藥品，可把「範圍」改成全部。") :
+        h("div", { className: "pid-grid", style: { "--pid-h": px + "px", "--pid-zoom": pidZoom(px) } }, list.map(card)),
+      h("section", { className: "pid-sources" },
+        h("div", { className: "pid-sources-title" }, "資料庫來源"),
+        h("ul", null, PID_SOURCES.map(s => h("li", { key: s.name },
+          h("b", null, s.name), "　" + s.org,
+          s.url ? h(React.Fragment, null, "（", h("a", { href: s.url, target: "_blank", rel: "noreferrer" }, s.url.replace(/^https:\/\//, "").replace(/\/$/, "")), "）") : null,
+          "：" + s.desc,
+          h("div", { className: "pid-how" }, "取得方式：" + s.how)))),
+        h("div", { className: "pid-db" }, PID_HOW_NOTE),
+        h("div", { className: "pid-db" }, pidDbText(medref) + "。匯出的 HTML 也會附上這些來源與取得方式。")),
+      h("div", { className: "sc-foot" }, "※ 每個健保碼列最近一次領藥；外觀圖依健保碼對應食藥署許可證，約三成藥品有圖。匯出的 HTML 含病人用藥資料，請依院內規定保存。")));
 }
 
 // ── component: SelfCheckView ──────────────────────────────────────────────────
@@ -4269,7 +4526,7 @@ const scOrderUsage = r => [r.dose && (r.dose + " " + r.unit).trim(), r.route, r.
 const scMd = d => d ? String(d.getMonth() + 1).padStart(2, "0") + "/" + String(d.getDate()).padStart(2, "0") : "";
 
 function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, grace, snap, setSnap, overrides, setOverrides,
-  customMap, setCustomMap, screen, setScreen, visits, setVisits, fmtOpts, medref, onOpenAdmit, showPills, setShowPills, onPageLoad, handoff }) {
+  customMap, setCustomMap, screen, setScreen, visits, setVisits, fmtOpts, medref, onOpenAdmit, showPills, setShowPills, onPageLoad, handoff, onCloudMissing }) {
   const h = React.createElement;
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -4338,6 +4595,10 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
       if (is === "含量不同" && p) text = `含量不同：自備 ${g.si.strengths.map(s => s.text).join(" ")} ≠ 雲端 ${p.strengthText || "?"}`;
       if (is === "含量不同" && g.dailyMatch === true) cls = "is-info";
       if (is === "頻率不同" && p) { text = `頻率不同：自備 ${g.items[0].r.freq} ≠ 雲端 ${p.freq}`; cls = "is-info"; }
+      if (is === "頻率待確認" && p) {
+        const fs = Array.from(new Set(g.items.map(({ r }) => r.freq).filter(f => SC_NONSCHEDULED.test(f || ""))));
+        text = `頻率待確認：自備 ${fs.join("／")}${fs.some(f => /ASORDER/i.test(f)) ? "（依醫囑指示）" : fs.some(f => /IRRE/i.test(f)) ? "（不定時）" : ""}・雲端 ${p.freq || "?"}，請確認實際用法`;
+      }
       out.push(h("span", { key: is, className: "sc-tag " + cls }, text));
     }
     if (p && g.level && g.level !== 1) {
@@ -4359,7 +4620,6 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
     const rk = scRememberKey(g.si.brandKey);
     const canRemember = g.level === 9 && p && p.ings.length && rk && JSON.stringify(customMap[rk] || null) !== JSON.stringify(p.ings);
     return h("tr", { key: g.key, className: "sc-row " + stCls },
-      h("td", { className: "sc-c-status" }, h("span", { className: "sc-status" }, stLabel)),
       h("td", { className: "sc-c-self" },
         g.items.map(({ r }) => h("div", { key: r.idx, className: "sc-order" },
           h("span", { className: "sc-name" }, r.name),
@@ -4368,6 +4628,7 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
         g.items.length > 1 && g.selfDailyText ? h("div", { className: "sc-note" }, "合計 " + g.selfDailyText) : null,
         g.si.fda && (g.si.ingSource === "食藥署" || !p || g.level === 1)
           ? h("div", { className: "sc-note" }, "成分（食藥署）：" + mrIngText(g.si.fda)) : null),
+      h("td", { className: "sc-c-status" }, h("span", { className: "sc-status" }, stLabel)),
       h("td", { className: "sc-c-cloud" }, p ? [
         h("div", { key: "n", className: "sc-cloud-name" }, h(MedThumb, { e: p.ref }), h("span", { className: "sc-name" }, [p.label, p.strengthText].filter(Boolean).join(" ")),
           p.ingText ? h("span", { className: "sc-ing" }, " " + p.ingText.toLowerCase()) : null),
@@ -4422,7 +4683,7 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
         h("div", { className: "sc-zone-head" }, "自備藥 → 雲端", h("small", null, "依自備藥醫囑順序，對照雲端最近一次領藥；同一藥品的多筆醫囑合併計算日量")),
         h("div", { className: "sc-scroll" },
           h("table", { className: "sc-table sc-t1" },
-            h("thead", null, h("tr", null, ["狀態", "自備藥醫囑", "雲端最近一次領藥", "核對說明"].map(t => h("th", { key: t }, t)))),
+            h("thead", null, h("tr", null, ["自備藥醫囑", "狀態", "雲端最近一次領藥", "核對說明"].map(t => h("th", { key: t }, t)))),
             h("tbody", null, res.groups.map(row1))))),
       h(ScVisitTable, { vis, visits, setVisits }),
       snap && snap.skipped && snap.skipped.length ? h("div", { className: "sc-foot" }, "未重複計入日量的自備藥醫囑（" + snap.skipped.length + "）：" + scSkippedText(snap.skipped)) : null,
@@ -4441,7 +4702,8 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
   return h("div", { className: "cross-workspace selfcheck-workspace", ref: editRef, style: { width: "100%" } },
     h("div", { className: "sc-intro", style: styles.crossIntro },
       "貼上雲端藥歷與自備藥醫囑，按「核對自備藥」後以表格呈現：先由自備藥逐筆對照雲端，再由雲端近幾次領藥（新到舊）回頭對照自備藥。"),
-    onPageLoad ? h(PageLoader, { onLoad: onPageLoad, fallback: setSelfInput, auto: true }) : null,
+    onPageLoad ? h(PageLoader, { onLoad: onPageLoad, fallback: setSelfInput, auto: "self", onCloudMissing: onCloudMissing,
+      hint: "在 HIS 病人頁面點工具列「雲」 開啟本工具：「一鍵載入」讀取自備藥並從雲端視窗讀回雲端藥歷（不按轉床、出院）。" }) : null,
     h("div", { className: "cross-inputs", style: styles.crossRow },
       h("div", { style: styles.crossCol },
         h("label", { style: styles.label }, "雲端藥歷　",
@@ -4453,7 +4715,7 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
       h("div", { style: styles.crossCol },
         h("label", { style: styles.label }, "自備藥醫囑　",
           h("span", { className: selfCount > 0 ? "sc-parsed" : "sc-unparsed" }, selfCount > 0 ? "（已解析 " + selfCount + " 筆" +
-            (selfRead.skipped.length ? "，出院帶回／重複 " + selfRead.skipped.length + " 筆不重複計算" : "") +
+            (selfRead.skipped.length ? "，重複醫囑 " + selfRead.skipped.length + " 筆不重複計算" : "") +
             (selfRead.page && selfRead.page.cloud.length && cloudCount === 0 ? "，頁面內含雲端藥歷 " + selfRead.page.cloud.length + " 筆" : "") + "）" : "")),
         h("textarea", { "aria-label": "自備藥醫囑", style: { ...styles.textarea, height: 170 }, value: selfInput || "", spellCheck: false,
           onChange: e => setSelfInput(e.target.value),
@@ -4470,8 +4732,8 @@ function SelfCheckView({ cloudInput, setCloudInput, selfInput, setSelfInput, gra
 // ── components: RightNav ──────────────────────────────────
 function RightNav({ page, viewMode, setPage, setViewMode, optsOpen, setOptsOpen }) {
   const h=React.createElement, active=optsOpen ? "options" : page !== "organize" ? page : viewMode;
-  const tabs=[["result","整理結果"],["table","表格"],["timeline","時間軸"],["selfcheck","自備藥核對"],["discharge","出院用藥比較"],["options","顯示選項"]];
-  const pick=m=>{ if(m === "options"){setOptsOpen(v=>!v);return;} setOptsOpen(false); if(m === "selfcheck" || m === "discharge") setPage(m); else {setPage("organize");setViewMode(m);} };
+  const tabs=[["result","整理結果"],["table","表格"],["timeline","時間軸"],["pillid","藥物辨識"],["selfcheck","自備藥核對"],["discharge","出院用藥比較"],["options","顯示選項"]];
+  const pick=m=>{ if(m === "options"){setOptsOpen(v=>!v);return;} setOptsOpen(false); if(m === "selfcheck" || m === "discharge" || m === "pillid") setPage(m); else {setPage("organize");setViewMode(m);} };
   return h("nav", {className:"primary-nav", "aria-label":"藥歷檢視方式"},
     tabs.map(([m,label],i)=>h("button",{key:m,type:"button",onClick:()=>pick(m),
       className:active===m?"nav-choice is-active":"nav-choice", "aria-pressed":active===m},
@@ -4486,7 +4748,7 @@ function MedOrganizer() {
   const [error, setError] = useState("");
   const [viewMode, setViewMode] = useState("result");
   const [pageSaved, setPage] = usePersistedState("med-org-page", "organize"); // organize | selfcheck | discharge
-  const page = pageSaved === "selfcheck" || pageSaved === "discharge" ? pageSaved : "organize"; // 舊版存的 "cross" 回到整理頁
+  const page = pageSaved === "selfcheck" || pageSaved === "discharge" || pageSaved === "pillid" ? pageSaved : "organize"; // 舊版存的 "cross" 回到整理頁
   // 出院用藥比較（病人資料只放在記憶體，不儲存）
   const [dischargeInput, setDischargeInput] = useState("");
   const [dischargeSnap, setDischargeSnap] = useState(null);
@@ -4500,15 +4762,39 @@ function MedOrganizer() {
   const [admitCtx, setAdmitCtx] = useState(null); // 入院前用藥紀錄
   const [dcSheet, setDcSheet] = useState(null);   // 出院用藥說明
   const handoff = useHandoff();
+  // 換病人時清掉上一位病人的雲端藥歷與結果
+  const lastPatientRef = React.useRef("");   // 最近讀到的病人頁面
+  const pagePatient = useMemo(() => {
+    const t = dischargeInput || selfOrderInput;
+    if (!t || !/病人自備藥查詢|准許出院日|轉床紀錄|序號\s+狀\s+階/.test(t)) return null;
+    try { const i = parseHisPage(t).info; return { name: i["姓名"] || "", chart: i["病歷號"] || "", bed: i["床號"] || "" }; } catch (e) { return null; }
+  }, [dischargeInput, selfOrderInput]);
+  const cloudOwnerRef = React.useRef("");    // 目前雲端藥歷欄屬於哪位病人（一鍵載入時記錄）
+  function clearCloud() {
+    setInput(""); setRawRows(null); setResultScreen(false);
+    setSelfCheckSnap(null); setSelfCheckScreen("edit"); setDischargeSnap(null); setDischargeScreen("edit");
+    cloudOwnerRef.current = "";
+  }
+  // 一鍵載入沒讀到雲端：除非雲端藥歷欄確定是同一位病人的，否則清空
+  function onCloudMissing(mode) {
+    const same = mode !== "cloud" && cloudOwnerRef.current && cloudOwnerRef.current === lastPatientRef.current;
+    if (same) return false;
+    clearCloud();
+    return true;
+  }
   // 讀取目前頁面：病人頁面同時帶入「出院用藥比較」與「自備藥核對」；雲端藥歷帶入共用的雲端藥歷欄
   function loadFromPage(text, kind) {
     if (kind.his) {
-      setDischargeInput(text); setSelfOrderInput(text);
       const pg = parseHisPage(text);
+      const key = [pg.info["病歷號"], pg.info["帳號"], pg.info["姓名"]].filter(Boolean).join("|");
+      if (key && lastPatientRef.current && key !== lastPatientRef.current) clearCloud();
+      if (key) lastPatientRef.current = key;
+      setDischargeInput(text); setSelfOrderInput(text);
       return { text: "已讀取病人頁面：" + [pg.info["姓名"] || "", "自備藥 " + pg.self.length + " 筆", "住院醫囑 " + pg.orders.length + " 筆"].filter(Boolean).join("｜") +
         (kind.cloudN ? "｜頁面內含雲端藥歷 " + kind.cloudN + " 筆" : "") };
     }
     setInput(text);
+    cloudOwnerRef.current = kind.fromAuto ? lastPatientRef.current : "";
     return { text: "已讀取健保雲端藥歷 " + kind.cloudN + " 筆；30 分鐘內在其他分頁開啟本工具可直接套用。" };
   }
   const applyHandoff = t => setInput(t);
@@ -4655,7 +4941,7 @@ function MedOrganizer() {
   ].filter(Boolean).join(" · ");
 
   const activeView=page !== "organize" ? page : viewMode;
-  const viewLabels={result:"整理結果", table:"表格", timeline:"時間軸", selfcheck:"自備藥核對", discharge:"出院用藥比較"};
+  const viewLabels={result:"整理結果", table:"表格", timeline:"時間軸", pillid:"藥物辨識", selfcheck:"自備藥核對", discharge:"出院用藥比較"};
   return React.createElement("div", {className:"app-shell" + (admitCtx || dcSheet ? " admit-open" : "") + (showPills ? "" : " pills-off"),
     style:{...styles.page,zoom:fontSize/100,"--pill-h":pill.h+"px","--pill-zoom":pill.zoom,"--pill-sheet":pill.sheet+"px"}},
     showHelp && React.createElement(HelpModal,{onClose:()=>setShowHelp(false)}),
@@ -4664,7 +4950,7 @@ function MedOrganizer() {
     dcSheet && React.createElement(DischargeSheetView, { res: dcSheet.res, medref, onClose: () => setDcSheet(null) }),
     React.createElement("header",{className:"site-header no-print"},
       React.createElement(RightNav,{page,viewMode,setPage,optsOpen,setOptsOpen,setViewMode:m=>{setViewMode(m);if(rawRows)setResultScreen(true);}}),
-      React.createElement("img",{className:"brand-tile",src:"icons/icon-48.png",width:32,height:32,alt:"雲端藥歷整理器"}),
+      React.createElement("img",{className:"brand-tile",src:"icons/icon-32.png",alt:"雲",width:32,height:32}),
       React.createElement("div",{className:"header-tools"},
         React.createElement("div",{className:"type-tools","aria-label":"文字大小"},
           React.createElement("button",{className:"tool-btn",title:"縮小文字","aria-label":"縮小文字",disabled:fontSize<=FONT_STEPS[0],onClick:()=>setFontSize(s=>{const i=FONT_STEPS.indexOf(s);return i>0?FONT_STEPS[i-1]:s;})},"A−"),
@@ -4785,7 +5071,11 @@ function MedOrganizer() {
     setCustomMap: setSelfBrandMap, medref,
     screen: selfCheckScreen, setScreen: setSelfCheckScreen,
     visits: SC_VISIT_CHOICES.includes(selfCheckVisits) ? selfCheckVisits : 5, setVisits: setSelfCheckVisits,
-    fmtOpts: opts, onOpenAdmit: setAdmitCtx, showPills, setShowPills, onPageLoad: loadFromPage, handoff
+    fmtOpts: opts, onOpenAdmit: setAdmitCtx, showPills, setShowPills, onPageLoad: loadFromPage, handoff, onCloudMissing
+  }),
+  page === "pillid" && React.createElement(PillIdView, {
+    cloudInput: input, setCloudInput: setInput, grace: expiryGrace, medref, handoff, onPageLoad: loadFromPage, onCloudMissing,
+    patientInfo: pagePatient
   }),
   page === "discharge" && React.createElement(DischargeView, {
     input: dischargeInput, setInput: setDischargeInput, cloudInput: input,
@@ -4795,7 +5085,7 @@ function MedOrganizer() {
     screen: dischargeScreen, setScreen: setDischargeScreen, showPills, setShowPills,
     dates: dischargeDates, setDates: setDischargeDates,
     visits: SC_VISIT_CHOICES.includes(selfCheckVisits) ? selfCheckVisits : 5, setVisits: setSelfCheckVisits,
-    onOpenSheet: r => setDcSheet({ res: r }), onPageLoad: loadFromPage, handoff
+    onOpenSheet: r => setDcSheet({ res: r }), onPageLoad: loadFromPage, handoff, onCloudMissing
   }),
   page === "organize" && !resultScreen && /*#__PURE__*/React.createElement("div", {className:"editor-slide",ref:editorRef,tabIndex:-1,"aria-label":"編輯藥歷"},
     /*#__PURE__*/React.createElement(Disclosure, {
@@ -4814,8 +5104,8 @@ function MedOrganizer() {
     }), /*#__PURE__*/React.createElement("div", {
       style: styles.hint
     }, "Edge IE 模式、Chrome、Excel 複製出來的格式都支援，直接貼上即可。"),
-    React.createElement(PageLoader, { onLoad: loadFromPage, fallback: setInput, auto: "cloud", onCloudLoaded: t => handleOrganize(t),
-      hint: "在 HIS 病人頁面點工具列 Rx 開啟本工具，按「一鍵載入雲端藥歷」會自動按「雲端」、讀回雲端視窗內容並直接整理。" }),
+    React.createElement(PageLoader, { onLoad: loadFromPage, fallback: setInput, auto: "cloud", onCloudLoaded: t => handleOrganize(t), onCloudMissing,
+      hint: "在 HIS 病人頁面點工具列「雲」 開啟本工具，按「一鍵載入雲端藥歷」會自動按「雲端」、讀回雲端視窗內容並直接整理。" }),
     React.createElement(CloudHandoffChip, { handoff, current: input, onApply: applyHandoff })),
 
     /*#__PURE__*/React.createElement("button", {
@@ -5886,5 +6176,4 @@ Object.assign(styles.resultCard,{borderRadius:8});
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(/*#__PURE__*/React.createElement(MedOrganizer, null));
-
 

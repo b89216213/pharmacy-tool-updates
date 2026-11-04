@@ -1,6 +1,6 @@
 // Load only UI preferences before mounting; medication input is never persisted.
 (async () => {
-  const keys = ["med-org-timeline-dayPx", "med-org-timeline-rowH", "med-org-timeline-labelEvery", "med-org-timeline-showDays", "med-org-timeline-showInst", "med-org-timeline-showToday", "med-org-page", "med-org-filterSourceOPD", "med-org-filterShortDays", "med-org-showDays-per-drug", "med-org-showRegular", "med-org-showChanged", "med-org-alignColumns-v2", "med-org-nameMode", "med-org-showFullHistory", "med-org-showDitto", "med-org-showExpiredGray", "med-org-showExpiredGrayText", "med-org-showComboWarning", "med-org-expiryGrace", "med-org-showActiveMark", "med-org-fontSize", "med-org-darkMode-reference-v2", "med-org-selfBrandMap", "med-org-selfcheck-visits", "med-org-pillShow", "med-org-pillSize", "med-org-pillPx", "med-org-dsPrintDropped"];
+  const keys = ["med-org-timeline-dayPx", "med-org-timeline-rowH", "med-org-timeline-labelEvery", "med-org-timeline-showDays", "med-org-timeline-showInst", "med-org-timeline-showToday", "med-org-page", "med-org-filterSourceOPD", "med-org-filterShortDays", "med-org-showDays-per-drug", "med-org-showRegular", "med-org-showChanged", "med-org-alignColumns-v2", "med-org-nameMode", "med-org-showFullHistory", "med-org-showDitto", "med-org-showExpiredGray", "med-org-showExpiredGrayText", "med-org-showComboWarning", "med-org-expiryGrace", "med-org-showActiveMark", "med-org-fontSize", "med-org-darkMode-reference-v2", "med-org-selfBrandMap", "med-org-selfcheck-visits", "med-org-pillShow", "med-org-pillSize", "med-org-pillPx", "med-org-dsPrintDropped", "med-org-pidRange", "med-org-pidSort", "med-org-pidPx"];
   let stored = {};
   try { stored = await chrome.storage.local.get(keys); } catch {}
   const settings = {};
@@ -42,4 +42,3 @@
   app.src = 'app.js';
   document.body.append(app);
 })();
-

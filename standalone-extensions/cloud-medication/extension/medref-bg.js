@@ -123,4 +123,3 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 chrome.runtime.onInstalled.addListener(() => { mrStart(false); });
 chrome.runtime.onStartup.addListener(() => { mrStart(false); });
-
