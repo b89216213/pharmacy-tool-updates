@@ -1,5 +1,15 @@
 # pharmacy-tool-updates — 藥局工具公開更新
 
+## 刷條碼退藥 v1.1.0
+
+[下載安裝包](downloads/barcode-return-v1.1.0.zip) · [使用說明](standalone-extensions/barcode-return/extension/README.txt)
+
+按擴充工具圖示在目前頁面開啟，再按一次收合；保留已輸入數量。加入 4 碼電腦登記、後台停用／最低版本及工具內更新，換用條碼＋退回箭頭圖示。延續重複處方逐筆核對和退藥成功後的紀錄更新處理。
+
+首次從 v1.0.2 升級，請將 ZIP 的 extension 內容覆蓋原本載入的同一資料夾，重新載入擴充功能並重新整理院內頁面，再登記電腦及指定更新資料夾。
+
+22 組擴充工具模擬檢查、53 組後台 API／移除檢查及後台 production build 通過。核心處方配對、原頁面橋接及退藥核對流程模組與 v1.0.2 相同；尚未在院內 Windows Chrome 實機驗證。病人與退藥資料不傳到 GitHub 或管理後台。
+
 ## 管藥工具更新
 
 [管理後台](https://pharmacy-device-console.cx760.chatgpt.site/)
