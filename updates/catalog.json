@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "ca2e3d985a78197d8c2a987b66f22ad8bfd0ea04",
+  "sourceCommit": "bc4e1847c72aae53ed7b7db2f696c7eb5aed3499",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -34,8 +34,8 @@
       "id": "ntuh-patient-picker",
       "name": "病人快速選擇",
       "slug": "patient-query",
-      "version": "1.6.0",
-      "downloadPath": "downloads/patient-query-v1.6.0.zip"
+      "version": "1.6.1",
+      "downloadPath": "downloads/patient-query-v1.6.1.zip"
     }
   ]
 }

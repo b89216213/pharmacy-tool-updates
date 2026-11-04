@@ -1,4 +1,4 @@
-病人快速選擇 1.6.0 — 發布與更新
+病人快速選擇 1.6.1 — 發布與更新
 
 公開來源：https://github.com/b89216213/pharmacy-tool-updates
 私有開發存放庫：https://github.com/b89216213/pharmacy-tools
@@ -6,14 +6,17 @@
 
 安裝使用：請先閱讀「使用說明.txt」的手動更新、電腦登記及工具內更新章節。
 v1.5.3 以下沒有更新模組，首次必須手動覆蓋相同 extension 資料夾並重新載入；
-保留同一路徑可保留常用病房。v1.6.0 需首次登記，之後自動檢查更新、點擊套用。
+保留同一路徑可保留常用病房。v1.6.0 起需首次登記，之後自動檢查更新、點擊套用。
+已登記的 v1.6.0 可直接從工具內更新至 1.6.1，不需重新登記或新增權限。
 
 維護者發布流程
 1. 修改 extension 檔案，遞增 manifest.json 與 package.json 版本。
-2. 執行 npm test；新增功能應補適當驗證。執行 npm run build:update。
+2. 如修改 icons/mark.svg，先安裝 Inkscape 並執行 npm run build:icons，產出 PNG。
+   執行 npm test；新增功能應補適當驗證。執行 npm run build:update。
 3. 將 release/updates/patient-query/ 的公告及版本 package 放到公開庫對應 updates 路徑。
-   新包、公告、安裝 ZIP 與來源在同一個 commit 發布，保留舊包。
-4. 固定下載來源為公開 main；package 只打包 16 個 extension 檔案，使用 SHA-256。
+   同步 updates/catalog.json 的版本與下載路徑，保留其他工具項目。
+   新包、公告、目錄、安裝 ZIP 與來源在同一個 commit 發布，保留舊包。
+4. 固定下載來源為公開 main；package 只打包 23 個 extension 檔案（含 SVG 與 6 種尺寸 PNG），使用 SHA-256。
    權限或 CSP 擴張不允許工具內自動套用，這類版本請提供手動覆蓋說明。
 5. 後台的最低版本要求只在可下載的新版本確認發布後設定。本次不變更實際電腦政策。
 
