@@ -69,3 +69,11 @@
 **新增或移除工具時，發布者必須一併更新工具索引**：於儲存庫執行 `python3 scripts/update-catalog.py`，把產生的 `updates/catalog.json` 與新工具一起發布。既有工具改版也建議重新產生索引以更新下載連結；未重新產生時，後台仍會讀取最新版本，但不會把舊版安裝包誤標為新版。
 
 這個流程不授予 GitHub Actions 自動寫入 main 的權限。詳細格式與維護方式見 [索引說明](updates/CATALOG.md)。
+
+## 藥車標籤列印（同事 HIS 版）v2.9.0
+
+[下載安裝包](downloads/cart-labels-his-v2.9.0.zip) · [使用說明](standalone-extensions/cart-labels-his/extension/README.txt)
+
+新增 4 位數電腦登記、後台停用及最低版本、版本回報與工具內更新。此為使用者提供的同事 v2.8.2，獨立使用 `cart-labels-his`，保留既有 `cart-labels`。首次需覆蓋原載入資料夾、重新載入並登記，之後指定資料夾即可由工具內更新。更新前需關閉作業畫面；不傳送病人或標籤資料。
+
+離線管理/更新與後台檢查通過；尚未完成實際 Chrome 或院內實測。[整合與驗證說明](docs/colleague-tools-20261104.md)
