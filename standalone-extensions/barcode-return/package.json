@@ -1,0 +1,9 @@
+{
+  "name": "barcode-return",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/checks.mjs",
+    "build:release": "node scripts/build-release.mjs"
+  }
+}
