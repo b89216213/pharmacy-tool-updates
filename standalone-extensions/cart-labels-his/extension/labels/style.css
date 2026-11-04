@@ -199,3 +199,6 @@ dialog{border:1px solid #dce3ee;border-radius:14px;padding:26px;width:min(620px,
 .skip-tag{display:inline-block;background:#666;color:#fff!important;font-size:.8em;line-height:1.15;padding:0 .3em;margin-right:.1em;border-radius:2px;font-weight:700;letter-spacing:.02em;vertical-align:.08em;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @media print{.skip-tag{background:#666!important;color:#fff!important}}
 .side-toggle{flex-wrap:wrap}.side-toggle .side-history{flex-basis:100%;text-align:left;padding:4px 0 0;border-top:1px dashed #dce3ee;margin-top:4px}
+
+/* Shared single-character app identity; the header is screen-only. */
+.brand .mark{display:inline-block;width:32px;height:32px;padding:0;background:transparent;vertical-align:middle;object-fit:contain}

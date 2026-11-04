@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "藥車標籤列印（HIS 擴充）",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "在 HIS 查詢處理頁面一鍵帶入病人清單，轉成 A4 藥車標籤（65 格）預覽與列印。資料只在本機處理。",
   "permissions": [
     "storage",
@@ -15,7 +15,13 @@
   },
   "action": {
     "default_title": "藥車標籤列印",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   },
   "content_scripts": [
     {
@@ -39,5 +45,11 @@
     "https://pharmacy-device-console.cx760.chatgpt.site/*",
     "https://raw.githubusercontent.com/*"
   ],
-  "options_page": "manager.html"
+  "options_page": "manager.html",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
 }

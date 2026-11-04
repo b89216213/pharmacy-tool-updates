@@ -1,0 +1,100 @@
+[
+  {
+    "slug": "patch-recovery",
+    "character": "貼",
+    "color": "#137C72",
+    "oldVersion": "1.4.2",
+    "version": "1.4.3",
+    "extension": "standalone-extensions/patch-recovery/extension",
+    "iconName": "icon-",
+    "svgName": "mark.svg",
+    "sizes": [
+      16,
+      32,
+      48,
+      128
+    ]
+  },
+  {
+    "slug": "discharge-education",
+    "character": "出",
+    "color": "#2563B0",
+    "oldVersion": "2.10.1",
+    "version": "2.10.2",
+    "extension": "standalone-extensions/discharge-education/discharge-extension",
+    "iconName": "icon",
+    "svgName": "mark.svg",
+    "sizes": [
+      16,
+      32,
+      48,
+      128
+    ]
+  },
+  {
+    "slug": "barcode-return",
+    "character": "碼",
+    "color": "#7349B3",
+    "oldVersion": "1.1.0",
+    "version": "1.1.1",
+    "extension": "standalone-extensions/barcode-return/extension",
+    "iconName": "icon",
+    "svgName": "mark.svg",
+    "sizes": [
+      16,
+      32,
+      48,
+      128
+    ]
+  },
+  {
+    "slug": "patient-query",
+    "character": "選",
+    "color": "#347243",
+    "oldVersion": "1.6.1",
+    "version": "1.6.2",
+    "extension": "standalone-extensions/patient-query/extension",
+    "iconName": "icon",
+    "svgName": "mark.svg",
+    "sizes": [
+      16,
+      20,
+      24,
+      32,
+      48,
+      128
+    ]
+  },
+  {
+    "slug": "cart-labels-his",
+    "character": "車",
+    "color": "#A96714",
+    "oldVersion": "2.9.0",
+    "version": "2.9.1",
+    "extension": "standalone-extensions/cart-labels-his/extension",
+    "iconName": "icon-",
+    "svgName": "mark.svg",
+    "sizes": [
+      16,
+      32,
+      48,
+      128
+    ]
+  },
+  {
+    "slug": "cloud-medication",
+    "character": "雲",
+    "color": "#187594",
+    "oldVersion": "2.9.0",
+    "version": "2.9.1",
+    "extension": "standalone-extensions/cloud-medication/extension",
+    "iconName": "icon-",
+    "svgName": "icon.svg",
+    "sizes": [
+      16,
+      32,
+      48,
+      128
+    ]
+  }
+]

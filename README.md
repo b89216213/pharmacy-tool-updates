@@ -1,5 +1,20 @@
 # pharmacy-tool-updates — 藥局工具公開更新
 
+## 六工具單字圖示版（2026-11-04）
+
+[下載六工具統一壓縮檔](downloads/pharmacy-tools-six-20261104.zip) · [圖示與驗證說明](branding/README.md)
+
+| 工具 | 圖示 | 最新版 | 單獨下載 |
+|---|---|---|---|
+| 貼片回收紀錄 | 貼 | 1.4.3 | [ZIP](downloads/patch-recovery-v1.4.3.zip) |
+| 出院藥名單擷取 | 出 | 2.10.2 | [ZIP](downloads/discharge-education-v2.10.2.zip) |
+| 刷條碼退藥 | 碼 | 1.1.1 | [ZIP](downloads/barcode-return-v1.1.1.zip) |
+| 查詢處理（病人快速選擇） | 選 | 1.6.2 | [ZIP](downloads/patient-query-v1.6.2.zip) |
+| 藥車標籤列印 | 車 | 2.9.1 | [ZIP](downloads/cart-labels-his-v2.9.1.zip) |
+| 雲端藥歷整理器 | 雲 | 2.9.1 | [ZIP](downloads/cloud-medication-v2.9.1.zip) |
+
+統一壓縮檔內六個工具各自獨立；各工具也可沿用工具內更新。以下保留既有功能與安裝說明。
+
 ## 刷條碼退藥 v1.1.0
 
 [下載安裝包](downloads/barcode-return-v1.1.0.zip) · [使用說明](standalone-extensions/barcode-return/extension/README.txt)

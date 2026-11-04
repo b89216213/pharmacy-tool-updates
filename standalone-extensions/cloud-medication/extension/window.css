@@ -3,7 +3,7 @@
   html, body { min-width: 360px; }
   .app-shell { max-width: none !important; padding: 0 18px 18px !important; }
   .site-header { display: flex !important; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px !important; min-height: 0 !important; padding: 16px 0 !important; }
-  .brand-tile { display: none !important; }
+  .brand-tile { display: block !important; width: 32px !important; height: 32px !important; padding: 0 !important; border-radius: 0 !important; background: transparent !important; object-fit: contain; flex: 0 0 32px; order: -1; align-self: center !important; }
   .header-tools { margin-left: auto; }
   .nav-choice { padding: 9px 12px !important; }
   .nav-index { display: none; }

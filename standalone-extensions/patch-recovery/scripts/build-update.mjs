@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),ext=path.join(root,'extension');
 const manifest=JSON.parse(await fs.readFile(path.join(ext,'manifest.json'),'utf8'));
 const hash=b=>createHash('sha256').update(b).digest('hex');
-const allowed=['app.css','app.js','background.js','bridge.js','core.js','engine.js','excel.js','manifest.json','management-core.js','management.js','model.js','operation-guard.js','patch-tool.json','tool.html','update-core.js','update-network.js','update-store.js','updater.js','icons/icon-16.png','icons/icon-32.png','icons/icon-48.png','icons/icon-128.png'];
+const allowed=['icons/OFL.txt','icons/mark.svg','app.css','app.js','background.js','bridge.js','core.js','engine.js','excel.js','manifest.json','management-core.js','management.js','model.js','operation-guard.js','patch-tool.json','tool.html','update-core.js','update-network.js','update-store.js','updater.js','icons/icon-16.png','icons/icon-32.png','icons/icon-48.png','icons/icon-128.png'];
 const files=[];for(const p of allowed){const b=await fs.readFile(path.join(ext,p));files.push({path:p,size:b.length,sha256:hash(b),base64:b.toString('base64')});}
-const notes=process.argv[2]||'登記碼改為 4 位數字，後台新增共同管理員。已登記電腦保留原憑證；v1.3.0 可在工具內更新，較舊版本需手動導入。';
+const notes=process.argv[2]||'統一單字圖示「貼」：工具列、視窗與工具內識別一致，保留原有功能與設定。';
 const pkg={format:'patch-recovery-update-v1',toolId:'ntuh-patch-recovery',version:manifest.version,notes,files};
 const bytes=Buffer.from(JSON.stringify(pkg)),relative=`updates/patch-recovery/packages/${manifest.version}.json`;
 await fs.mkdir(path.join(root,'release/updates/patch-recovery/packages'),{recursive:true});

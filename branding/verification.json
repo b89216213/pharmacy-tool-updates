@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-04",
+  "results": [
+    {
+      "tool": "patch-recovery",
+      "version": "1.4.3",
+      "oldUpdater": "1.4.2",
+      "packageFiles": 24,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    },
+    {
+      "tool": "discharge-education",
+      "version": "2.10.2",
+      "oldUpdater": "2.10.1",
+      "packageFiles": 29,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    },
+    {
+      "tool": "barcode-return",
+      "version": "1.1.1",
+      "oldUpdater": "1.1.0",
+      "packageFiles": 26,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    },
+    {
+      "tool": "patient-query",
+      "version": "1.6.2",
+      "oldUpdater": "1.6.1",
+      "packageFiles": 24,
+      "icons": [
+        16,
+        20,
+        24,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    },
+    {
+      "tool": "cart-labels-his",
+      "version": "2.9.1",
+      "oldUpdater": "2.9.0",
+      "packageFiles": 52,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    },
+    {
+      "tool": "cloud-medication",
+      "version": "2.9.1",
+      "oldUpdater": "2.9.0",
+      "packageFiles": 31,
+      "icons": [
+        16,
+        32,
+        48,
+        128
+      ],
+      "permissionsUnchanged": true,
+      "updateInstalled": true,
+      "browserAssetsVerified": true
+    }
+  ],
+  "limitations": [
+    "Local synthetic browser checks; native Windows toolbar and live hospital workflows not exercised."
+  ]
+}

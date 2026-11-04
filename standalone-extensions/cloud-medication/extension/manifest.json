@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "雲端藥歷整理器｜頁面內小視窗",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "minimum_chrome_version": "116",
   "description": "一般頁面使用浮動藥歷整理器，可核對自備藥醫囑，並以食藥署公開資料補齊複方成分與藥品外觀圖；無法內嵌時自動另開獨立小視窗。",
   "permissions": [

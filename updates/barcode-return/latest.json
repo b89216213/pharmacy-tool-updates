@@ -1,9 +1,9 @@
 {
   "format": "barcode-return-release-v1",
   "toolId": "ntuh-barcode-return",
-  "version": "1.1.0",
-  "notes": "按工具列圖示於目前頁面開啟／關閉，收合保留輸入；加入電腦登記、後台停用與最低版本、工具內更新，採用條碼＋退回箭頭圖示。保留重複處方逐筆核對及成功後紀錄更新修正。v1.0.2 首次升級須覆蓋原資料夾並重新載入。",
-  "packagePath": "updates/barcode-return/packages/1.1.0.json",
-  "size": 154713,
-  "sha256": "9db34d079aa5a296be1af2deb0f176ed04fd60b6a8ecaa7d1f73a968be6d7345"
+  "version": "1.1.1",
+  "notes": "統一單字圖示「碼」：工具列、頁面及管理視窗一致，保留原有退藥流程。",
+  "packagePath": "updates/barcode-return/packages/1.1.1.json",
+  "size": 166849,
+  "sha256": "1a2733f26da8f02f09fb34f8cd3fcdac87324e2a5b548939677145f6804c4865"
 }

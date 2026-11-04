@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.10.1",
-  "notes": "套用純色版出院藥衛教 logo 至工具列、視窗與程式左上角；移除啟動時短暫放大的舊圖示。",
-  "packagePath": "updates/discharge-education/packages/2.10.1.json",
-  "size": 355317,
-  "sha256": "bc5fa83ac3492908a7ac1149a3526bdfc07d199995409f0a13bdf20765f3a7bf"
+  "version": "2.10.2",
+  "notes": "統一單字圖示「出」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
+  "packagePath": "updates/discharge-education/packages/2.10.2.json",
+  "size": 342569,
+  "sha256": "21f254863c364811275b3ccd3cf2b0965b2434c145b4dd556fbc34f31dd18ffc"
 }

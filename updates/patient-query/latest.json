@@ -1,9 +1,9 @@
 {
   "format": "patient-query-release-v1",
   "toolId": "ntuh-patient-picker",
-  "version": "1.6.1",
-  "notes": "工具列、工具視窗及左上角統一採用深綠病床＋勾勾圖示。v1.6.0 可直接使用工具內更新；功能與權限不變。",
-  "packagePath": "updates/patient-query/packages/1.6.1.json",
-  "size": 287464,
-  "sha256": "798efcc9bac95ed0b1bf9d8e9720c4fe7694d290103577f7ce31a4d232487355"
+  "version": "1.6.2",
+  "notes": "統一單字圖示「選」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
+  "packagePath": "updates/patient-query/packages/1.6.2.json",
+  "size": 301318,
+  "sha256": "deee9db8f838a3a771876b62ae275cee687b06c0026d471b223267bc88586cee"
 }

@@ -73,7 +73,7 @@
       <div class="notice" id="notice" role="status" aria-live="polite"></div>
     </div>
   </div>
-  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.10.1</span></footer>
+  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.10.2</span></footer>
 </main>
 <script src="education-core.js"></script>
 <script src="incremental.js"></script>
@@ -95,7 +95,7 @@
   </section><p class="muted small update-footnote">只下載工具程式；病人名單、衛教登錄紀錄與當日列印比對紀錄不會傳到 GitHub。更新期間請保持視窗開啟。</p>
 </dialog>
 <div id="management-pending" class="management-pending" hidden role="status">已收到管理限制，完成目前擷取後將暫停新的作業。</div>
-<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><span class="management-icon">衛</span><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>
+<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><img class="management-icon" src="icons/icon128.png" width="48" height="48" alt="" aria-hidden="true"><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>
 <dialog id="management-dialog" class="update-dialog" aria-labelledby="management-title"><div class="section-title"><div><h2 id="management-title">這台電腦</h2><p id="management-name-display"></p><p id="management-id-display" class="muted small"></p></div><button id="management-close" type="button" aria-label="關閉電腦設定">×</button></div><p id="management-status" role="status" aria-live="polite"></p><form id="management-form"><section id="management-setup"><p class="muted small">第一次使用請輸入辨識名稱與管理員提供的 4 位數字登記碼（10 分鐘內有效）。</p><label>電腦名稱<input id="management-name" required maxlength="60" autocomplete="off" placeholder="例如：兒醫住院藥局－調劑台 01"></label><label>登記碼<input id="management-code" required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="4 個數字，例如 0386"></label><button id="management-submit" type="submit" class="primary">登記並開始使用</button></section></form><p id="management-check-time" class="muted small"></p><button id="management-retry" type="button">重新連線</button><p class="muted small">只回報電腦識別、工具版本與管理狀態。關閉工具後停止；最後驗證後可離線使用 24 小時，已接收的停用或升級限制仍有效。</p></dialog>
 
 <script type="module" src="services.js"></script>

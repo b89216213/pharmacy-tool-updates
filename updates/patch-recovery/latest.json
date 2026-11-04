@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.4.2",
-  "notes": "新 logo：工具列、擴充功能管理頁、工具視窗與左上角統一使用貼片＋回收箭頭圖示，圖檔隨工具更新安裝。",
-  "packagePath": "updates/patch-recovery/packages/1.4.2.json",
-  "size": 259755,
-  "sha256": "8511efe96074525111888ce97e5acbcc12d14407c1349864684c14350ce94611"
+  "version": "1.4.3",
+  "notes": "統一單字圖示「貼」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
+  "packagePath": "updates/patch-recovery/packages/1.4.3.json",
+  "size": 249670,
+  "sha256": "863c318d8976443fc7318a5b57a1faebaf52b12e99581aa9f82016250a70b493"
 }
