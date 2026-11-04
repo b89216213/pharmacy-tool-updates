@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "401dbcb7865f29a310f21cfd616340ae1fc4ead0",
+  "sourceCommit": "408892cae3989f1a0a46faf0d2b287d8895ac921",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -13,8 +13,8 @@
       "id": "ntuh-barcode-return",
       "name": "刷條碼退藥",
       "slug": "barcode-return",
-      "version": "1.1.1",
-      "downloadPath": "downloads/barcode-return-v1.1.1.zip"
+      "version": "1.1.2",
+      "downloadPath": "downloads/barcode-return-v1.1.2.zip"
     },
     {
       "id": "ntuh-controlled-inventory",
