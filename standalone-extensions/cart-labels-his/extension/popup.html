@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><title>藥車標籤列印</title>
+<style>
+  body { width: 320px; margin: 0; padding: 14px 16px 16px; font: 13px "Microsoft JhengHei", "Noto Sans TC", sans-serif; color: #172944; }
+  h1 { font-size: 15px; margin: 0 0 12px; color: #1b55ce; }
+  h2 { font-size: 13px; margin: 0 0 8px; color: #31547f; }
+  section { border-top: 1px solid #e4eaf3; padding-top: 12px; margin-top: 12px; }
+  button { font: inherit; cursor: pointer; border-radius: 6px; }
+  .primary { width: 100%; padding: 8px; border: 0; background: #1b55ce; color: #fff; font-weight: bold; }
+  .primary:disabled { opacity: .45; cursor: not-allowed; }
+  .combo { border: 1px solid #dce3ee; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+  .combo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .combo-head input { flex: 1; min-width: 0; font: bold 13px inherit; border: 1px solid transparent; border-radius: 4px; padding: 3px 5px; color: #172944; }
+  .combo-head input:hover, .combo-head input:focus { border-color: #ccd6e5; }
+  .pen { color: #9aa8bb; font-size: 12px; margin-left: -4px; }
+  .wards { width: 100%; box-sizing: border-box; padding: 7px 8px; border: 1px solid #ccd6e5; border-radius: 5px; font: 14px Arial, sans-serif; text-transform: uppercase; }
+  .row { display: flex; gap: 6px; margin-top: 8px; }
+  .row .primary { flex: 1; }
+  .link { border: 0; background: none; color: #1b55ce; padding: 0; font-size: 12px; }
+  .hint { margin: 6px 0 0; color: #5f7390; font-size: 12px; line-height: 1.55; }
+  .msg { margin: 6px 0 0; font-size: 12px; min-height: 1em; }
+  .msg.err { color: #b32929; } .msg.ok { color: #1d7a3a; }
+  label.chk { display: flex; gap: 6px; align-items: flex-start; font-weight: bold; cursor: pointer; }
+  .secondary { width: 100%; padding: 7px; border: 1px solid #ccd6e5; background: #fff; color: #25476f; }
+</style><link rel="stylesheet" href="managed-ui.css"></head>
+<body><div id="managed-workspace" inert>
+  <h1>▤ 藥車標籤列印</h1>
+
+  <h2>自動抓取病房</h2>
+  <div id="combos"></div>
+  <p class="hint">請先開啟 HIS「查詢處理」頁面。會依序查詢病房、勾選全部病人並擷取標籤資料（院內不會實際列印），完成後自動開啟藥車標籤。執行中請勿操作 HIS 頁面。</p>
+
+  <section>
+    <button id="open" class="secondary">開啟標籤工具</button>
+    <p class="hint"><b>手動：</b>在 HIS 勾選病人，按院內「列印病人標籤」，也會自動帶入。</p>
+  </section>
+
+  <section>
+    <label class="chk"><input type="checkbox" id="scan">自動掃描頁面（帳號版按鈕）</label>
+    <p class="hint">關閉時不讀取頁面上的病人清單，也不顯示右下角按鈕。</p>
+  </section>
+
+  <template id="comboTpl">
+    <div class="combo">
+      <div class="combo-head"><input class="name" maxlength="20" aria-label="組合名稱" title="點一下可以改名稱"><span class="pen" aria-hidden="true">✎</span><button class="link from-presets" title="帶入標籤工具「病房預設床位」中勾選的病房">用預設床位</button></div>
+      <input class="wards" placeholder="病房代碼，以空格分隔，例如 10HN 11HN" autocomplete="off" spellcheck="false">
+      <div class="row"><button class="primary run">▶ 執行</button></div>
+      <p class="msg" role="status"></p>
+    </div>
+  </template>
+  
+</div><script type="module" src="managed-launch.js"></script></body></html>

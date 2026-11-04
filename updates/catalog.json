@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "f20997b79499ef8d5f48cb795bf094d75b18306d",
+  "sourceCommit": "17417bcf40d6e94d0e3500e167b309616184c080",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -43,6 +43,13 @@
       "slug": "patient-query",
       "version": "1.6.1",
       "downloadPath": "downloads/patient-query-v1.6.1.zip"
+    },
+    {
+      "id": "ntuh-cart-labels-his",
+      "name": "藥車標籤列印（HIS 擴充）",
+      "slug": "cart-labels-his",
+      "version": "2.9.0",
+      "downloadPath": "downloads/cart-labels-his-v2.9.0.zip"
     }
   ]
 }
