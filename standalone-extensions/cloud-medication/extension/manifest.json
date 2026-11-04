@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "雲端藥歷整理器｜頁面內小視窗",
+  "version": "2.9.0",
+  "minimum_chrome_version": "116",
+  "description": "一般頁面使用浮動藥歷整理器，可核對自備藥醫囑，並以食藥署公開資料補齊複方成分與藥品外觀圖；無法內嵌時自動另開獨立小視窗。",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "clipboardWrite",
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://data.fda.gov.tw/*",
+    "https://mcp.fda.gov.tw/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "顯示雲端藥歷整理器",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://pharmacy-device-console.cx760.chatgpt.site https://raw.githubusercontent.com https://data.fda.gov.tw https://mcp.fda.gov.tw; img-src 'self' data: https://*.fda.gov.tw"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "app.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "options_page": "manager.html"
+}

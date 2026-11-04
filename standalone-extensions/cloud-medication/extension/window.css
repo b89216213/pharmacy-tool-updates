@@ -1,0 +1,22 @@
+/* Compact browser tool shell; medication columns retain the final layout. */
+@media screen {
+  html, body { min-width: 360px; }
+  .app-shell { max-width: none !important; padding: 0 18px 18px !important; }
+  .site-header { display: flex !important; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px !important; min-height: 0 !important; padding: 16px 0 !important; }
+  .brand-tile { display: none !important; }
+  .header-tools { margin-left: auto; }
+  .nav-choice { padding: 9px 12px !important; }
+  .nav-index { display: none; }
+  .workspace { padding: 14px 0 18px !important; }
+  .workspace.showing-results { padding: 8px 0 18px !important; }
+  .result-panel { min-width: 0; }
+  .result-groups.aligned { display: block !important; overflow-x: auto; max-width: 100%; padding: 10px 0 !important; }
+  .result-groups.aligned .med-group { min-width: max-content; margin-bottom: 12px !important; }
+  .editor-slide .organize-action { margin-top: 16px !important; }
+}
+@media screen and (max-width: 760px) {
+  .primary-nav { order: 2; flex: 1 1 100%; }
+  .nav-choice { padding: 9px 6px !important; }
+  .app-shell { padding: 0 12px 14px !important; }
+}
+

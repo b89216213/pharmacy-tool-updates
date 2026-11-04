@@ -1,0 +1,1 @@
+export const CONFIG=Object.freeze({"slug": "cloud-medication", "toolId": "ntuh-cloud-medication", "title": "雲端藥歷整理器", "entry": "app.html", "managementKey": "cloud-medicationManagementV1", "workPages": ["app.html"], "pageScripts": {"app.html": ["settings.js"]}});

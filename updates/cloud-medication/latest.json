@@ -1,0 +1,9 @@
+{
+  "format": "cloud-medication-release-v1",
+  "toolId": "ntuh-cloud-medication",
+  "version": "2.9.0",
+  "packagePath": "updates/cloud-medication/packages/2.9.0.json",
+  "size": 822362,
+  "sha256": "9b94463a7aa8ef488e4b1a3e5b7fb417cadfa7f389434a06d2836164f0a50d11",
+  "notes": "加入四位數電腦登記、後台停用與最低版本、版本回報及工具內更新；保留原操作介面與本機資料。"
+}
