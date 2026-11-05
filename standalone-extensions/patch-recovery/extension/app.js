@@ -19,7 +19,7 @@ const emptyDraft=()=>({id:uuid(),date:todayKey(),pharmacist:portalPharmacist.nam
 function showError(message){$('error-text').textContent=message;$('error').hidden=false;}
 function clearError(){$('error').hidden=true;}
 function notice(message){$('notice').textContent=message;$('notice').hidden=false;}
-const run=fn=>async(...args)=>{try{await fn(...args);}catch(e){showError(e.message||String(e));}};
+const run=fn=>async(...args)=>{try{await fn(...args);}catch(e){if(e.code==='PORTAL_WAIT'){$('connection-state').textContent=e.message;clearError();}else showError(e.message||String(e));}};
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 function ask(title,text,yes='確定'){return new Promise(resolve=>{confirmResolve=resolve;$('confirm-title').textContent=title;$('confirm-text').textContent=text;$('confirm-yes').textContent=yes;$('confirm-dialog').showModal();});}
 function resolveConfirm(value){$('confirm-dialog').close();confirmResolve?.(value);confirmResolve=null;}
@@ -111,7 +111,7 @@ function renderPatients(){
   $('inbed').setAttribute('aria-pressed',String(mode==='inbed'));$('cleared').setAttribute('aria-pressed',String(mode==='cleared'));
   const visible=filterPatients(patients,$('patient-search').value),selected=new Set(draft.entries.map(e=>patientKey(e.patient)));
   $('patient-count').textContent=patients.length?`${visible.length}／${patients.length} 位`:'';
-  $('patient-list').innerHTML=busy?'<p class="empty-text">正在讀取病人名單…</p>':!visible.length?`<p class="empty-text">${!connected?'請在查詢處理頁面開啟工具，或按「連接 Portal」。':!(repo.state.prefs.wardGroup||[]).length?'請先按「勾選設定」選擇預設病房。':!ward?'請選擇病房。':patients.length?'找不到符合的病人。':'目前沒有可選擇的病人，可切換名單或使用帳號查詢。'}</p>`:visible.map(p=>`<button type="button" class="patient-choice" data-patient="${esc(p.account)}" aria-pressed="${selected.has(patientKey(p))}"><span class="checkmark">✓</span><span class="bed">${esc(shortBed(p))}</span><span class="person"><span>${esc(p.name)}</span><small>${esc(p.account)}</small>${mode==='cleared'?`<small class="discharge">出院 ${esc(p.discharge||'未顯示')}</small>`:''}</span></button>`).join('');
+  $('patient-list').innerHTML=busy?'<p class="empty-text">正在讀取病人名單…</p>':!visible.length?`<p class="empty-text">${!connected?'等待 Portal 登入；登入後會自動連接。':!(repo.state.prefs.wardGroup||[]).length?'請先按「勾選設定」選擇預設病房。':!ward?'請選擇病房。':patients.length?'找不到符合的病人。':'目前沒有可選擇的病人，可切換名單或使用帳號查詢。'}</p>`:visible.map(p=>`<button type="button" class="patient-choice" data-patient="${esc(p.account)}" aria-pressed="${selected.has(patientKey(p))}"><span class="checkmark">✓</span><span class="bed">${esc(shortBed(p))}</span><span class="person"><span>${esc(p.name)}</span><small>${esc(p.account)}</small>${mode==='cleared'?`<small class="discharge">出院 ${esc(p.discharge||'未顯示')}</small>`:''}</span></button>`).join('');
   $('freshness').textContent=busy?'查詢期間仍可填寫右側片數':loadedAt?`${mode==='current'?'原系統目前頁 · ':mode==='account'?'帳號查詢結果 · ':''}${ward||''} · ${new Date(loadedAt).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false})} 更新`:'';
   refreshControls();
 }
@@ -155,14 +155,15 @@ async function readPharmacist(replace=false){
   }
   $('batch-pharmacist').value=draft.pharmacist;renderPharmacist();queueDraft();
 }
+const portal=globalThis.PharmacyPortal?new PharmacyPortal.Connection({label:'貼片回收紀錄',onSource:link=>{sourceLink=link;},onStatus:text=>{$('connection-state').textContent=text;}}):null;
 async function connect(link){
   if(busy)return;clearError();busy=true;patients=[];renderPatients();
   try{
     if(link)sourceLink=link;
     else sourceLink=(await chrome.storage.session.get('patchSource')).patchSource||sourceLink;
-    if(!sourceLink){const list=await chrome.tabs.query({});const matches=list.filter(t=>/^https:\/\/(portal|ihisaw)\.ntuh\.gov\.tw\//.test(t.url||''));if(matches.length===1)sourceLink={sourceId:matches[0].id,origin:new URL(matches[0].url).origin};}
-    if(!sourceLink)throw new Error('請先登入院內「查詢處理」，在該分頁點擊「貼片回收紀錄」擴充元件。');
-    engine=new PortalEngine({...sourceLink,status:message=>{$('freshness').textContent=message;}});
+    if(!sourceLink&&!portal){const list=await chrome.tabs.query({});const matches=list.filter(t=>/^https:\/\/(portal|ihisaw)\.ntuh\.gov\.tw\//.test(t.url||''));if(matches.length===1)sourceLink={sourceId:matches[0].id,origin:new URL(matches[0].url).origin};}
+    if(!sourceLink&&!portal)throw new Error('等待 Portal 登入；登入後會自動連接。');
+    engine=new PortalEngine({...sourceLink,status:message=>{$('freshness').textContent=message;}});if(portal){portal.sourceId=sourceLink?.sourceId||portal.sourceId;engine.portal=portal;}
     const result=await engine.connect();await readPharmacist();wards=normalizeWards(result.control.options);connected=true;wardCache.clear();loadedAt=0;
     const preferred=[ward,repo.state.prefs.ward,result.control.selectedWard].find(w=>wards.some(x=>x.code===w));ward=preferred||wards[0]?.code||'';campus=wards.find(w=>w.code===ward)?.campus||campus;renderWards();
   }catch(e){connected=false;engine=null;throw e;}finally{busy=false;refreshControls();renderPatients();}
@@ -295,7 +296,7 @@ function bind(){
   for(const id of ['ward-group-close','ward-group-cancel'])$(id).addEventListener('click',run(closeWardGroup));
   $('ward-group-dialog').addEventListener('cancel',event=>{event.preventDefault();run(closeWardGroup)();});
   $('read-page').addEventListener('click',run(readPage));$('lookup-account').addEventListener('click',run(lookupAccount));
-  $('connect').addEventListener('click',run(()=>connect()));$('source').addEventListener('click',run(()=>engine?.focusSource()));
+  $('connect').addEventListener('click',run(async()=>{await portal?.preferActive();if(portal?.sourceId)sourceLink={sourceId:portal.sourceId};await connect(sourceLink);}));$('source').addEventListener('click',run(()=>engine?.focusSource()));
   $('batch-date').addEventListener('change',()=>{if(!validDate($('batch-date').value))return;draft.date=$('batch-date').value;renderDraft();queueDraft();});
   $('batch-pharmacist').addEventListener('input',()=>{draft.pharmacist=$('batch-pharmacist').value;draft.pharmacistMode='manual';renderPharmacist();queueDraft();});
   $('read-pharmacist').addEventListener('click',run(async()=>{if(busy||saving)return;busy=true;refreshControls();try{await readPharmacist(true);}finally{busy=false;refreshControls();}}));
@@ -328,7 +329,7 @@ async function start(){
       try{await flushDraft();await repo.tail;}catch(e){updating=false;syncInert();throw e;}
     },
     finish:()=>{updating=false;syncInert();}
-  }).catch(e=>{$('open-update').disabled=true;showError('更新功能暫時無法載入：'+e.message+'。回收登記仍可使用。');});
+  }).catch(e=>{$('open-update').disabled=true;showError('更新功能暫時無法載入：'+e.message+'。請完成安裝設定後再開始使用。');});
   const management=await mountManagement({
     isBusy:()=>busy||saving||entrySubmitting||groupSubmitting||updating||[...document.querySelectorAll('dialog[open]')].some(el=>!['update-dialog','management-dialog'].includes(el.id)),
     saveDraft:async()=>{await flushDraft();await repo.tail;},
@@ -338,3 +339,5 @@ async function start(){
   if(!management.blocked)await run(()=>connect())();
 }
 await start();
+
+if(portal)portal.watch({needed:()=>!connected,blocked:()=>busy||saving||updating||managedBlocked,connect:()=>connect()});

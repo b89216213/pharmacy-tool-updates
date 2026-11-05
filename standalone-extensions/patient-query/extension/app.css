@@ -252,7 +252,7 @@
     #picker .pc-billing-unsettled{display:inline-block;max-width:100%;font-size:15px;font-weight:750;line-height:1.45;color:var(--pc-pending);background:var(--pc-pending-badge);padding:3px 5px;border-radius:4px}
     #picker .pc-billing-settled{color:var(--pc-green);font-weight:600}
     #picker .pc-row.pc-needs-settlement{background:var(--pc-pending-soft);border-left:3px solid var(--pc-pending);padding-left:1px}
-    #picker .pc-row.pc-needs-settlement.pc-checked{box-shadow:inset 0 0 0 1px var(--pc-green)}
+    #picker .pc-row.pc-needs-settlement.pc-checked{box-shadow:inset 0 0 0 2px var(--pc-pending)}
     #picker .pc-needs-settlement .pc-settle{background:var(--pc-pending-button);border-color:var(--pc-pending-button);color:var(--pc-pending-on);font-weight:700}
     #picker .pc-needs-settlement .pc-settle:hover{filter:brightness(.95)}
     @media(max-width:960px){#picker .pc-top{flex-wrap:wrap;gap:8px}#picker .pc-search{flex-basis:260px}#picker .pc-ward-context .pc-source-mode{font-size:12px}}
@@ -270,3 +270,10 @@
 .management-lock{position:fixed;inset:0;background:#f2f6f0ef;z-index:30;display:grid;place-items:center;padding:28px}.management-lock[hidden],.management-pending[hidden]{display:none}.management-lock-card{background:#fff;border:1px solid #d5e5da;box-shadow:0 14px 60px #154c3615;border-radius:18px;padding:35px;max-width:620px}.management-lock-card h2{margin:15px 0}.management-lock-card p{line-height:1.8}.management-icon{display:block;width:48px;height:48px;object-fit:contain}.management-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}.management-pending{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:40;max-width:90%;padding:12px 20px;background:#fff1cf;border:1px solid #e5c56e;border-radius:10px;color:#7c601c}#management-setup label{display:flex;flex-direction:column;gap:7px;margin:16px 0}#management-setup input{width:100%;padding:10px}#management-check-time{margin-top:22px}#management-status{line-height:1.8}#open-management{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 #picker .update-dialog{background:var(--pc-bg);color:var(--pc-ink);line-height:1.65}#picker .section-title{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}#picker .update-dialog .muted{color:var(--pc-sub)}#picker .update-dialog .small{font-size:12px}#picker .update-dialog h2{margin:0;font-size:21px}#picker .update-dialog h3{font-size:15px}#picker .update-dialog .primary,#picker .management-lock .primary{background:var(--pc-green);color:var(--pc-on);border-color:var(--pc-green)}#picker .management-lock{background:var(--pc-bg)}#picker .management-lock-card{background:var(--pc-bg);border-color:var(--pc-line)}#picker #management-setup input{box-sizing:border-box;border:1px solid var(--pc-line);border-radius:8px;background:var(--pc-bg);color:var(--pc-ink)}
+
+/* State-specific emphasis; the patient status remains visible while selected. */
+#picker .pc-row.pc-needs-settlement input[type=checkbox]{accent-color:var(--pc-pending)}
+#picker .pc-row.pc-needs-settlement.pc-hot{box-shadow:inset 0 0 0 2px var(--pc-pending)}
+#picker .pc-row.pc-needs-settlement button:focus-visible,#picker .pc-row.pc-needs-settlement input:focus-visible{outline-color:var(--pc-pending)}
+#picker .pc-row.pc-needs-settlement:hover{background:var(--pc-pending-soft)}
+#picker button:disabled:hover{border-color:var(--pc-line)}

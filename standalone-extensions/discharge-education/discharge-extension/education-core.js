@@ -6,9 +6,26 @@
  const rxKey=p=>date(p.orderDate)+'|'+text(p.number).toUpperCase();
  const seqs=p=>[...new Set((p.sequences?.length?p.sequences:[p.sequence]).filter(Boolean).map(text))].sort();
  function empty(){return {schema:1,batches:[],receipts:[],attempts:[],drafts:{}};}
+ // Storage may reorder object keys. Compare defined content in a fixed order,
+ // independent of patient/pickup display order, while retaining every identity,
+ // assignment and prescription difference.
+ function batchSignature(rows){
+  return JSON.stringify(rows.map(r=>JSON.stringify([
+   text(r.account),text(r.mrn),text(r.name),text(r.bedNumber),text(r.ward),r.date??null,
+   Number(r.pharmacist)||1,text(r.drugStatus),!!r.pickupComplete,
+   (r.pickups||[]).map(p=>JSON.stringify([text(p.number).toUpperCase(),date(p.orderDate),seqs(p)])).sort()
+  ])).sort());
+ }
  function prune(raw,now=Date.now()){
   const s=raw?.schema===1?clone(raw):empty();
   s.batches=(s.batches||[]).filter(x=>Number.isFinite(x.expiresAt)&&x.expiresAt>now);
+  const unique=new Map();
+  for(const b of s.batches){
+   const key=batchSignature(b.rows),prior=unique.get(key);
+   if(!prior)unique.set(key,b);
+   else{prior.printed||=b.printed;prior.createdAt=Math.min(prior.createdAt,b.createdAt);prior.expiresAt=Math.min(prior.expiresAt,b.expiresAt);}
+  }
+  s.batches=[...unique.values()];
   s.receipts=(s.receipts||[]).filter(x=>x.expiresAt>now);
   s.attempts=(s.attempts||[]).filter(x=>x.expiresAt>now).map(x=>({...x,status:x.status==='sending'?'uncertain':x.status}));
   const accounts=new Set(s.batches.flatMap(b=>b.rows.map(r=>r.account)));s.drafts=Object.fromEntries(Object.entries(s.drafts||{}).filter(([a])=>accounts.has(a)));return s;
@@ -16,7 +33,7 @@
  function sanitizeRow(r,assignments={}){return {account:text(r.account),mrn:text(r.mrn),name:text(r.name),bedNumber:text(r.bedNumber),ward:text(r.ward),date:r.date,pharmacist:assignments.wards?.[r.ward]||1,drugStatus:r.drugStatus,pickupComplete:!!r.pickupComplete,pickups:(r.pickups||[]).map(p=>({number:text(p.number).toUpperCase(),orderDate:date(p.orderDate),sequences:seqs(p)}))};}
  function addBatch(raw,rows,assignments,{printed=false,now=Date.now()}={}){
   const s=prune(raw,now),clean=rows.map(r=>sanitizeRow(r,assignments));if(!clean.length)throw Error('目前沒有可儲存的名單。');
-  const signature=JSON.stringify(clean);let b=s.batches.find(x=>JSON.stringify(x.rows)===signature);
+  const signature=batchSignature(clean);let b=s.batches.find(x=>batchSignature(x.rows)===signature);
   if(b){b.printed||=printed;return {state:s,batch:b};}
   b={id:crypto.randomUUID(),createdAt:now,expiresAt:now+TTL,printed,rows:clean};s.batches.push(b);return {state:s,batch:b};
  }
@@ -78,5 +95,5 @@
   o.txbCostMinute=String(f.minutes);check('chkCareOpinionItem_',f.topics,7);o.txbCareOpioion=summary(f);return o;
  }
  function dateRange(pickups){const a=pickups.map(p=>date(p.orderDate)).sort();if(!a.length||!a[0])throw Error('沒有可登錄的出院藥。');const stamp=x=>Date.UTC(+x.slice(0,4),+x.slice(4,6)-1,+x.slice(6,8));return {baseDate:a.at(-1),days:String(Math.ceil((stamp(a.at(-1))-stamp(a[0]))/86400000)+1)};}
- root.EducationCore={KEY,TTL,date,rxKey,seqs,empty,prune,addBatch,defaults,validate,summary,TOPICS,covers,patients,batchSummary,fields,dateRange};
+ root.EducationCore={KEY,TTL,date,rxKey,seqs,empty,prune,addBatch,batchSignature,defaults,validate,summary,TOPICS,covers,patients,batchSummary,fields,dateRange};
 })(globalThis);

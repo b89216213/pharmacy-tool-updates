@@ -17,11 +17,12 @@ class Element {
  get innerHTML(){return this.html;}
 }
 const ids=new Map(),shadow=new Element(),original=new Element('original');shadow.getElementById=id=>ids.get(id);
-const doc={body:new Element('body'),activeElement:original,getElementById:()=>null,createElement:()=>new Element(),documentElement:{append(){}}};
+const doc={body:new Element('body'),activeElement:original,getElementById:()=>null,createElement:()=>new Element(),documentElement:{dataset:{},append(){}}};
 const events=new Map(),window={addEventListener:(type,fn)=>{const list=events.get(type)||[];list.push(fn);events.set(type,list);},removeEventListener:(type,fn)=>events.set(type,(events.get(type)||[]).filter(f=>f!==fn)),dispatchEvent(event){for(const fn of events.get(event.type)||[])fn(event);if(event.type==='ntuh-barcode-return-command-v1'){const q=JSON.parse(event.detail);window.dispatchEvent({type:'ntuh-barcode-return-signal-v1',detail:JSON.stringify({type:'ready',token:q.token,hooked:false,busy:false})});}}};
-const C={IDS:{},clean:x=>String(x??'').trim(),validateAmount:x=>({valid:true,value:x?Number(x):null}),readReturns:()=>nativeAmounts?[{amount:'1'}]:[],readPatient:()=>({account:'test',chart:'test',bed:'test'})};
-const chrome={runtime:{id:'unit',getURL:p=>'chrome-extension://unit/'+p,onMessage:{addListener:fn=>messageListener=fn},async sendMessage(q){requests.push(q);if(q.type==='return-helper-ready')return{open:false};if(q.action==='status')return{ok:true,data:{state:'allowed',deviceName:'Test'}};if(q.action==='acquire')return deny?{ok:false,error:'管理員已停用'}:{ok:true,data:{token:'lease'}};return{ok:true,data:{}};}}};
-const context=vm.createContext({document:doc,window,chrome,NTUHReturnCore:C,NTUHReturnWorkflow:{},crypto,setTimeout,clearTimeout,setInterval:()=>0,CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}},MutationObserver:class{observe(){}}});
+const C={validateBarcode:x=>({valid:true,value:x}),IDS:{},clean:x=>String(x??'').trim(),validateAmount:x=>({valid:true,value:x?Number(x):null}),readReturns:()=>nativeAmounts?[{amount:'1'}]:[],readPatient:()=>({account:'test',chart:'test',bed:'test'})};
+const chrome={runtime:{id:'unit',getManifest:()=>({version:'1.5.3'}),getURL:p=>'chrome-extension://unit/'+p,onMessage:{addListener:fn=>messageListener=fn},async sendMessage(q){requests.push(q);if(q.type==='return-helper-ready')return{open:false};if(q.action==='status')return{ok:true,data:{state:'allowed',deviceName:'Test'}};if(q.action==='acquire')return deny?{ok:false,error:'管理員已停用'}:{ok:true,data:{token:'lease'}};return{ok:true,data:{}};}}};
+const leaseStore=new Map();const sessionStorage={getItem:k=>leaseStore.get(k)||null,setItem:(k,v)=>leaseStore.set(k,v),removeItem:k=>leaseStore.delete(k)};
+const context=vm.createContext({location:{href:'https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/BarCodeDrugReturn.aspx'},sessionStorage,document:doc,window,chrome,NTUHReturnCore:C,NTUHReturnWorkflow:{},crypto,setTimeout,clearTimeout,clearInterval,performance,setInterval:()=>0,CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail;}},MutationObserver:class{observe(){}}});
 vm.runInContext(source.replace(/\}\)\(\);\s*$/, 'globalThis.api={state,show,prepare,commit,commitIndividually,el,syncControls};})();'),context);
 const a=context.api;
 const receive=type=>{let answer;messageListener({type},{id:'unit'},r=>answer=r);return answer;};
@@ -36,10 +37,18 @@ await test('Native readiness failure releases lease once and keeps hidden page f
 const pageTools=await import('../extension/return-pages.js');let sent=[],blocked=false,missing=false;
 globalThis.chrome={tabs:{query:async()=>[{id:1},{id:2}],sendMessage:async(id,q)=>{sent.push([id,q.type]);if(missing&&id===2)throw Error('no receiver');return{ready:!(blocked&&id===2)};}},webNavigation:{getAllFrames:async()=>[{frameId:3,url:pageTools.RETURN_URL},{frameId:4,url:'https://unrelated.test/'}]}};
 await test('Updater checks each native frame; partial failure thaws all contacted frames',async()=>{const pages=await pageTools.freezePages();assert.equal(pages.length,2);assert(pages.every(p=>p.frameId===3));blocked=true;sent=[];await assert.rejects(pageTools.freezePages());assert.equal(sent.filter(x=>x[1]==='return-update-unfreeze').length,2);blocked=false;missing=true;await assert.rejects(pageTools.freezePages());});
-// Exercise the actual toolbar controller with only Chrome API boundaries replaced.
-let clicked,readyHandler,stored={},navigation=[],frames=[],shown=false,badge='';
-const bgChrome={runtime:{id:'unit',onMessage:{addListener:fn=>readyHandler=fn}},action:{onClicked:{addListener:fn=>clicked=fn},setBadgeText:async o=>badge=o.text,setTitle:async()=>{}},storage:{session:{get:async k=>({[k]:stored[k]}),set:async o=>Object.assign(stored,o),remove:async k=>delete stored[k]}},tabs:{update:async(id,o)=>navigation.push({id,...o}),sendMessage:async()=>({shown:shown=!shown}),onRemoved:{addListener(){}}}};
-const bg=vm.createContext({chrome:bgChrome,RETURN_URL:pageTools.RETURN_URL,isReturnPage:pageTools.isReturnPage,returnFrames:async()=>frames});vm.runInContext((await fs.readFile(new URL('../extension/background.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,''),bg);
-await test('Toolbar reuses the active tab; rapid second press cancels pending open',async()=>{clicked({id:7});await tick();assert.equal(navigation.length,1);assert.equal(navigation[0].id,7);clicked({id:7});await tick();let answer;readyHandler({type:'return-helper-ready'},{id:'unit',tab:{id:7},url:pageTools.RETURN_URL},r=>answer=r);await tick();assert.equal(answer.open,false);assert.equal(navigation.length,1);});
-await test('Existing native frame toggles twice without navigation or a new tab',async()=>{frames=[{frameId:3}];clicked({id:7});await tick();assert.equal(shown,true);assert.equal(badge,'ON');clicked({id:7});await tick();assert.equal(shown,false);assert.equal(badge,'');assert.equal(navigation.length,1);});
+await test('Portal lease blocks other tools and accepts only current own requests',()=>{
+ const request=(owner='unit:return:one',extra={})=>({type:'return-portal-lease',owner,deadline:Date.now()+5000,...extra});
+ const call=(q,sender={id:'unit'})=>{let answer;messageListener(q,sender,r=>answer=r);return answer;};
+ const get=()=>JSON.parse(sessionStorage.getItem('pharmacyPortalLeaseV1')||'null');
+ assert.equal(call(request()).ok,true);assert.equal(get().owner,'unit:return:one');
+ assert.equal(call(request()).ok,true);assert.equal(call(request('unit:return:two')).ok,false);
+ const other={owner:'picker:run',label:'病人快速選擇',until:Date.now()+90000};sessionStorage.setItem('pharmacyPortalLeaseV1',JSON.stringify(other));
+ assert.equal(call(request()).ok,false);assert.deepEqual(get(),other);
+ assert.equal(call(request('unit:return:one',{release:true})).ok,true);assert.deepEqual(get(),other);
+ sessionStorage.setItem('pharmacyPortalLeaseV1',JSON.stringify({...other,until:Date.now()-1}));assert.equal(call(request()).ok,true);
+ assert.equal(call(request('unit:return:one',{release:true})).ok,true);assert.equal(get(),null);
+ assert.equal(call(request('unit:return:one',{deadline:Date.now()-1})).ok,false);assert.equal(get(),null);
+ assert.equal(call(request('other:run')).ok,false);assert.equal(call(request(),{id:'foreign'}),undefined);assert.equal(get(),null);
+});
 console.log(checks.length+' controller checks passed');

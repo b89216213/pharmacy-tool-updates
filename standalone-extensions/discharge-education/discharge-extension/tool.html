@@ -6,12 +6,13 @@
 
 <meta name="color-scheme" content="light">
 <title>出院藥衛教名單擷取工具｜瀏覽器版</title>
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/icon16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/blue32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/blue16.png">
+<link rel="stylesheet" href="print-layout.css">
 <link rel="stylesheet" href="tool.css">
 <link rel="stylesheet" href="services.css">
 <link rel="stylesheet" href="education.css">
-</head>
+<script src="portal-connection.js"></script><script src="portal-adapter.js"></script></head>
 <body>
 <main class="shell">
 
@@ -73,7 +74,7 @@
       <div class="notice" id="notice" role="status" aria-live="polite"></div>
     </div>
   </div>
-  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.11.0</span></footer>
+  <footer class="bottom"><span>使用方式：開啟院內清單 → 勾選病房 → 批次擷取 → 篩選／匯出</span><span>瀏覽器擴充版 2.14.3</span></footer>
 </main>
 <script src="education-core.js"></script>
 <script src="incremental.js"></script>
@@ -89,13 +90,13 @@
   <div class="update-summary"><strong id="update-new-version"></strong><p id="update-status" role="status" aria-live="polite">正在讀取更新設定…</p><p id="update-notes"></p></div>
   <div class="update-actions"><button id="update-check" type="button">檢查新版</button><button id="update-apply" class="primary" type="button" hidden>更新並重新開啟</button><button id="update-recover" type="button" hidden>還原原版檔案</button></div>
   <section class="update-setup"><h3>這台電腦的更新設定</h3><p class="muted small">每次開啟工具時自動檢查；視窗開著時每 6 小時再檢查，關閉後停止。找到新版會主動開啟更新視窗；操作中會延後提醒，同次開啟只提醒一次。套用前會等待目前擷取完成；已確認列印的紀錄會保留。</p>
-    <div class="update-folder-row"><div><strong>工具資料夾</strong><p id="update-directory" class="muted small"></p></div><button id="update-folder" type="button">指定資料夾</button></div>
-    <p class="muted small">請選擇原本在 Chrome 載入的 discharge-extension 資料夾，內有 manifest.json。Chrome 可能再次要求寫入授權。</p>
+    <div class="update-folder-row"><div><strong>小工具安裝的資料夾</strong><p id="update-directory" class="muted small"></p></div><button id="update-folder" type="button">選擇安裝資料夾</button></div>
+    <p class="muted small">日後更新會使用已授權的小工具安裝資料夾。</p>
     <p class="muted small">使用公開更新來源，不需 GitHub 帳號或憑證。</p>
   </section><p class="muted small update-footnote">只下載工具程式；病人名單、衛教登錄紀錄與當日列印比對紀錄不會傳到 GitHub。更新期間請保持視窗開啟。</p>
 </dialog>
 <div id="management-pending" class="management-pending" hidden role="status">已收到管理限制，完成目前擷取後將暫停新的作業。</div>
-<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><img class="management-icon" src="icons/icon128.png" width="48" height="48" alt="" aria-hidden="true"><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>
+<section id="management-lock" class="management-lock" hidden aria-labelledby="management-lock-title"><div class="management-lock-card"><img class="management-icon" src="icons/blue128.png" width="48" height="48" alt="" aria-hidden="true"><h2 id="management-lock-title"></h2><p id="management-lock-reason"></p><p class="muted small">當日列印比對紀錄保存在這台電腦，更新工具後仍會保留。</p><div class="management-buttons"><button id="management-lock-update" type="button" class="primary">開啟工具更新</button><button id="management-lock-retry" type="button">重新連線</button><button id="management-lock-settings" type="button">電腦登記設定</button><button id="management-backup" type="button">匯出當頁名單</button></div></div></section>
 <dialog id="management-dialog" class="update-dialog" aria-labelledby="management-title"><div class="section-title"><div><h2 id="management-title">這台電腦</h2><p id="management-name-display"></p><p id="management-id-display" class="muted small"></p></div><button id="management-close" type="button" aria-label="關閉電腦設定">×</button></div><p id="management-status" role="status" aria-live="polite"></p><form id="management-form"><section id="management-setup"><p class="muted small">第一次使用請輸入辨識名稱與管理員提供的 4 位數字登記碼（10 分鐘內有效）。</p><label>電腦名稱<input id="management-name" required maxlength="60" autocomplete="off" placeholder="例如：兒醫住院藥局－調劑台 01"></label><label>登記碼<input id="management-code" required pattern="[0-9]{4}" minlength="4" maxlength="4" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="4 個數字，例如 0386"></label><button id="management-submit" type="submit" class="primary">登記並開始使用</button></section></form><p id="management-check-time" class="muted small"></p><button id="management-retry" type="button">重新連線</button><p class="muted small">只回報電腦識別、工具版本與管理狀態。關閉工具後停止；最後驗證後可離線使用 24 小時，已接收的停用或升級限制仍有效。</p></dialog>
 
 <script type="module" src="services.js"></script>

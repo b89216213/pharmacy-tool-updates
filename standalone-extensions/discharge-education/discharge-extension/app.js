@@ -238,20 +238,20 @@ refresh();
   root.className='app';
   const top=make('header','topbar','<div class="brand-label">出院藥衛教名單擷取工具 <small></small></div><nav class="stepnav" aria-label="操作步驟"><button type="button" class="step-btn" id="inputTab" aria-selected="true"><span class="num">1</span>擷取設定</button><span class="arrow">›</span><button type="button" class="step-btn" id="progressTab" aria-selected="false" disabled><span class="num">2</span>擷取進度</button><span class="arrow">›</span><button type="button" class="step-btn" id="assignmentTab" aria-selected="false" disabled><span class="num">3</span>分配衛教藥師</button><span class="arrow">›</span><button type="button" class="step-btn" id="outputTab" aria-selected="false" disabled><span class="num">4</span>列印</button></nav>');
   top.querySelector('small').textContent=version.replace('瀏覽器擴充版 ','v').replace('離線單檔版 ','v');
-  const portal=make('section','panel portal-notice','請開啟 Portal 的「查詢處理」頁面'),brand=make('div','brand');
-  const brandLabel=top.querySelector('.brand-label');brandLabel.before(brand);const logo=make('img','brand-logo');logo.src='icons/icon48.png';logo.srcset='icons/icon48.png 1x, icons/icon128.png 2x';logo.width=36;logo.height=36;logo.alt='';logo.setAttribute('aria-hidden','true');brand.append(logo,brandLabel);
+  const brand=make('div','brand');
+  const brandLabel=top.querySelector('.brand-label');brandLabel.before(brand);const logo=make('img','brand-logo');logo.src='icons/blue48.png';logo.srcset='icons/blue48.png 1x, icons/blue128.png 2x';logo.width=27;logo.height=27;logo.alt='';logo.setAttribute('aria-hidden','true');brand.append(logo,brandLabel);
   top.append(make('div','top-tools','<span class="local-tag">本機處理</span><button id="open-management" type="button">登記電腦</button><button id="open-update" type="button">工具更新</button>'));
   const capture=make('section','screen');capture.id='screenInput';
   const scroll=make('div','capture-scroll'),wrap=make('div','capture-wrap');scroll.append(wrap);capture.append(scroll);
   controls.prepend(make('div','settings-section-title','<h2>出院日期</h2>'));
-  wrap.append(portal,controls);
+  wrap.append(controls);
   const search=browser?.querySelector('.ward-search');if(search){search.classList.add('panel','settings-search');wrap.append(search);}
   if(browser)wrap.append(browser);
   const progressScreen=make('section','screen');progressScreen.id='screenProgress';progressScreen.hidden=true;
   const progressScroll=make('div','capture-scroll progress-scroll'),progressWrap=make('div','capture-wrap');progressScroll.append(progressWrap);progressScreen.append(progressScroll);if(progress)progressWrap.append(progress);
   const live=make('section','panel live-panel','<div class="section-top"><h2>已查到的出院名單</h2><span class="count" id="liveCount">0 人</span></div><p id="liveEmpty" class="muted">尚無資料</p><div class="live-table-wrap"><table class="live-table"><thead><tr><th>進度</th><th>床號</th><th>姓名</th><th>病歷號</th><th>出院日期</th><th>領藥號／狀態／時間</th></tr></thead><tbody id="liveRows"></tbody></table></div>');
   progressWrap.append(live,review);
-  const foot=make('div','footbar','<button type="button" class="big-button" id="openManual">手動輸入</button><button type="button" class="big-button" id="toProgress" hidden>查看擷取進度</button><div class="spacer"></div><div class="start-slot"></div>');capture.append(foot);
+  const foot=make('div','footbar','<button type="button" class="big-button" id="toProgress" hidden>查看擷取進度</button><div class="spacer"></div><div class="start-slot"></div>');capture.append(foot);
   const progressFoot=make('div','footbar','<button type="button" class="big-button" id="progressReturn">← 返回設定</button><div class="progress-stop-slot"></div><div class="foot-sum">已查到 <b id="sumCount">0</b> 人</div><div class="spacer"></div><button type="button" class="primary big-button" id="toAssignment" hidden>下一步：分配衛教藥師 →</button>');
   const stop=browser?.querySelector('#stopBatch');if(stop)progressFoot.querySelector('.progress-stop-slot').append(stop);progressScreen.append(progressFoot);
   const start=browser?.querySelector('#startBatch');if(start){start.classList.add('big-button');foot.querySelector('.start-slot').append(start);browser.querySelector('.batch-actions')?.remove();}
@@ -302,7 +302,7 @@ refresh();
   byId('inputTab').addEventListener('click',()=>switchView('input'));byId('assignmentTab').addEventListener('click',()=>switchView('assignment'));byId('outputTab').addEventListener('click',()=>switchView('output'));
   byId('toAssignment').addEventListener('click',()=>switchView('assignment'));byId('toOutput').addEventListener('click',()=>switchView('output'));
   byId('backToProgress').addEventListener('click',()=>switchView('progress'));byId('backToAssignment').addEventListener('click',()=>switchView('assignment'));
-  byId('openManual').addEventListener('click',()=>{dialog.showModal();byId('source').focus();});byId('closeManual').addEventListener('click',()=>dialog.close());
+  byId('closeManual').addEventListener('click',()=>dialog.close());
   byId('analyze').addEventListener('click',()=>{dialog.close();manualAdvance=!!byId('source').value.trim();if(!browser&&manualAdvance){window.CaptureSession={status:'complete',manual:true,wards:[],patients:{}};manualAdvance=false;started=true;switchView('progress');updateGates();schedule();}});
   if(!browser){byId('source').addEventListener('input',()=>{window.CaptureSession={status:'idle',wards:[],patients:{}};schedule();});}
   function wardStats(){

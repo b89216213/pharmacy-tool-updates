@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.11.0",
-  "notes": "批次登錄可選全部暫存或全部送組長。暫存成功同樣算登錄完成並排除重複登錄；名單與完成訊息提醒紀錄尚未送組長；請自行至 Portal 送出，程式不再檢查。暫存結果不明時保留待核對。",
-  "packagePath": "updates/discharge-education/packages/2.11.0.json",
-  "size": 345512,
-  "sha256": "9afa68aca7a97fe36a3652f8454861abb708d9916e92b84a4c2c3840ef98d740"
+  "version": "2.14.3",
+  "notes": "修正重複點選登錄衛教紀錄產生重複名單、暫存回應判定與左上角圖示；保留原介面，支援出院藥名單擷取\\discharge-extension 舊路徑，更新連線與更新機制。",
+  "packagePath": "updates/discharge-education/packages/2.14.3.json",
+  "size": 456740,
+  "sha256": "59c394bedc369c6fd986bbf75c98d1d52e4dd7ea23d3a96323eda05e3a3b0b24"
 }

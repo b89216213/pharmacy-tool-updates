@@ -6,7 +6,7 @@ async function openTool(search){
  const base=chrome.runtime.getURL('tool.html');
  const windows=await chrome.windows.getAll({populate:true});
  const existing=windows.find(w=>w.tabs?.some(t=>t.url?.startsWith(base)));
- if(existing){await chrome.windows.update(existing.id,{focused:true});return;}
+ if(existing){await chrome.windows.update(existing.id,{focused:true});const sourceId=Number(new URLSearchParams(search).get('tab'));if(sourceId>0)await chrome.runtime.sendMessage({kind:'portal-prefer-source',sourceId}).catch(()=>{});return;}
  await chrome.windows.create({url:base+search,type:'popup',width:1280,height:930});
 }
 chrome.action.onClicked.addListener(tab=>{

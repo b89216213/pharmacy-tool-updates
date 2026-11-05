@@ -1,44 +1,86 @@
-import './managed-background.js';
-import {RETURN_URL, isReturnPage, returnFrames} from './return-pages.js';
-const PENDING = 'returnLaunchV1', queues = new Map();
-const serial = (id, fn) => {
-  const task = (queues.get(id) || Promise.resolve()).then(fn, fn);
-  queues.set(id, task);
-  void task.finally(() => { if (queues.get(id) === task) queues.delete(id); }).catch(() => {});
-  return task;
-};
-const pending = async id => (await chrome.storage.session.get(PENDING + id))[PENDING + id];
-chrome.action.onClicked.addListener(tab => { void serial(tab.id, async () => {
-  const launch = await pending(tab.id);
-  if (launch && Date.now() - launch.at < 60000) {
-    await chrome.storage.session.set({[PENDING + tab.id]:{...launch, open:!launch.open}});
+import {prepareLaunch} from './managed-background.js';
+import {isReturnPage,returnFrames} from './return-pages.js';
+
+const KEY='returnHelperEnabledV1';
+const enabled=async()=>!!(await chrome.storage.session.get(KEY))[KEY];
+let queue=Promise.resolve();
+const serial=action=>{const result=queue.then(action,action);queue=result.catch(()=>{});return result;};
+async function badge(text,title,tabId){
+  const target=Number.isInteger(tabId)?{tabId}:{};
+  await chrome.action.setBadgeText({...target,text});
+  await chrome.action.setTitle({...target,title});
+}
+async function send(tabId,frameId,message){
+  try{return await chrome.tabs.sendMessage(tabId,message,{frameId});}
+  catch{
+    throw Error('工具已更新；請先核對目前作業，再重新整理退藥頁面。');
+  }
+}
+async function checkTab(tabId,passive=true){
+  if(!Number.isInteger(tabId)||!await enabled())return;
+  const frames=await returnFrames(tabId).catch(()=>[]);
+  if(!frames.length){
+    await badge('待','刷條碼退藥已開啟，進入退藥頁時自動顯示；再按圖示關閉。',tabId);
     return;
   }
-  const frames = await returnFrames(tab.id);
-  if (frames.length > 1) throw Error('目前有多個退藥頁面，請先保留一個再開啟工具。');
-  if (frames.length) {
-    const reply = await chrome.tabs.sendMessage(tab.id, {type:'toggle-return-helper'}, {frameId:frames[0].frameId});
-    if (!reply || typeof reply.shown !== 'boolean') throw Error('請重新整理院內頁面以載入新版工具。');
-    await chrome.action.setBadgeText({tabId:tab.id, text:reply.shown?'ON':''});
-  } else {
-    await chrome.storage.session.set({[PENDING + tab.id]:{at:Date.now(), open:true}});
-    try { await chrome.tabs.update(tab.id, {url:RETURN_URL}); }
-    catch (error) { await chrome.storage.session.remove(PENDING + tab.id); throw error; }
+  if(frames.length>1)throw Error('此分頁有多個退藥頁面，請先選定要使用的頁面。');
+  if(!await prepareLaunch()){
+    await badge('設','請先完成資料夾授權與電腦登記。',tabId);
+    return;
   }
-  await chrome.action.setTitle({tabId:tab.id,title:'刷條碼退藥：開啟／關閉'});
-}).catch(async error => {
-  await chrome.action.setBadgeText({tabId:tab.id,text:'!'});
-  await chrome.action.setTitle({tabId:tab.id,title:error.message || '請重新整理院內頁面後再按一次。'});
-}); });
-chrome.runtime.onMessage.addListener((message, sender, reply) => {
-  if (message?.type !== 'return-helper-ready' || sender.id !== chrome.runtime.id || !isReturnPage(sender.url) || !sender.tab) return;
-  serial(sender.tab.id, async () => {
-    const launch = await pending(sender.tab.id);
-    await chrome.storage.session.remove(PENDING + sender.tab.id);
-    const open = !!launch?.open && Date.now() - launch.at < 60000;
-    await chrome.action.setBadgeText({tabId:sender.tab.id,text:open?'ON':''});
-    reply({open});
-  }).catch(() => reply({open:false}));
-  return true;
+  const reply=await send(tabId,frames[0].frameId,{type:'show-return-helper',passive});
+  await badge(reply?.shown?'ON':'待',reply?.shown?'刷條碼退藥已顯示；按圖示關閉。':'刷條碼退藥已收合；按圖示再次顯示。',tabId);
+}
+async function disable(){
+  await chrome.storage.session.set({[KEY]:false});
+  await badge('','刷條碼退藥：開啟');
+  for(const tab of await chrome.tabs.query({})){
+    const frames=await returnFrames(tab.id).catch(()=>[]);
+    for(const frame of frames){
+      await chrome.tabs.sendMessage(tab.id,{type:'hide-return-helper'},{frameId:frame.frameId}).catch(()=>{});
+    }
+    await badge('','刷條碼退藥：開啟',tab.id).catch(()=>{});
+  }
+}
+async function toggle(tabId){
+  if(await enabled()){
+    const frames=await returnFrames(tabId).catch(()=>[]);
+    if(frames.length===1){
+      const state=await chrome.tabs.sendMessage(tabId,{type:'return-helper-state'},{frameId:frames[0].frameId}).catch(()=>null);
+      // "回原畫面" dismisses this document. A direct click can reopen it.
+      if(state?.shown===false){await checkTab(tabId,false);return;}
+    }
+    await disable();
+    return;
+  }
+  await chrome.storage.session.set({[KEY]:true});
+  await badge('待','刷條碼退藥已開啟，進入退藥頁時自動顯示；再按圖示關閉。');
+  await checkTab(tabId,false);
+}
+const report=(task,tabId)=>void serial(task).catch(error=>badge('!',error.message,tabId).catch(()=>{}));
+chrome.action.onClicked.addListener(tab=>report(()=>toggle(tab.id),tab.id));
+chrome.tabs.onActivated.addListener(info=>report(()=>checkTab(info.tabId),info.tabId));
+chrome.tabs.onUpdated.addListener((tabId,change)=>{
+  if(change.status==='complete')report(()=>checkTab(tabId),tabId);
 });
-chrome.tabs.onRemoved.addListener(id => { void chrome.storage.session.remove(PENDING + id); });
+chrome.runtime.onMessage.addListener((message,sender,reply)=>{
+  if(sender.id!==chrome.runtime.id||!isReturnPage(sender.url)||!sender.tab)return;
+  if(message?.type==='return-helper-ready'){
+    reply({open:false});
+    report(()=>checkTab(sender.tab.id),sender.tab.id);
+  }
+});
+chrome.storage.onChanged.addListener((changes,area)=>{
+  if(area!=='local')return;
+  report(async()=>{
+    if(!await enabled())return;
+    for(const tab of await chrome.tabs.query({active:true,lastFocusedWindow:true}))await checkTab(tab.id);
+  });
+});
+// Retire old navigation requests on upgrade. Worker restarts only restore passive
+// detection. This module never changes a tab's URL or window focus.
+report(async()=>{
+  await chrome.storage.session.remove('returnPendingNavigationV2');
+  if(!await enabled()){await badge('','刷條碼退藥：開啟');return;}
+  for(const tab of await chrome.tabs.query({active:true,lastFocusedWindow:true}))await checkTab(tab.id);
+});

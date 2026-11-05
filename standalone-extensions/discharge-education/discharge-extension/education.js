@@ -1,7 +1,7 @@
 'use strict';
 (()=>{
  const C=EducationCore;let running=false,stop=false,frameId,initializing;const progress=new Map();
- const pause=ms=>new Promise(r=>setTimeout(r,ms)),query=new URLSearchParams(location.search),tabId=Number(query.get('tab'));
+ const pause=ms=>new Promise(r=>setTimeout(r,ms)),query=new URLSearchParams(location.search);let tabId=Number(query.get('tab'));
  const emit=()=>window.dispatchEvent(new Event('educationchange'));
  async function read(){return C.prune((await chrome.storage.local.get(C.KEY))[C.KEY]);}
  async function mutate(fn,notify=true){return navigator.locks.request('discharge-education-records',async()=>{const s=await read(),result=await fn(s);await chrome.storage.local.set({[C.KEY]:s});if(notify)emit();return result;});}
@@ -13,6 +13,7 @@
  function status(p,text,error=false){progress.set(p.account,{text,error,batchId:p.batchIds[0]});emit();}
  function gate(){if(stop)throw Error('已停止後續登錄。');if(window.DischargeBlocked||window.DischargeUpdating)throw Error('工具目前受管理限制或正在更新，已停止登錄。');}
  async function call(action,p={},all=false){
+  if(window.DischargePortal?.source){tabId=DischargePortal.source.sourceId;await DischargePortal.assert();}
   if(!Number.isInteger(tabId)||tabId<=0||!chrome.scripting)throw Error('請從已登入的 Portal 開啟工具。');
   const timeout=8000,expiresAt=Date.now()+timeout;
   const stage=action==='eduDiscover'?'辨識來源頁面':action==='eduRead'?'確認頁面狀態':action==='eduSend'?'送組長':action==='eduStore'?'暫存':'操作衛教頁面';
@@ -33,6 +34,7 @@
  }
  async function action(name,p,test){gate();try{await call(name,p);}catch(e){if(!/frame|document|removed|context/i.test(e.message))throw e;}await pause(20);return wait(test);}
  async function navigate(to){
+  if(window.DischargePortal){return DischargePortal.run(to==='capture'?'query':'education',async link=>{tabId=link.sourceId;frameId=link.frameId;return to==='education'?wait(s=>s.path.endsWith('/CareEducationRecord.aspx')):link;});}
   const until=Date.now()+30000;let clicked=false;
   while(Date.now()<until){
    gate();let hits;try{hits=await call('eduDiscover',{},true);}catch(e){if(!clicked||!/frame|document|removed|context/i.test(e.message))throw e;await pause(60);continue;}
@@ -83,7 +85,11 @@
    gate();let sendError;try{await call(storing?'eduStore':'eduSend',{patient:p,selected,fields});}catch(e){sendError=e;}
    if(sendError&&!/frame|document|removed|context/i.test(sendError.message))throw sendError;
    const result=await wait(s=>s.phase==='editor'&&samePatient(s,p)&&!!s.created&&!!s.status&&!s.errors.length&&(storing?!s.sent:!!s.sent),{sent:true});
-   if(storing&&!Object.entries(fields).every(([k,v])=>result.fields[k]?.value===v))throw Error('暫存後的衛教欄位不一致，請人工核對。');
+   // Verify editable fields before the single Store/Send click (eduVerify and
+   // again inside eduStore/eduSend). A saved Portal form may replace inputs
+   // with labels, hide unchecked controls, or normalize display values.
+   // Those rendered controls are not a save receipt. Confirm the newly
+   // created record, status, patient and exact chosen prescriptions instead.
    const actual=result.chosen.map(x=>x.orderDate+'|'+x.number+'|'+x.sequence).sort(),wanted=selected.map(x=>x.orderDate+'|'+x.number+'|'+x.sequence).sort();if(JSON.stringify(actual)!==JSON.stringify(wanted))throw Error('送出後的處方清單不一致，請人工核對。');
    await mutate(s=>{s.receipts.push({id:attempt.id,account:p.account,mrn:p.mrn,pickups:attempt.pickups,complete:p.form.complete,actionMode,createdAt:Date.now(),expiresAt:Date.now()+C.TTL,portalCreated:result.created,portalSent:result.sent,portalStatus:result.status});s.attempts=s.attempts.filter(a=>a.id!==attempt.id);});
    status(p,(p.form.complete==='Y'?'已登錄':'已登錄（未完成衛教）')+(storing?' · 已暫存，尚未送組長':' · 已送組長'));return true;
@@ -100,7 +106,7 @@
    for(const p of ps){if(p.error||p.uncertain||!p.pending.length)throw Error(p.error||'選取的名單含已登錄或待核對項目。');C.validate(p.form);progress.delete(p.account);}
    running=true;stop=false;window.EducationRunning=true;emit();window.dispatchEvent(new Event('capturerunningchange'));
    let active;
-   try{await connect();for(const p of ps){gate();if(Date.now()>=p.expiresAt)throw Error('名單已超過七天，未繼續登錄。');active=p;await one(p,actionMode);}}
+   try{const work=async()=>{await connect();for(const p of ps){gate();if(Date.now()>=p.expiresAt)throw Error('名單已超過七天，未繼續登錄。');active=p;await one(p,actionMode);}};if(window.DischargePortal)await DischargePortal.run('education',work);else await work();}
    catch(e){if(active&&!progress.get(active.account)?.error)status(active,e.message,true);throw e;}
    finally{running=false;window.EducationRunning=false;emit();window.dispatchEvent(new Event('capturerunningchange'));}
   });
@@ -108,7 +114,7 @@
  async function resolve(id,registered){
   if(running)throw Error('請等目前作業結束。');await mutate(s=>{const a=s.attempts.find(x=>x.id===id);if(!a)throw Error('此待核對紀錄已到期。');if(registered)s.receipts.push({id:a.id,account:a.account,mrn:a.mrn,pickups:a.pickups,complete:a.complete,actionMode:a.actionMode||'send',createdAt:Date.now(),expiresAt:Date.now()+C.TTL,manualVerified:true});s.attempts=s.attempts.filter(x=>x.id!==id);progress.delete(a.account);});
  }
- async function focus(){await chrome.tabs.update(tabId,{active:true});const t=await chrome.tabs.get(tabId);if(t.windowId)await chrome.windows.update(t.windowId,{focused:true});}
+ async function focus(){tabId=window.DischargePortal?.source?.sourceId||tabId;await chrome.tabs.update(tabId,{active:true});const t=await chrome.tabs.get(tabId);if(t.windowId)await chrome.windows.update(t.windowId,{focused:true});}
  window.addEventListener('beforeunload',e=>{if(running){e.preventDefault();e.returnValue='';}});
  async function returnCapture(){if(running)throw Error('請先完成或停止衛教登錄。');stop=false;await navigate('capture');await window.DischargeCapture.init();}
  window.DischargeEducation={init,read,save,draft,run,resolve,focus,returnCapture,progress,stop(){stop=true;},get busy(){return running;}};

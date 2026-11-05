@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),ext=path.join(root,'extension');
 const manifest=JSON.parse(await fs.readFile(path.join(ext,'manifest.json'),'utf8'));
 const hash=b=>createHash('sha256').update(b).digest('hex');
-const allowed=['icons/OFL.txt','app.css','app.js','background.js','bridge.js','core.js','engine.js','manifest.json','management-core.js','management.js','operation-guard.js','patient-tool.json','tool.html','update-core.js','update-network.js','update-store.js','updater.js','icons/mark.svg',...[16,20,24,32,48,128].map(n=>`icons/icon${n}.png`)];
+const allowed=["app.css", "app.js", "background.js", "bridge.js", "core.js", "engine.js", "icons/OFL.txt", "icons/icon128.png", "icons/icon16.png", "icons/icon20.png", "icons/icon24.png", "icons/icon32.png", "icons/icon48.png", "icons/mark.svg", "installation-config.js", "installation-core.js", "installation-ui.js", "management-core.js", "management.js", "manifest.json", "operation-guard.js", "patient-tool.json", "portal-connection.js", "tool.html", "update-core.js", "update-network.js", "update-store.js", "updater.js"];
 const files=[];for(const p of allowed){const b=await fs.readFile(path.join(ext,p));files.push({path:p,size:b.length,sha256:hash(b),base64:b.toString('base64')});}
-const notes=process.argv[2]||'統一單字圖示「選」：工具列、視窗與工具內識別一致，保留原有功能與設定。';
+const notes=process.argv[2]||"沿用舊版設定與安裝位置；更新後台連線、跨頁連接與更新機制，支援查詢處理_病人快速選擇\\extension 舊路徑。";
 const pkg={format:'patient-query-update-v1',toolId:'ntuh-patient-picker',version:manifest.version,notes,files};
 const bytes=Buffer.from(JSON.stringify(pkg)),relative=`updates/patient-query/packages/${manifest.version}.json`;
 await fs.mkdir(path.join(root,'release/updates/patient-query/packages'),{recursive:true});

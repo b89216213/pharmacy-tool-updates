@@ -4,6 +4,8 @@ async function focusPicker(source){
   const state=await chrome.storage.session.get('pickerWindows'),map=state.pickerWindows||{};
   let origin='';try{origin=new URL(source.url).origin;}catch{}
   const url=chrome.runtime.getURL('tool.html')+'?source='+source.id+'&origin='+encodeURIComponent(origin);
+  const open=(await chrome.tabs.query({})).find(t=>t.url?.startsWith(chrome.runtime.getURL('tool.html')));
+  if(open){await chrome.tabs.update(open.id,{active:true});await chrome.windows.update(open.windowId,{focused:true});await chrome.runtime.sendMessage({kind:'portal-prefer-source',sourceId:source.id}).catch(()=>{});return;}
   const existing=map[source.id];
   if(existing){try{
     const tab=await chrome.tabs.get(existing.tabId);

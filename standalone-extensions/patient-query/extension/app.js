@@ -15,7 +15,7 @@ function setManagedBlocked(value){
 }
 
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search);
-const sourceId=Number(params.get('source')),origin=params.get('origin')||'';
+let sourceId=Number(params.get('source')),origin=params.get('origin')||'';
 const cache=new Map(),known=new Map(),settlements=new Map(),checked=new Map();
 const state={connected:false,wards:[],ward:'',campus:'兒醫',source:'inbed',smartCare:false,smartAvailable:false,query:'',scope:'auto',pinned:[],selected:'',hot:-1,canQueryMRN:false,canCleared:false,busy:false,opening:false,remote:null,batch:null,request:0};
 const wardBatch={open:false,selected:new Set(),inbed:true,cleared:true,run:null};
@@ -24,7 +24,10 @@ const emptyCounts=()=>({success:0,already:0,warning:0,skipped:0,unknown:0});
 const countsText=counts=>Object.entries(settlementLabels).filter(([key])=>counts[key]).map(([key,label])=>label+' '+counts[key]+' 位').join(' · ');
 let options=[],view=null,prefs={},savedScroll=0,detailPatient=null,detailTrigger=null,renderedColumns=0;
 const engine=new PortalEngine({sourceId,origin,status:text=>{if(!engine.closed)$('loading').textContent=text;}});
-const prefsKey='patientPickerPreferences:'+origin;
+const portal=globalThis.PharmacyPortal?new PharmacyPortal.Connection({label:'病人快速選擇',sourceId,
+ onSource:link=>{sourceId=link.sourceId;origin=link.origin;},onStatus:text=>{$('loading').textContent=text;}}):null;
+engine.portal=portal;
+const prefsKey='patientPickerPreferences:'+(origin||'https://portal.ntuh.gov.tw');
 const announce=text=>{$('announcement').textContent=text;};
 function say(text){$('notice').textContent=text;$('notice').hidden=false;announce(text);}
 function error(message){$('error-text').textContent=message;$('error').hidden=false;announce(message);}
@@ -178,7 +181,7 @@ function renderResults(){
   $('freshness').textContent=current?.checkedAt?(view.searching&&view.scope==='all'?currentCache.size+' 個病房已載入':'更新 '+new Date(current.checkedAt).toLocaleTimeString('zh-TW',{hour12:false})):state.busy?'查詢中…':state.connected?'尚未載入':'';
   $('partial').hidden=!(view.scope==='remote'?state.remote?.pagination:view.scope==='all'?[...currentCache.values()].some(x=>x.pagination):current?.pagination);
   $('empty').hidden=!!options.length;$('empty-title').textContent=state.busy?'正在讀取院內名單…':!state.connected?'尚未連接查詢處理':view.searching?'找不到符合的結果':current?'此病房查無'+sourceLabel:'此名單尚未載入';
-  $('empty-message').textContent=state.busy?'完成後即可選擇病人。':!state.connected?'在院內查詢處理頁面按下擴充元件，或按「重新連接」。':remote?'請核對查詢條件，或修改輸入後再次搜尋。':view.searching?'目前顯示已載入名單的篩選結果；按 Enter 或「搜尋」向原系統查詢。':'可點選其他病房，或重新整理。';
+  $('empty-message').textContent=state.busy?'完成後即可選擇病人。':!state.connected?'等待 Portal 登入；登入後會自動連接，也可按「重新連接」。':remote?'請核對查詢條件，或修改輸入後再次搜尋。':view.searching?'目前顯示已載入名單的篩選結果；按 Enter 或「搜尋」向原系統查詢。':'可點選其他病房，或重新整理。';
   $('order-label').textContent=byDischarge?'依出院日期由新到舊':count>1?'依床號由上往下，接續右欄':'依床號排列';
   renderBatchControls(now);
   renderWardBatch();
@@ -272,7 +275,7 @@ async function processSettlement(patient,request){
   settlements.set(patient.account,result);if(result.mrn)known.set(patient.account,{name:patient.name,mrn:result.mrn});
   announce(bedLabel(patient)+' '+patient.name+'：'+result.reason);return result;
 }
-async function settleBatch(){
+async function settleBatchInner(){
   if(workBlocked())return;
   if(state.busy||!state.connected)return;
   const patients=selectedPatients().map(p=>({...checked.get(p.account),mrn:p.mrn||checked.get(p.account).mrn}));if(!patients.length)return;
@@ -367,7 +370,7 @@ function renderWardBatch(){
   $('ward-batch-report').innerHTML='<table><thead><tr><th>病房</th><th>在床：今日出院</th><th>已清床：藥帳未結清</th></tr></thead><tbody>'+rows+'</tbody></table>'+(running&&issues?'<h3>需要查看的病人</h3><ul class="pc-ward-batch-issues">'+issues+'</ul>':'');
   $('ward-batch-attention').hidden=running||!issues;$('ward-batch-issues').innerHTML=running?'':issues;
 }
-async function startWardBatch(){
+async function startWardBatchInner(){
   if(workBlocked())return;
   if(state.busy||!state.connected||!wardBatch.selected.size||(!wardBatch.inbed&&!wardBatch.cleared)||wardBatch.cleared&&!state.canCleared)return;
   const wards=[...wardBatch.selected];
@@ -467,7 +470,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#detail'))closeDetails();
   if(b.dataset.ward)chooseWard(b.dataset.ward);else if(b.dataset.campus&&!state.opening){state.campus=b.dataset.campus;renderSidebar();savePreferences();}else if(b.dataset.patient)openPatient(view.rows.find(p=>p.account===b.dataset.patient));
 });
-$('clear').addEventListener('click',clearQuery);$('lookup').addEventListener('click',lookup);$('connect').addEventListener('click',connect);
+$('clear').addEventListener('click',clearQuery);$('lookup').addEventListener('click',lookup);$('connect').addEventListener('click',async()=>{await portal?.preferActive();await connect();});
 $('refresh').addEventListener('click',()=>view?.scope==='remote'?lookup():chooseWard(state.ward,{preserveQuery:true,preserveSource:true}));
 $('inbed').addEventListener('click',()=>switchSource('inbed'));$('cleared').addEventListener('click',()=>switchSource('cleared'));
 $('smart').addEventListener('change',e=>{if(state.busy)return;state.smartCare=e.target.checked;chooseWard(state.ward,{preserveQuery:true,preserveSource:true});});
@@ -476,16 +479,16 @@ $('scope-current').addEventListener('click',()=>{if(state.opening)return;resetBa
 $('pin').addEventListener('click',()=>{const i=state.pinned.indexOf(state.ward);if(i<0)state.pinned.push(state.ward);else state.pinned.splice(i,1);renderSidebar();renderResults();savePreferences();});
 $('detail-close').addEventListener('click',()=>closeDetails(true));
 document.addEventListener('keydown',e=>{const editing=['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)||e.target.isContentEditable;if(e.key==='Escape'&&!$('detail').hidden){e.preventDefault();closeDetails(true);}else if(e.key==='/'&&!editing){e.preventDefault();$('search').focus();$('search').select();}});
-window.addEventListener('focus',async()=>{if(workBlocked()||state.opening||state.busy||!state.connected)return;window.scrollTo({top:savedScroll,behavior:'instant'});try{const d=await engine.discover();if(d.control){state.canQueryMRN=d.canQueryMRN;updateControls(d.control);}render();}catch(e){clearPatientData();state.connected=false;render();error(e.message);}});
+window.addEventListener('focus',async()=>{if(workBlocked()||state.opening||state.busy)return;if(!state.connected){connectWhenReady();return;}window.scrollTo({top:savedScroll,behavior:'instant'});try{const d=await engine.discover();if(d.control){state.canQueryMRN=d.canQueryMRN;updateControls(d.control);}render();}catch(e){clearPatientData();state.connected=false;render();error(e.message);}});
 let displayedDay=todayKey();
 window.setInterval(()=>{const day=todayKey();if(day!==displayedDay&&!state.busy){displayedDay=day;renderResults();}},60000);
 window.addEventListener('blur',()=>{savedScroll=window.scrollY;});
 window.addEventListener('resize',fitSidebar);window.addEventListener('scroll',fitSidebar,{passive:true});
 if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(fitSidebar);const header=document.querySelector('.pc-header');if(header)observer.observe(header);observer.observe($('error'));}
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{if(view&&columnCount(view.rows.length,clearedView()||view.scope==='remote'&&state.remote.criteria?.kind!=='bed')!==renderedColumns)renderResults();}).observe($('results'));
-chrome.tabs.onRemoved.addListener(id=>{if(id===sourceId){engine.closed=true;state.request++;state.busy=false;state.connected=false;clearPatientData();render();error('原院內分頁已關閉。請重新開啟查詢處理後再按擴充元件。');}});
+chrome.tabs.onRemoved.addListener(id=>{if(id===sourceId){engine.closed=true;state.request++;state.busy=false;state.connected=false;clearPatientData();render();error('原院內分頁已關閉；工具會自動偵測新開啟並登入的 Portal。');}});
 try{prefs=(await chrome.storage.local.get(prefsKey))[prefsKey]||{};}catch{}
-function connectWhenReady(){if(!workBlocked()&&!state.busy&&!state.connected&&Number.isInteger(sourceId)&&sourceId>0&&/^https?:\/\//.test(origin))void connect();}
+function connectWhenReady(){if(!workBlocked()&&!state.busy&&!state.connected&&(portal||(Number.isInteger(sourceId)&&sourceId>0&&/^https?:\/\//.test(origin))))void connect();}
 render();syncManagedLock();
 await mountUpdater({
   isBusy:()=>state.busy||state.opening||updating||!!document.querySelector('dialog[open]:not(#update-dialog)'),
@@ -498,4 +501,11 @@ const management=await mountManagement({
   setLocked:value=>{managementLocked=value;syncManagedLock();},onReady:connectWhenReady
 }).catch(e=>{setManagedBlocked(true);managementLocked=true;syncManagedLock();$('management-lock').hidden=false;$('management-lock-title').textContent='管理功能載入失敗';$('management-lock-reason').textContent=e.message;return{blocked:true};});
 if(!management.blocked)connectWhenReady();
-if(!Number.isInteger(sourceId)||sourceId<=0||!/^https?:\/\//.test(origin))error('請先開啟院內「查詢處理」頁面，再按瀏覽器工具列上的擴充元件。');
+if(portal)portal.watch({needed:()=>!state.connected,blocked:()=>workBlocked()||state.busy||state.opening,connect});
+
+let portalBatchOpening=false;
+async function settleBatch(...args){if(workBlocked()||state.busy||portalBatchOpening)return;portalBatchOpening=true;try{return portal?await portal.run('query',()=>settleBatchInner(...args)):await settleBatchInner(...args);}catch(e){error(e.message);}finally{portalBatchOpening=false;}}
+
+async function startWardBatch(...args){if(workBlocked()||state.busy||portalBatchOpening)return;portalBatchOpening=true;try{return portal?await portal.run('query',()=>startWardBatchInner(...args)):await startWardBatchInner(...args);}catch(e){error(e.message);}finally{portalBatchOpening=false;}}
+
+if(portal)chrome.runtime.onMessage.addListener(m=>{if(m?.kind==='portal-prefer-source'&&!state.busy&&!state.opening&&!workBlocked()){portal.sourceId=m.sourceId;portal.clicks.clear();void connect();}});

@@ -1,9 +1,9 @@
 {
   "format": "patient-query-release-v1",
   "toolId": "ntuh-patient-picker",
-  "version": "1.6.2",
-  "notes": "統一單字圖示「選」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
-  "packagePath": "updates/patient-query/packages/1.6.2.json",
-  "size": 301318,
-  "sha256": "deee9db8f838a3a771876b62ae275cee687b06c0026d471b223267bc88586cee"
+  "version": "1.7.4",
+  "notes": "沿用舊版設定與安裝位置；更新後台連線、跨頁連接與更新機制，支援查詢處理_病人快速選擇\\extension 舊路徑。",
+  "packagePath": "updates/patient-query/packages/1.7.4.json",
+  "size": 350161,
+  "sha256": "0a4bbd8e613c16f08b939e281b5a1bcd926eeed28e5342664f7fe89fecc1af5b"
 }

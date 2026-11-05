@@ -5,14 +5,23 @@ export class PortalEngine {
   constructor({sourceId,origin,api=globalThis.chrome,sleep=ms=>new Promise(r=>setTimeout(r,ms)),now=()=>Date.now(),status=()=>{}}){
     Object.assign(this,{sourceId,origin,api,sleep,now,status});this.frame=null;this.frameOrigin='';this.lastRead=null;this.tail=Promise.resolve();this.wardRevision=0;this.closed=false;this.phase='idle';
   }
-  enqueue(task){const p=this.tail.catch(()=>{}).then(()=>{if(this.closed)throw new Error('來源分頁已關閉。');return task();});this.tail=p;return p;}
+  enqueue(task){const p=this.tail.catch(()=>{}).then(async()=>{
+    if(this.portal)return this.portal.run('query',async link=>{
+      const changed=this.sourceId!==link.sourceId||this.origin!==link.origin||this.frame!==link.frameId;
+      this.sourceId=link.sourceId;this.origin=link.origin;this.closed=false;this.frameOrigin=link.frameOrigin;
+      if(changed){this.frame=link.frameId;this.frameOrigin=link.frameOrigin;this.lastRead=null;}
+      return task();
+    });
+    if(this.closed)throw new Error('來源分頁已關閉。');return task();
+  });this.tail=p;return p;}
   async checkSource(){
-    let tab;try{tab=await this.api.tabs.get(this.sourceId);}catch{this.closed=true;throw Object.assign(new Error('原院內分頁已關閉，請重新開啟查詢處理後再按擴充元件。'),{code:'SOURCE_CLOSED'});}
-    if(tab.url){let origin;try{origin=new URL(tab.url).origin;}catch{}if(origin!==this.origin)throw Object.assign(new Error('原分頁已切換網站，請在查詢處理頁面重新開啟工具。'),{code:'SOURCE_CHANGED'});}
+    let tab;try{tab=await this.api.tabs.get(this.sourceId);}catch{this.closed=true;throw Object.assign(new Error('原院內分頁已關閉，正在等待可用的 Portal。'),{code:'SOURCE_CLOSED'});}
+    if(tab.url){let origin;try{origin=new URL(tab.url).origin;}catch{}if(origin!==this.origin)throw Object.assign(new Error('原分頁已切換網站，正在等待可用的 Portal。'),{code:'SOURCE_CHANGED'});}
     return tab;
   }
   async execute(action,payload={},frame=this.frame){
     await this.checkSource();
+    if(this.portal)await this.portal.assert();
     const target={tabId:this.sourceId};if(frame===null)target.allFrames=true;else target.frameIds=[frame];
     let timer;
     try{

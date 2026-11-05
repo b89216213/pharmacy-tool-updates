@@ -17,7 +17,7 @@ function returned({state='完成',issued=1,total=1,rest=0}={}) {
  table.rows.push({cells:[state,'L','Test medicine','Test product',String(issued),String(total),String(rest),'0','','20260101'].map(textContent=>({textContent})),closest:()=>table,querySelector:()=>input});
  return C.readReturns({getElementById:id=>id===C.IDS.returns?table:null})[0];
 }
-const noMatch=(orders,rows)=>assert.throws(()=>C.matchOrders(orders,rows),e=>e.code==='ORDER_MATCH_AMBIGUOUS');
+const noMatch=(orders,rows,code='ORDER_MATCH_AMBIGUOUS')=>assert.throws(()=>C.matchOrders(orders,rows),e=>e.code===code);
 test('完 and 完成 normalize identically; existing status aliases remain valid',()=>{
  for(const [a,b] of [['完','完成'],['完成','完成'],[' 完\u00a0','完成'],['停','停用'],['確','確認']])assert.equal(C.status(a),b);
  assert.equal(C.status('未確認'),'未確認');
@@ -41,8 +41,8 @@ test('Identical completed prescriptions stay ambiguous as a batch but match when
  for(const o of orders)assert.equal(C.matchOrders([o],[returned()])[0].key,o.key);
 });
 test('Different status, medicine, category, start date or daily totals still fail matching',()=>{
- for(const change of [{state:'確認'},{generic:'Other medicine'},{brand:'Other product'},{type:'M'},{start:'20260102'}])noMatch([order()],[{...returned(),...change}]);
- const o=order();o.detail.daily={rows:[['date','',2,'',0]]};noMatch([o],[returned()]);
+ for(const change of [{state:'確認'},{generic:'Other medicine'},{brand:'Other product'},{type:'M'},{start:'20260102'}])assert.throws(()=>C.matchOrders([order()],[{...returned(),...change}]),/處方內容與退藥欄位不符/);
+ const o=order();o.detail.daily={rows:[['date','',2,'',0]]};assert.throws(()=>C.matchOrders([o],[returned()]),/處方內容與退藥欄位不符/);
 });
 test('Missing/duplicate prescription identity and count mismatches remain blocked',()=>{
  assert.throws(()=>C.matchOrders([order(),order()],[returned(),returned()]));

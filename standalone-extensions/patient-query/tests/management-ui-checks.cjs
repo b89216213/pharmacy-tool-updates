@@ -5,7 +5,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
  const nodes=new Map(),stored={},requests=[],timers=[],checks=[];let busy=false,blocked=true,locked=true,ready=0,offline=false,status=200;
  class Element{constructor(id){this.id=id;this.listeners={};this.value='';this.open=false;this.hidden=false;this.classList={toggle(){}};}addEventListener(k,f){this.listeners[k]=f;}showModal(){this.open=true;}close(){this.open=false;}async emit(k){await this.listeners[k]?.({preventDefault(){}});}click(){return this.emit('click');}}
  const html=fs.readFileSync(path.join(__dirname,'../extension/tool.html'),'utf8');for(const m of html.matchAll(/id="([^"]+)"/g))nodes.set(m[1],new Element(m[1]));const n=id=>nodes.get(id);
- global.document={getElementById:n,querySelector:()=>[...nodes.values()].find(x=>x.open)};
+ global.window={PharmacyInstallation:{ready:true}};
+ global.document={addEventListener(){},getElementById:n,querySelector:()=>[...nodes.values()].find(x=>x.open)};
  global.chrome={runtime:{getManifest:()=>({version:'1.6.0'})},storage:{local:{get:async k=>({[k]:stored[k]}),set:async x=>Object.assign(stored,structuredClone(x))}}};
  global.setInterval=(fn,ms)=>{timers.push({fn,ms});return timers.length;};
  const now=Date.now(),id='11111111-1111-4111-8111-111111111111';

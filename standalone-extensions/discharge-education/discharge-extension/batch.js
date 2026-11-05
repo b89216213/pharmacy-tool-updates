@@ -1,19 +1,19 @@
 'use strict';
 (() => {
   const $=id=>document.getElementById(id), parser=window.DischargeParser;
-  const query=new URLSearchParams(location.search), tabId=Number(query.get('tab'));
-  const expectedOrigin=query.get('origin');
+  const query=new URLSearchParams(location.search);let tabId=Number(query.get('tab'));
+  let expectedOrigin=query.get('origin');
   const api=globalThis.chrome;
   const state={controls:[],active:null,running:false,stop:false,snapshots:new Map(),remembered:null,savedWards:null,savingPreset:false,completed:0,category:'child',session:{status:'idle',wards:[],patients:{},signature:''},rxDiagnostics:[],deliveryDiagnostics:[]};
   const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const cleanError=e=>{
     const message=String(e?.message||e);
-    if(/Cannot access|Missing host|cannot be scripted|No tab|tabs cannot be edited|Frame with ID|frame was removed/i.test(message))return '無法讀取來源頁面。請回到院內住院清單，再按一次瀏覽器上的擴充功能圖示；若為 IE 模式則無法自動讀取。';
+    if(/Cannot access|Missing host|cannot be scripted|No tab|tabs cannot be edited|Frame with ID|frame was removed/i.test(message))return 'Portal 連接已改變，工具會自動重新偵測。請確認已登入一般 Chrome 頁面。';
     return message;
   };
   function status(text,error=false){$('browserStatus').textContent=text;$('browserStatus').classList.toggle('error',error);}
   function runStatus(text,error=false){$('runStatus').textContent=text;$('runStatus').classList.toggle('error',error);}
-  const portalMessage='請開啟 Portal 的「查詢處理」頁面';
+  const portalMessage='等待 Portal 登入及查詢處理頁面；準備好後會自動連接。';
   function signature(){return JSON.stringify([selectedWards(),$('baseDate').value,selectedDays,$('includeToday').checked]);}
   function publish(){
     window.CaptureSession=state.session;window.dispatchEvent(new Event('captureupdate'));
@@ -36,24 +36,25 @@
   function ensureConnection(){if(!api?.scripting||!Number.isInteger(tabId)||tabId<=0)throw new Error('請先在瀏覽器安裝此擴充功能，再於院內住院清單點選擴充功能圖示開啟。直接開啟 HTML 只能使用貼上功能。');}
   async function execute(action,payload={},frameId){
     ensureConnection();
+    if(window.DischargePortal)await DischargePortal.assert();
     const target={tabId};
     if(frameId===undefined)target.allFrames=true;else target.frameIds=[frameId];
     let timer;
     try{
       return await Promise.race([
         api.scripting.executeScript({target,injectImmediately:true,world:['switch','selectPatient','returnPatientList','openOrderDetail'].includes(action)?'MAIN':'ISOLATED',func:window.pageBridge,args:[action,payload]}),
-        new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('讀取來源頁面超過 8 秒。請確認院內清單已開啟，再從該頁面點擴充功能圖示；若仍卡住，請提供工具視窗 Console 的錯誤訊息。')),8000);})
+        new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('讀取來源頁面超過 8 秒。請確認 Portal 已登入；工具將重新偵測可用頁面。')),8000);})
       ]);
     }finally{clearTimeout(timer);}
   }
-  function verifyOrigin(origin){if(expectedOrigin&&origin!==expectedOrigin)throw new Error('來源頁面已移至不同網站，已停止擷取。請回到原住院清單後重新開啟工具。');}
+  function verifyOrigin(origin){if(expectedOrigin&&origin!==expectedOrigin)throw new Error('來源頁面已移至不同網站，已停止擷取。請重新連接 Portal。');}
   async function readControls(){
     let results=await execute('discover',{},0);
     if(!results.some(r=>r.result?.controls?.length))results=await execute('discover');
     return results.flatMap(r=>(!expectedOrigin||r.result?.origin===expectedOrigin)?(r.result?.controls||[]).map(c=>({...c,frameId:r.frameId})):[])
       .sort((a,b)=>Number(b.mode==='ntuh-query')-Number(a.mode==='ntuh-query')||b.options.length-a.options.length);
   }
-  async function discoverControls(recover=true){
+  async function discoverControlsInner(recover=true){
     let controls=await readControls(),returned=false;
     if(!controls.length&&recover){
       const states=await execute('patientReturnState');
@@ -74,6 +75,10 @@
     if(state.active){renderWards();status('已連接查詢處理頁面');if(returned)runStatus('已返回病房清單。');}
     else {status(portalMessage,true);runStatus(portalMessage,true);}
     return state.active;
+  }
+  async function discoverControls(recover=true){
+    if(!window.DischargePortal)return discoverControlsInner(recover);
+    return DischargePortal.run('query',async link=>{tabId=link.sourceId;expectedOrigin=link.frameOrigin;return discoverControlsInner(recover);});
   }
   function selectedWards(){return Array.from($('wardGrid').querySelectorAll('input:checked')).map(x=>x.value);}
   function selectionChanged(){
@@ -156,7 +161,7 @@
   }
   function setRunning(running){
     state.running=running;window.CaptureRunning=running;
-    for(const id of ['retryConnection','wardFilter','selectShown','selectNone','startBatch','saveWardPreset','applyWardPreset','clear','demo','analyze','openManual','baseDate','includeToday','today'])$(id).disabled=running;
+    for(const id of ['retryConnection','wardFilter','selectShown','selectNone','startBatch','saveWardPreset','applyWardPreset','clear','demo','analyze','baseDate','includeToday','today'])$(id).disabled=running;
     for(const button of document.querySelectorAll('[data-days]'))button.disabled=running;
     for(const x of $('wardGrid').querySelectorAll('input'))x.disabled=running;
     for(const chip of $('selectedWards').querySelectorAll('button'))chip.disabled=running;
@@ -285,7 +290,7 @@
   let starting=false;
   async function startBatch(mode='fresh'){
     if(starting||state.running||window.EducationRunning)return;starting=true;
-    try{await navigator.locks.request('discharge-portal-capture',{ifAvailable:true},async lock=>{if(!lock){runStatus('另一個工具視窗正在擷取，請稍後再試。',true);return;}await runBatch(mode);});}finally{starting=false;}
+    try{await navigator.locks.request('discharge-portal-capture',{ifAvailable:true},async lock=>{if(!lock){runStatus('另一個工具視窗正在擷取，請稍後再試。',true);return;}try{if(window.DischargePortal)await DischargePortal.run('query',()=>runBatch(mode));else await runBatch(mode);}catch(e){runStatus(e.message,true);}});}finally{starting=false;}
   }
   async function runBatch(mode='fresh'){
     if(state.running||window.EducationRunning||window.DischargeBlocked||window.DischargeUpdating)return;
@@ -325,7 +330,7 @@
       runStatus(cleanError(e),true);publish();
     }finally{setRunning(false);}
   }
-  $('retryConnection').addEventListener('click',async()=>{if(state.running)return;setRunning(true);try{await discoverControls();}catch(e){status(cleanError(e),true);}finally{setRunning(false);}});
+  $('retryConnection').addEventListener('click',async()=>{if(state.running)return;setRunning(true);try{await window.DischargePortal?.preferActive();await discoverControls();}catch(e){state.active=null;status(cleanError(e),true);}finally{setRunning(false);}});
   for(const button of document.querySelectorAll('[data-category]'))button.addEventListener('click',()=>{state.category=button.dataset.category;$('wardFilter').value='';for(const b of document.querySelectorAll('[data-category]'))b.setAttribute('aria-pressed',String(b===button));applyWardFilter();});
   $('wardFilter').addEventListener('input',applyWardFilter);
   $('selectShown').addEventListener('click',()=>{for(const label of $('wardGrid').children)if(!label.hidden)label.querySelector('input').checked=true;selectionChanged();});
@@ -343,14 +348,15 @@
   $('today').addEventListener('click',invalidate);
   for(const button of document.querySelectorAll('[data-days]'))button.addEventListener('click',invalidate);
   window.addEventListener('pagehide',()=>{state.stop=true;state.snapshots.clear();window.PatientDetails.clear();});
+  let preferencesLoaded=false;
   async function init(){
     try{
-      ensureConnection();
-      try{const settings=await api.storage.local.get('wardCodes');if(Array.isArray(settings.wardCodes)){state.savedWards=[...new Set(settings.wardCodes.filter(code=>typeof code==='string'&&/^[0-9][A-Z0-9]{1,5}$/.test(code)))];state.remembered=[...state.savedWards];}}catch(e){}
+      if(!window.DischargePortal)ensureConnection();
+      if(!preferencesLoaded)try{const settings=await api.storage.local.get('wardCodes');preferencesLoaded=true;if(Array.isArray(settings.wardCodes)){state.savedWards=[...new Set(settings.wardCodes.filter(code=>typeof code==='string'&&/^[0-9][A-Z0-9]{1,5}$/.test(code)))];state.remembered=[...state.savedWards];}}catch(e){}
       await discoverControls();publish();
-    }catch(e){status(cleanError(e),true);$('retryConnection').hidden=false;}
+    }catch(e){state.active=null;status(cleanError(e),!String(e.code||'').startsWith('PORTAL_'));$('retryConnection').hidden=false;}
   }
-  window.DischargeCapture={init,start:startBatch,reset(){resetSession();$('source').value='';refresh();},stop(){state.stop=true;},settings:()=>({wards:selectedWards(),baseDate:$('baseDate').value,days:selectedDays,includeToday:$('includeToday').checked}),async restore(settings){
+  window.DischargeCapture={get connected(){return !!state.active;},init,start:startBatch,reset(){resetSession();$('source').value='';refresh();},stop(){state.stop=true;},settings:()=>({wards:selectedWards(),baseDate:$('baseDate').value,days:selectedDays,includeToday:$('includeToday').checked}),async restore(settings){
     if(!settings)return;state.remembered=[...settings.wards];if(!state.active)await discoverControls();renderWards();$('baseDate').value=settings.baseDate;selectedDays=settings.days;$('includeToday').checked=settings.includeToday;document.querySelectorAll('[data-days]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.days)===selectedDays)));refresh();
   }};
 })();

@@ -5,9 +5,9 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'),ext=path.join(root,'extension'),repo=path.resolve(root,'../..');
 const manifest=JSON.parse(await fs.readFile(path.join(ext,'manifest.json'))),hash=b=>createHash('sha256').update(b).digest('hex');
-const allowed=['icons/OFL.txt','README.txt','background.js','content.js','core.js','workflow.js','page-bridge.js','manifest.json','return-pages.js','managed-background.js','managed-client.js','management-core.js','manager.html','manager.js','manager.css','tool-config.js','tool-marker.json','update-core.js','update-network.js','update-store.js','updater.js','icons/mark.svg',...[16,32,48,128].map(n=>`icons/icon${n}.png`)];
+const allowed=["README.txt", "background.js", "content.js", "core.js", "icons/OFL.txt", "icons/icon128.png", "icons/icon16.png", "icons/icon32.png", "icons/icon48.png", "icons/mark.svg", "installation-config.js", "installation-core.js", "installation-ui.js", "managed-background.js", "managed-client.js", "management-core.js", "manager.css", "manager.html", "manager.js", "manifest.json", "page-bridge.js", "portal-connection.js", "return-pages.js", "theme.css", "tool-config.js", "tool-marker.json", "update-core.js", "update-network.js", "update-store.js", "updater.js", "workflow.js"];
 const files=[];for(const p of allowed){const b=await fs.readFile(path.join(ext,p));files.push({path:p,size:b.length,sha256:hash(b),base64:b.toString('base64')});}
-const notes=process.argv[2]||'修正處方清單「完」與退藥頁「完成」的狀態對照，單筆完成處方可正常讀取。保留重複處方逐筆核對、餘量與送出結果檢查；管理、更新及「碼」圖示不變。';
+const notes=process.argv[2]||"未選退藥藥局時預設總院西址住院藥局，保留已有選擇；改善批次讀取及條碼輸入、僅在退藥頁顯示，支援刷條碼退藥\\extension 舊路徑。沿用原權限。";
 const pkg={format:'barcode-return-update-v1',toolId:'ntuh-barcode-return',version:manifest.version,notes,files},bytes=Buffer.from(JSON.stringify(pkg)),relative=`updates/barcode-return/packages/${manifest.version}.json`;
 await fs.mkdir(path.dirname(path.join(repo,relative)),{recursive:true});await fs.writeFile(path.join(repo,relative),bytes);
 await fs.writeFile(path.join(repo,'updates/barcode-return/latest.json'),JSON.stringify({format:'barcode-return-release-v1',toolId:pkg.toolId,version:pkg.version,notes,packagePath:relative,size:bytes.length,sha256:hash(bytes)},null,2)+'\n');

@@ -44,11 +44,11 @@ export async function writeFile(dir,path,bytes){const p=await parent(dir,path,tr
 export async function removeFile(dir,path){try{const p=await parent(dir,path,false);await p.dir.removeEntry(p.name);}catch(e){if(e.name!=='NotFoundError')throw e;}}
 export async function verifyDirectory(dir,current,readInstalled){
   const manifest=JSON.parse(decoder.decode(await readFile(dir,'manifest.json')));
-  if(manifest.name!==current.name||manifest.version!==current.version)throw new Error('請選擇目前載入的 extension 資料夾，版本必須與正在使用的工具相同。');
+  if(manifest.name!==current.name||manifest.version!==current.version)throw new Error('請選擇目前使用的小工具安裝資料夾，或解壓縮後的最外層資料夾。');
   // A matching manifest alone cannot distinguish an installed directory from a copy.
   const file='tool-folder-proof-'+crypto.randomUUID()+'.txt',proof=encoder.encode(crypto.randomUUID());
   try{await writeFile(dir,file,proof);const installed=await readInstalled(file);if(await sha256(installed)!==await sha256(proof))throw new Error('資料夾不是目前載入的工具位置');}
-  catch(e){throw new Error('無法確認這是目前載入的工具資料夾，或 Chrome 不允許寫入。請選原本載入的 extension 資料夾。');}
+  catch(e){throw new Error('無法確認這是目前載入的工具資料夾，或 Chrome 不允許寫入。請選擇原本在 Chrome 載入的小工具安裝資料夾。');}
   finally{await removeFile(dir,file);}
 }
 export async function restoreFiles(dir,journal,onProgress=()=>{}){

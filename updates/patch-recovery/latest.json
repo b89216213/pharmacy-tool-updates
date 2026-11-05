@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.4.3",
-  "notes": "統一單字圖示「貼」：工具列、視窗與工具內識別一致，保留原有功能與設定。",
-  "packagePath": "updates/patch-recovery/packages/1.4.3.json",
-  "size": 249670,
-  "sha256": "863c318d8976443fc7318a5b57a1faebaf52b12e99581aa9f82016250a70b493"
+  "version": "1.5.5",
+  "notes": "維持原發布版操作與列印介面，調整標題與圖示大小；更新後台、跨頁連線與更新機制，支援貼片回收紀錄\\extension 舊路徑。",
+  "packagePath": "updates/patch-recovery/packages/1.5.5.json",
+  "size": 297218,
+  "sha256": "161bee2268d3bbbbd06075cd0facccd3829c0bf613864ab746556479c5bda5b1"
 }

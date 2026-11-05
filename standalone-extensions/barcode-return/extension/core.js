@@ -11,6 +11,22 @@
     pharmacy: 'NTUHWeb1_SelectReturnDrugBox_ddlPharmacy'
   });
   const clean = value => String(value ?? '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+  function defaultPharmacy(options, current) {
+    const label = option => clean(option?.text).replace(/\s/g, '');
+    const selected = options.find(option => option.value === current);
+    const placeholder = !selected || !clean(current) || !label(selected) || /^[-－—–]*(?:請選擇|請選取|未選擇)(?:退藥)?(?:藥局)?[-－—–]*$/.test(label(selected));
+    if (!placeholder) return current;
+    const matches = options.filter(option => !option.disabled && clean(option.value) && label(option) === '總院西址住院藥局');
+    return matches.length === 1 ? matches[0].value : current;
+  }
+  function validateBarcode(raw, maxLength = 18) {
+    // Normalize only full-width ASCII; never delete or guess invalid characters.
+    const value = String(raw ?? '').replace(/[\uFF01-\uFF5E]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+    if (!value) return {valid:false, message:'請先刷入處方條碼。'};
+    if (!/^[A-Za-z0-9]+$/.test(value)) return {valid:false, message:'條碼只能包含英文字母與數字，請切換為英文／半形後重新掃描。'};
+    if (value.length > maxLength) return {valid:false, message:'條碼長度超過上限，請重新掃描。'};
+    return {valid:true, value};
+  }
   const number = value => {
     const text = clean(value).replace(/,/g, '');
     return text !== '' && /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text) ? Number(text) : null;
@@ -108,10 +124,11 @@
     if (returned !== null && row.returned !== null && Math.abs(returned - row.returned) > 1e-7) return false;
     return true;
   }
-  function matchOrders(orders, rows, options = {}) {
+  function planOrderMatches(orders, rows, options = {}) {
     if (!orders.length || orders.length !== rows.length) throw new Error('處方筆數與退藥欄位不一致，已停止對應。請回原畫面確認。');
     if (new Set(orders.map(row => row.key)).size !== orders.length) throw new Error('原始處方識別資料重複，請回原畫面確認。');
     const candidates = rows.map(row => orders.map((o, i) => compatible(o, row, options) ? i : -1).filter(i => i >= 0));
+    if (candidates.some(list => !list.length) || orders.some((_, i) => !candidates.some(list => list.includes(i)))) throw new Error('處方內容與退藥欄位不符，已停止對應。請重新讀取。');
     const assigned = new Map(), used = new Set();
     let progress = true;
     while (progress) {
@@ -122,8 +139,16 @@
         if (available.length === 1) { assigned.set(index, available[0]); used.add(available[0]); progress = true; }
       });
     }
-    if (assigned.size !== rows.length) throw Object.assign(new Error('有處方無法唯一對應退藥欄位，已停止輸入與送出。請回原畫面核對。'), {code:'ORDER_MATCH_AMBIGUOUS'});
-    return rows.map((row, i) => ({ ...orders[assigned.get(i)], ...row, key: orders[assigned.get(i)].key }));
+    if (candidates.some((list, i) => !assigned.has(i) && list.every(o => used.has(o)))) throw new Error('處方對應結果不一致，已停止處理。');
+    return {
+      rows: rows.map((row, i) => assigned.has(i) ? ({ ...orders[assigned.get(i)], ...row, key: orders[assigned.get(i)].key }) : null),
+      unresolved: orders.filter((_, i) => !used.has(i))
+    };
+  }
+  function matchOrders(orders, rows, options = {}) {
+    const plan = planOrderMatches(orders, rows, options);
+    if (plan.unresolved.length) throw Object.assign(new Error('有處方無法唯一對應退藥欄位，已停止輸入與送出。請回原畫面核對。'), {code:'ORDER_MATCH_AMBIGUOUS'});
+    return plan.rows;
   }
   function validateAmount(raw, row) {
     const text = clean(raw);
@@ -144,7 +169,7 @@
         Math.abs(current.issued - row.issued) < 1e-7 && Math.abs(current.returned - row.returned - amount) < 1e-7 && Math.abs(current.rest - row.rest + amount) < 1e-7;
     });
   }
-  const core = { IDS, clean, number, status, date, day, directRows, cellText, tableData, readPatient, parseOrderCells, readOrders, readReturns, findDetailRoot, readDetail, sumColumn, compatible, matchOrders, validateAmount, checkResult };
+  const core = { IDS, clean, defaultPharmacy, validateBarcode, number, status, date, day, directRows, cellText, tableData, readPatient, parseOrderCells, readOrders, readReturns, findDetailRoot, readDetail, sumColumn, compatible, planOrderMatches, matchOrders, validateAmount, checkResult };
   if (typeof module !== 'undefined' && module.exports) module.exports = core;
   else globalThis.NTUHReturnCore = Object.freeze(core);
 })();
