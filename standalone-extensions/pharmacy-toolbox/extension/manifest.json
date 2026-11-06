@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "藥局工具箱",
+  "version": "0.1.0",
+  "description": "藥局共用工具入口：主選單、進階開關、電腦登記與版本更新。各作業工具將分階段接入。",
+  "minimum_chrome_version": "122",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApwbXxBeiPV/+pm1kUza8UqToBc5vPpRo4xVRtIEIFLiNIBp1hOmmUppdUVCI1PqA8x70rLqCMioqdM6TbZ01v3BGgr/Dq0HeMniA7lw8p4KxIrKFYHXHvuINdE1kR18tyLI7oIuekIDdsVYDaZthlIEENYkGO27npyuEUAcTbb+z2Q6YeiK391T8ETFtQRh4dbwZeA+cguUhOj6ulWrECXmJPoi2uVEbVKXiQBGGLycG0Z8y3Kpy01+zJgBCyvZZj7jverpEvz8MuIGaRrXobKTuy2bMfBmvfi1clKjXIp0H4ZztQmF2iP9G8+kwUuxgZ9D+63n6frZTsavU7IGjIQIDAQAB",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "unlimitedStorage",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "https://portal.ntuh.gov.tw/*",
+    "https://ihisaw.ntuh.gov.tw/*",
+    "http://portal.ntuh.gov.tw/*",
+    "http://ihisaw.ntuh.gov.tw/*",
+    "https://raw.githubusercontent.com/*",
+    "https://pharmacy-device-console.cx760.chatgpt.site/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "開啟藥局工具箱",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "options_page": "manager.html",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://portal.ntuh.gov.tw/*",
+        "https://ihisaw.ntuh.gov.tw/*",
+        "http://portal.ntuh.gov.tw/*",
+        "http://ihisaw.ntuh.gov.tw/*"
+      ],
+      "js": [
+        "ui.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self' https://raw.githubusercontent.com https://pharmacy-device-console.cx760.chatgpt.site; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+  }
+}

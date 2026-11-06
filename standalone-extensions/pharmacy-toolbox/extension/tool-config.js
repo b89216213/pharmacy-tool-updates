@@ -1,0 +1,1 @@
+export const CONFIG=Object.freeze({"slug": "pharmacy-toolbox", "toolId": "ntuh-pharmacy-toolbox", "title": "藥局工具箱", "entry": "app.html", "managementKey": "pharmacy-toolboxManagementV1", "workPages": [], "pageScripts": {}});

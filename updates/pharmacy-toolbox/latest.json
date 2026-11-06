@@ -1,0 +1,9 @@
+{
+  "format": "pharmacy-toolbox-release-v1",
+  "toolId": "ntuh-pharmacy-toolbox",
+  "version": "0.1.0",
+  "notes": "藥局工具箱空殼：四色入口、四個主選單工具、進階 ADC 入口與兩個預設 OFF 開關；接上電腦登記、政策控管與工具更新。作業工具尚未接入，沒有病人資料移轉。",
+  "packagePath": "updates/pharmacy-toolbox/packages/0.1.0.json",
+  "size": 104123,
+  "sha256": "f8d13d19c7037f4da57668865eb9d02939ebdb60e725fa62b0250ff5c80ef840"
+}
