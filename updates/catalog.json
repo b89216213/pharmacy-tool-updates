@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "3fa007d33e251669c0d4d38a1b274d7b646df12b",
+  "sourceCommit": "875de4b406b9bf2e2702998b7c2bbd29306b224b",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -34,8 +34,8 @@
       "id": "ntuh-patch-recovery",
       "name": "貼片回收紀錄",
       "slug": "patch-recovery",
-      "version": "1.5.5",
-      "downloadPath": "downloads/patch-recovery-v1.5.5.zip"
+      "version": "1.6.0",
+      "downloadPath": "downloads/patch-recovery-v1.6.0.zip"
     },
     {
       "id": "ntuh-patient-picker",

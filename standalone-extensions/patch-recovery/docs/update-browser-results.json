@@ -3,7 +3,7 @@
   "scope": "Synthetic Chromium UI with OPFS and simulated picker/GitHub/reload. Does not verify OS directory picker or extension runtime.",
   "checks": [
     "Migration removes old credential and private-source cache before an immediate anonymous check",
-    "Automatic first-run check needs no credential or folder and sends no patient data",
+    "Automatic check reuses the authorized installation and sends no patient data",
     "Failed automatic check does not open a dialog or block registration",
     "Update dialog shows first-run setup and current version",
     "Same-version copied directory is rejected by installed-folder proof",

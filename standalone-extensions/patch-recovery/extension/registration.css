@@ -1,0 +1,184 @@
+/* Registration UI; print layout remains in app.css. */
+@media screen {
+  .header{height:auto;min-height:72px;flex-wrap:wrap;gap:12px}
+  .header .local-tag{background:var(--pale);color:var(--green)}
+  .workspace{display:flex;flex-direction:column;gap:18px}
+  .workspace>.patient-panel{width:100%;min-width:0}
+  #register-panel{overflow-anchor:none}
+  .patient-panel{padding:0}
+  .patient-panel>.section-title{margin-bottom:8px}
+  .ward-group{padding:10px 12px}
+  .patient-search-bar{display:flex;gap:16px;align-items:center;margin-top:10px}
+  .patient-panel .patient-tools{flex:0 0 auto;margin:0}
+  .patient-search-bar .search-field{flex:1;margin:0}
+  .patient-search-bar .search-field input{width:100%}
+  .patient-panel #freshness{margin:8px 0}
+  .picker-workspace{display:block}
+  .patient-browser{min-width:0}
+  /* Patient cards belong to the document flow; only the whole page scrolls. */
+  .patient-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));align-items:start;align-content:start;gap:7px;padding:2px;min-height:0;max-height:none;overflow:visible;overflow-anchor:none;overscroll-behavior:auto;scrollbar-gutter:auto}
+  .patient-tile{border:1px solid #dde8e1;border-radius:8px;background:white;overflow:hidden;min-width:0}
+  .patient-tile.editing{border-color:#278267;box-shadow:0 0 0 1px #278267;background:#f3faf6}
+  .patient-choice{display:grid;grid-template-columns:16px 53px minmax(0,1fr);gap:7px;align-items:start;border:0;border-radius:0;box-shadow:none!important;min-height:58px;padding:9px 10px;position:relative}
+  .patient-choice .checkmark{grid-row:1;grid-column:1;display:grid;place-items:center;box-sizing:border-box;width:16px;height:16px;margin:2px 0 0;padding:0;border:1px solid #bdcfc5;border-radius:4px;line-height:0;background:#fff;color:transparent}
+  .patient-choice .checkmark svg{display:block;width:12px;height:12px;visibility:hidden}
+  .patient-choice[aria-pressed=true] .checkmark{background:#fff;color:transparent;border-color:#bdcfc5}
+  .patient-choice.has-count .checkmark{background:#278065;border-color:#278065;color:white}
+  .patient-choice.has-count .checkmark svg{visibility:visible}
+  .patient-choice .bed{grid-row:1;grid-column:2;min-width:0;font-size:15px;line-height:20px;font-weight:700;letter-spacing:0;white-space:nowrap}
+  .patient-choice .person{grid-row:1;grid-column:3;display:flex;flex-direction:column;gap:0;min-width:0}
+  .patient-choice .person>span{font-size:13px;line-height:20px}
+  .patient-choice .person small{font-size:10px;line-height:14px;font-variant-numeric:tabular-nums}
+  .patient-choice[aria-pressed=true]{background:#e8f4ef}
+  .patient-choice.has-count:not([aria-pressed=true]){background:#f4faf6}
+  .patient-choice:focus-visible{outline-offset:-3px}
+  .patient-choice .person .patient-quantity-summary{color:#266b51;font-size:10px;font-weight:600;margin-top:3px;line-height:14px;white-space:normal}
+  .patient-choice .patient-quantity-summary:empty,.patient-tile.editing .patient-quantity-summary{display:none}
+  .patient-bottom{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0;margin-top:10px}
+  .patient-bottom button{font-size:12px;min-height:32px;padding:6px 10px}
+  .quick-editor{border:0;border-top:1px solid #cbded3;border-radius:0;background:#f3faf6;padding:6px 10px 9px;overflow:visible}
+  .quick-editor[hidden],#quick-editor [hidden]{display:none!important}
+  .quick-caption{display:flex;align-items:center;justify-content:space-between;min-height:24px;margin-bottom:3px;font-size:11px}
+  .quick-caption button{border:0;background:none;font-size:11px;color:#627a6d;padding:2px 0 2px 8px;line-height:20px}
+  #quick-form{padding:0}
+  .quick-patient{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+  .quick-dose{display:grid;grid-template-columns:31px minmax(0,1fr);align-items:center;gap:6px;margin:5px 0}
+  .quick-dose label{margin:0;font-size:12px;line-height:20px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
+  .quick-values{display:grid;grid-template-columns:repeat(4,minmax(22px,1fr)) 48px;gap:4px}
+  .quick-values button,.quick-values input{box-sizing:border-box;height:30px;min-width:0;font-size:12px;text-align:center;border-radius:5px;font-variant-numeric:tabular-nums}
+  .quick-values button{display:grid;place-items:center;padding:0;line-height:1}
+  .quick-values input{padding:0 3px;line-height:28px}
+  .quick-values button[aria-pressed=true]{background:#276a4f;color:white;border-color:#276a4f}
+  .quick-values input[aria-invalid=true]{border-color:#c04435;background:#fff2ef}
+  .quick-state{font-size:10px;line-height:15px;margin-top:6px;min-height:15px;color:#56715e}
+  .quick-footer{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:5px}
+  .quick-footer .quick-state{margin:0}
+  #quick-clear{flex:none;margin-left:auto;padding:3px 0 3px 8px;min-height:26px;font-size:11px;line-height:20px;color:#805b51}
+  .save-strip{border:1px solid #dce6e1;margin:8px 0 0;border-radius:10px;background:#f8fbf9;overflow:hidden}
+  .save-strip .batch-footer{padding:10px 18px 14px;border:0;background:none;align-items:center;gap:12px}
+  #draft-state{flex:1 1 160px;line-height:18px}
+  .save-strip .pharmacist-control{flex:0 1 270px;min-width:230px}
+  .save-strip .pharmacist-control label{font-size:12px;line-height:18px}
+  .save-strip .pharmacist-input{align-items:center}
+  .save-strip .pharmacist-input input{height:34px}
+  #save-batch{min-height:36px}
+  button:focus-visible,input:focus-visible{outline:2px solid #298269;outline-offset:2px}
+}
+@media screen and (max-width:930px){
+  .header-actions{margin-left:auto;flex-wrap:wrap}
+  .patient-search-bar{gap:8px}
+}
+@media screen and (max-width:650px){
+  .patient-list{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .patient-search-bar{flex-wrap:wrap}.patient-search-bar .search-field{flex-basis:100%}
+  .save-strip .batch-footer{gap:10px}
+  .save-strip .pharmacist-control{flex:1 1 230px}
+}
+
+/* Compact registration layout. Patient cards scroll with the document. */
+@media screen {
+  .header{min-height:58px;height:auto;padding:9px 24px;gap:12px;flex-wrap:wrap}
+  .header h1{font-size:17px;white-space:nowrap}
+  .header .tabs{padding:0;margin-left:22px;border:0;gap:22px;flex:1}
+  .header .tabs>button{font-size:13px;padding:9px 0 7px}
+  .header .local-tag{margin-left:auto;padding:4px 8px}
+  main{max-width:1440px;padding:18px 24px 12px}
+  .batch-context{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+  .batch-context h2{font-size:18px}
+  .batch-context>label{display:flex;align-items:center;gap:8px;width:auto;font-size:12px;color:#596f64;font-weight:400}
+  .batch-context>label input{margin:0;width:146px;padding:6px 8px;min-height:34px;font-variant-numeric:tabular-nums}
+  .ward-group{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:0;background:none;border:0;border-radius:0}
+  .ward-shortcuts{display:flex;gap:7px;flex-wrap:wrap;margin:0}
+  .ward-shortcuts button{min-width:108px;gap:20px;padding:8px 11px}
+  .ward-shortcuts button strong{font-size:13px}
+  .ward-shortcuts button span{font-size:11px}
+  #edit-ward-group{white-space:nowrap;margin-left:auto;font-size:12px;color:#5b7265}
+  .patient-search-bar{gap:8px;margin-top:0}
+  .patient-search-bar button{font-size:12px;min-height:34px;padding:6px 10px}
+  .patient-tools .segments{padding:2px}
+  .patient-tools .segments button{min-height:30px}
+  .patient-search-bar .search-field input{height:36px;font-size:13px}
+  .patient-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:9px 0 7px}
+  .patient-panel #freshness{margin:0}
+  .other-tools{position:relative;flex:none;font-size:12px}
+  .other-tools>summary{padding:8px 5px;cursor:pointer;color:#596f64;list-style:none}
+  .other-tools>summary::-webkit-details-marker{display:none}
+  .other-tools>summary:after{content:'⌄';padding-left:5px}
+  .other-menu{position:absolute;right:0;top:38px;width:170px;z-index:6;background:#fff;border:1px solid var(--line);border-radius:9px;padding:5px;box-shadow:0 6px 20px #18363218}
+  .other-menu>button{width:100%;display:block;border:0;text-align:left}
+  .other-menu>span{display:block;padding:6px;font-size:10px;color:var(--muted);line-height:1.6}
+  .other-menu hr{border:0;border-top:1px solid var(--line);margin:5px}
+  .patient-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,235px),1fr));gap:7px;padding:1px}
+  .patient-choice{padding:9px;min-height:65px;grid-template-columns:16px 48px minmax(0,1fr);gap:7px}
+  .patient-choice .person>span{font-size:14px;line-height:20px}
+  .patient-choice .person small{font-size:10px;line-height:15px}
+  .patient-choice .person .patient-quantity-summary{font-size:11px;line-height:16px;margin-top:3px;color:#226148}
+  .quick-editor{padding:5px 9px 7px}
+  .quick-caption{min-height:21px;margin-bottom:2px}
+  .quick-dose{grid-template-columns:29px minmax(0,1fr);gap:5px;margin:4px 0}
+  .quick-values{grid-template-columns:repeat(4,minmax(22px,1fr)) 43px;gap:3px}
+  .quick-values button,.quick-values input{height:28px;font-size:12px}
+  .quick-values button[aria-pressed=true][data-quick-value="0"]{background:#e9efeb;border-color:#bacdc1;color:#60776a}
+  .quick-values input.has-custom{background:#e8f4ed;border:2px solid #278065;color:#1b5d44;font-weight:600}
+  .quick-state{font-size:10px;line-height:15px}
+  .quick-footer{margin-top:3px;gap:4px}
+  #quick-clear{font-size:11px;min-height:25px}
+  .save-strip{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:10px 12px;margin-top:14px;overflow:visible;background:#fff;border:1px solid #cdded3;border-radius:9px;box-shadow:0 -3px 14px #1836320b}
+  .save-status{margin-left:auto;display:flex;flex-direction:column;gap:3px;min-width:0}
+  #draft-state{flex:initial;font-size:10px}
+  .save-strip .pharmacist-control{display:flex;align-items:center;gap:8px;min-width:0;flex:none}
+  .save-strip .pharmacist-control label{font-size:12px;white-space:nowrap}
+  .save-strip .pharmacist-control input{width:116px;height:35px;padding:7px 8px;font-size:13px}
+  #save-batch{min-height:36px;padding:8px 14px;font-size:13px}
+  .date-confirm-dialog p{white-space:pre-line;margin-top:14px;font-size:14px;line-height:1.9}
+  .date-confirm-dialog .dialog-actions{flex-wrap:wrap}
+  .notice,.error{margin:10px 24px 0;padding:9px 12px;font-size:12px}
+  .app-footer{max-width:1440px;margin:auto;padding:8px 24px 16px}
+  .record-toolbar{flex-wrap:wrap}
+  .record-filters{flex-wrap:wrap;gap:10px}
+  .record-filters>input{max-width:100%}
+}
+@media screen and (max-width:900px){
+  .save-strip{gap:10px}.save-status{display:none}
+  .save-strip .pharmacist-control{margin-left:auto}
+}
+@media screen and (max-width:650px){
+  .header{padding:10px 14px;gap:8px}.header .tabs{order:3;flex-basis:100%;margin:0;gap:24px}.header h1{font-size:16px}.header .local-tag{font-size:10px}
+  main{padding:14px}.batch-context{gap:6px}.batch-context h2{font-size:17px}.batch-context>label{font-size:11px;gap:5px}.batch-context>label input{width:132px}
+  .ward-shortcuts{gap:6px}.ward-shortcuts button{min-width:91px;gap:12px;padding:7px 9px}
+  .ward-group{align-items:start;gap:8px}.ward-group #edit-ward-group{white-space:normal;width:48px;flex:none;line-height:1.7;padding:4px 0}
+  .patient-search-bar{flex-wrap:wrap}.patient-search-bar .search-field{flex:1 1 calc(100% - 90px);order:3}.patient-search-bar #lookup-account{order:4}.other-tools{margin-left:auto}
+  .patient-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,235px),1fr))}
+  .app-footer{padding:10px 14px;gap:5px;flex-wrap:wrap}.notice,.error{margin:8px 14px 0}.summary-cards{gap:6px;grid-template-columns:repeat(2,1fr)}.summary-card{padding:12px}.form-grid{grid-template-columns:1fr}.form-grid.doses{grid-template-columns:repeat(3,minmax(0,1fr))}.dialog-actions{flex-wrap:wrap}dialog{padding:18px}
+}
+@media screen and (pointer:coarse){
+  .patient-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr))}
+  .quick-values button,.quick-values input{height:44px}.quick-dose{grid-template-columns:1fr;gap:3px;margin:6px 0}.quick-values{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .quick-caption button,#quick-clear,.other-tools>summary{min-height:40px}.patient-choice{min-height:68px}
+}
+
+@media screen {
+  .batch-date-control{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px 10px}
+  .batch-date-control .batch-date-label{display:flex;align-items:center;gap:8px;font-size:12px;color:#596f64;font-weight:400}
+  .batch-date-control #batch-date{margin:0;width:146px;padding:6px 8px;min-height:34px;font-variant-numeric:tabular-nums}
+  .date-hint{font-size:11px;color:#887046;line-height:1.5;white-space:nowrap}
+  .save-total{font-size:14px;font-weight:600;line-height:24px}
+  .date-confirm-dialog h2{font-size:18px;color:var(--ink)}
+  .date-confirm-dialog p{font-size:13px;line-height:1.8}
+  .patient-choice .person .patient-entry-meta{font-size:10px;color:#738075;margin-top:2px;white-space:normal;line-height:1.5}
+}
+@media screen and (max-width:650px){
+  .batch-date-control{max-width:205px;gap:3px 8px}.batch-date-control .batch-date-label{font-size:11px;gap:5px}.batch-date-control #batch-date{width:132px}
+  .save-total{width:100%;font-size:13px}.save-strip{padding:9px 10px;gap:8px}.save-strip .pharmacist-control{margin-left:0;flex:1}.save-strip .pharmacist-control input{width:90px;min-width:55px;flex:1}.save-strip .pharmacist-control label{font-size:11px}#save-batch{padding:8px 10px}
+}
+
+/* Right-aligned tool utilities, separate from the registration/record tabs. */
+@media screen {
+  .header-utilities{margin-left:auto;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+  .header .header-utilities .local-tag{margin-left:0}
+  .header-utilities>button{font-size:12px;padding:7px 11px;min-height:34px}
+  .header-utilities>button[aria-pressed=true]{background:var(--pale);border-color:#aacdbc;color:var(--green);font-weight:600}
+}
+@media screen and (max-width:650px){.header-utilities{order:2;gap:8px}}
+@media screen and (max-width:450px){.header-utilities{flex-basis:100%}}
+@media screen { #open-management{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .header .tabs{min-width:180px} }

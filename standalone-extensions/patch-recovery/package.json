@@ -1,9 +1,10 @@
 {
   "name": "ntuh-patch-recovery",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/checks.cjs && node tests/update-checks.cjs && node tests/management-checks.cjs"
+    "test": "node tests/checks.cjs && node tests/update-checks.cjs && node tests/management-checks.cjs",
+    "test:browser": "node tests/browser-checks.cjs && node tests/registration-ui-checks.cjs && node tests/registration-date-checks.cjs && node tests/pharmacist-browser-checks.cjs && node tests/management-browser-checks.cjs && node tests/update-browser-checks.cjs"
   }
 }

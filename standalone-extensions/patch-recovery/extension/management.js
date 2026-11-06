@@ -27,7 +27,7 @@ export async function mountManagement({isBusy,saveDraft,setBlocked,setLocked,onR
   if(s.state==='installation')window.PharmacyInstallation?.open();
   if(s.state==='registration'&&!$('management-dialog').open&&!document.querySelector('dialog[open]'))$('management-dialog').showModal();
   if(isBusy()||locking){appliedState='pending';$('management-pending').hidden=false;return;}
-  if(!locked){locking=true;try{await saveDraft();setLocked(true);locked=true;}catch{networkError='草稿尚未保存成功，請先匯出備份；工具已停止新的作業。';setLocked(true);locked=true;}finally{locking=false;}}
+  if(!locked){locking=true;try{await saveDraft();setLocked(true);locked=true;}catch{networkError='輸入內容尚未保留成功，請先匯出備份；工具已停止新的作業。';setLocked(true);locked=true;}finally{locking=false;}}
   $('management-lock').hidden=false;$('management-pending').hidden=true;appliedState=['registration','installation'].includes(s.state)?'pending':s.state;
  }
  function beatBody(){return{installationId:record.installationId,version,ackRevision:record.policy?.revision||null,ackState:appliedState};}

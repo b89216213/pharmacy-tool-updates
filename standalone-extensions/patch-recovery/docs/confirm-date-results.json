@@ -1,0 +1,16 @@
+{
+  "version": "1.6.0",
+  "passed": 8,
+  "checks": [
+    "Backup entry moved to right-side utilities; navigation and backup download still work",
+    "Manually selected past date prompts on every Save, including retries after cancellation and Escape",
+    "Next batch with the same previously confirmed past date still prompts",
+    "Today saves directly without a date confirmation",
+    "Mixed individual dates require confirmation; changing all to today preserves quantities without auto-saving",
+    "Restored non-today entries retain dates and quantities and prompt before writing",
+    "Future dates and crossing Taipei midnight prompt, including midnight while confirming",
+    "Right-side backup utility and both pages fit 320–1440px without restoring removed details or large warnings"
+  ],
+  "errors": [],
+  "externalRequests": []
+}

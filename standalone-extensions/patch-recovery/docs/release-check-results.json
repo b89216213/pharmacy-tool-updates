@@ -1,0 +1,14 @@
+{
+  "version": "1.6.0",
+  "previousVersion": "1.5.5",
+  "passed": 4,
+  "checks": [
+    "Full v1.6.0 update is accepted by the exact v1.5.5 updater with matching index hash and length",
+    "Every packaged byte matches production source; extension identity, permissions and CSP are unchanged",
+    "Original storage, Portal, pharmacist extraction, printing, Excel, background, installation and updater cores are byte-identical to production v1.5.5",
+    "Old updater applies the complete release, journals original files and preserves unrelated local backup files"
+  ],
+  "files": 30,
+  "packageBytes": 330201,
+  "sha256": "74f6b4f98eca71db4bb8970557b2ec832ecb1569d1701817b3a75d401aaec2a0"
+}

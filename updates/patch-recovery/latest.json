@@ -1,9 +1,9 @@
 {
   "format": "patch-recovery-release-v1",
   "toolId": "ntuh-patch-recovery",
-  "version": "1.5.5",
-  "notes": "維持原發布版操作與列印介面，調整標題與圖示大小；更新後台、跨頁連線與更新機制，支援貼片回收紀錄\\extension 舊路徑。",
-  "packagePath": "updates/patch-recovery/packages/1.5.5.json",
-  "size": 297218,
-  "sha256": "161bee2268d3bbbbd06075cd0facccd3829c0bf613864ab746556479c5bda5b1"
+  "version": "1.6.0",
+  "notes": "病人卡片直接填片數、再次點選收合，整頁捲動；非當日儲存確認，支援補登；資料備份移至右上方。保留 Portal、藥師讀取、後台管理、工具更新、既有資料及各病房直式列印。",
+  "packagePath": "updates/patch-recovery/packages/1.6.0.json",
+  "size": 330201,
+  "sha256": "74f6b4f98eca71db4bb8970557b2ec832ecb1569d1701817b3a75d401aaec2a0"
 }

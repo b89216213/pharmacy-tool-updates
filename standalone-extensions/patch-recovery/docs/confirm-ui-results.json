@@ -1,0 +1,46 @@
+{
+  "version": "1.6.0",
+  "passed": 12,
+  "checks": [
+    "Top wards and whole-page patient cards with renamed batch heading and clear action",
+    "Same-card collapse, input retention, pending labels and reload preservation",
+    "Clear can be cancelled; confirmed clear affects only the active patient and resets counts",
+    "Account search and zero-count cancellation remain available",
+    "Details removed; patient card retains quantities and invalid counts still block saving",
+    "Cross-ward lookup and manual entries remain reachable through quantity cards",
+    "Batch saving, pharmacist entry and per-ward storage work without recent section",
+    "Saved-record editing, history, date order and ward-specific portrait print remain intact",
+    "Backup export and merge preserve records using new terminology",
+    "Wheel over patient cards and open editor scrolls only the document in both directions",
+    "Switching distant patients keeps the active quantity controls visible",
+    "Responsive layout, aligned checkmark, no obsolete wording or runtime/network errors"
+  ],
+  "scroll": [
+    {
+      "expanded": false,
+      "direction": "down",
+      "before": 101,
+      "after": 202
+    },
+    {
+      "expanded": false,
+      "direction": "up",
+      "before": 101,
+      "after": 0
+    },
+    {
+      "expanded": true,
+      "direction": "down",
+      "before": 160,
+      "after": 320
+    },
+    {
+      "expanded": true,
+      "direction": "up",
+      "before": 160,
+      "after": 0
+    }
+  ],
+  "errors": [],
+  "externalRequests": []
+}
