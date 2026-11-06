@@ -1,0 +1,17 @@
+{
+  "passed": 11,
+  "scope": "Actual final release; original 2.10 validator/update UI; real Chrome with synthetic chrome runtime, OPFS, picker permissions, backend and GitHub routes. No live registration, usage or hospital calls.",
+  "checks": [
+    "Actual 2.17.0 payload and announcement pass the original 2.10.0 validator, file cap, identity and permissions",
+    "Changed access, missing legacy entry/background and corrupted files are rejected before writes",
+    "Every packaged HTML, module import, CSS asset and manifest entry resolves within the payload",
+    "Upgrade journals before mutation, commits manifest last and restores all original bytes after failure",
+    "Cart backend scope, four-digit enrollment, offline expiry and persistent disable policies remain compatible",
+    "Public updates use the fixed cart feed without credentials or patient payload",
+    "Real Chrome modules reuse 2.10 registration and remembered folder without a new registration or picker",
+    "One shared background owns registration and heartbeat; disable/re-enable/401 re-enrollment preserve strict metadata-only requests",
+    "Original 2.10 updater denies writes without permission, installs 2.17, records reopen and clears the completed journal after restart",
+    "Update lock rejects active captures/other work pages and blocks new operations until released",
+    "Management and update fixture produces no browser runtime errors and sends no live network traffic"
+  ]
+}

@@ -40,7 +40,8 @@
     if (!el) return;
     e.preventDefault();
     e.stopImmediatePropagation();
-    Promise.race([arm('按下列印病人標籤'), sleep(2000)]).then(() => {
+    Promise.race([arm('按下列印病人標籤'), sleep(2000)]).then(armed => {
+      if (!armed || !isArmed()) return;
       replaying = true;
       try { el.click(); } finally { replaying = false; }
     });

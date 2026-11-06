@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "checks": [
+    "ordinary toolbar click reuses and focuses the existing workspace without navigation",
+    "update reopen navigates the existing workspace to refresh its extension context and preserves source",
+    "update reopen creates one workspace when no previous workspace exists",
+    "expired update reopen marker does not navigate or open windows"
+  ],
+  "at": "2026-11-06T18:45:56.913Z"
+}

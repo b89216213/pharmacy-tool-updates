@@ -1,0 +1,13 @@
+{
+  "version": "2.17.0",
+  "previousVersion": "2.10.0",
+  "passed": 5,
+  "scope": "Offline release validation with Node built-ins and synthetic filesystem failure injection; no backend, browser or hospital access.",
+  "checks": [
+    "Actual release hashes, payload, identity and access pass the original 2.10.0 package validator",
+    "Extra permissions, changed CSP/scope, required-file omissions and corrupted bytes are rejected",
+    "HTML, module imports, CSS assets, manifest entries, classic launch lists and injected scripts are present",
+    "Originals are journaled first, manifest commits last, failed writes restore exact bytes and unavailable journals prevent mutation",
+    "Download ZIP contains exactly the verified update payload"
+  ]
+}

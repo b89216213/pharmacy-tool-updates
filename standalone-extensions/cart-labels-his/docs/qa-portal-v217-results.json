@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "checks": [
+    "Portal original dashboard link opens query page; two wards captured via label payload",
+    "true empty ward accepted without pressing label print",
+    "Portal partial batch size retried until whole ward complete",
+    "partial payload never becomes empty beds",
+    "wrong ward rejected before printing",
+    "pagination rejected before printing",
+    "query failure rejected before printing",
+    "wrong patient print payload rejected",
+    "duplicate chart at different beds rejected",
+    "patient account changed during print rejected",
+    "lost Portal lease rejects captured payload",
+    "expired request never clicks Portal print",
+    "untrusted message cannot trigger capture",
+    "another tool lease blocks any query"
+  ],
+  "errors": [],
+  "requests": [
+    "https://portal.ntuh.gov.tw/Dashboard.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx"
+  ],
+  "source": "patch-recovery 1.6.0; cart-labels-his print parser 2.10.0",
+  "limitations": "Chrome API dispatch mocked; real DOM, menu navigation, upstream engine/bridge and label parser executed; no hospital requests",
+  "at": "2026-11-06T18:44:48.553Z"
+}

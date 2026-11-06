@@ -1,0 +1,60 @@
+/* Group cards stay in the working column; the full ward checklist opens separately. */
+.ward-acquisition{display:block;padding:12px;margin-bottom:10px}
+.ward-acquisition .acquisition-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px}
+.ward-acquisition .acquisition-heading h2{font-size:14px;margin:0}
+.ward-acquisition #captureReload{font-size:11px;padding:4px 6px;color:var(--muted)}
+.ward-preset-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ward-preset-card{border:1px solid #e1d9cc;border-radius:8px;background:#fff;overflow:hidden;min-width:0}
+.ward-preset-card.active{border-color:var(--accent);background:#fbefe6;box-shadow:inset 0 0 0 1px var(--accent)}
+.ward-card-select{display:block;width:100%;border:0;border-radius:0;background:transparent;text-align:left;padding:10px 10px 8px;color:inherit;min-height:77px}
+.ward-card-select:hover{background:#f8f1e8}
+.ward-card-select:focus-visible{outline-offset:-3px}
+.ward-card-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:8px}
+.ward-card-heading strong{font-size:13px;white-space:nowrap}
+.ward-card-state{font-size:10px;line-height:1.5;color:var(--accent-dark)}
+.ward-card-wards{display:flex;flex-wrap:wrap;gap:4px;max-height:80px;overflow:auto;align-content:flex-start}
+.ward-card-code{font-size:11px;line-height:1.5;padding:2px 5px;border-radius:4px;background:#f3eee6;color:#635b4e}
+.ward-preset-card.active .ward-card-code{background:#f1ddce;color:#854b32}
+.ward-card-code.unavailable{color:#a4352c;text-decoration:underline dotted}
+.ward-card-empty{font-size:11px;color:var(--muted)}
+.ward-card-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 9px;border-top:1px solid #e9dfd2;font-size:10px;color:var(--muted)}
+.ward-card-actions button{font-size:11px;padding:3px 4px;white-space:nowrap;color:var(--accent-dark)}
+.ward-preset-card button:disabled{cursor:default;opacity:.65}
+.ward-save-status{font-size:11px;line-height:1.6;color:var(--muted);margin:8px 0 0}
+.ward-acquisition .capture-status{font-size:11px;line-height:1.6;min-height:0;margin:8px 0 0;padding:7px 9px;background:#f3eee6;border-radius:5px}
+.ward-acquisition .capture-status.error{color:#9b3528;background:#fff0e5}
+.acquisition-recovery{display:flex;gap:8px;margin-top:5px}
+.acquisition-recovery:has(button:not([hidden])){padding-top:2px}
+.acquisition-recovery:not(:has(button:not([hidden]))){display:none}
+.acquisition-recovery button{font-size:11px;padding:4px 5px}
+.ward-acquisition #captureReportBox{font-size:11px;margin-top:7px}
+.ward-acquisition #captureReportBox>summary{color:#9b3528}
+.ward-acquisition .capture-result{display:flex;align-items:flex-start;gap:6px;padding:8px 4px;font-size:11px}
+.ward-acquisition .capture-result>span{min-width:0;flex-basis:100%;line-height:1.6}
+.ward-acquisition .capture-result button{font-size:10px;padding:4px 5px}
+#wardDialog{width:min(740px,calc(100vw - 32px));max-height:88dvh;padding:0;overflow:hidden;border:1px solid #d7c9b8;border-radius:13px;background:var(--paper);color:#393832}
+#wardDialog[open]{display:flex;flex-direction:column}
+#wardDialog::backdrop{background:#29241e66}
+.ward-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 22px 14px;border-bottom:1px solid var(--border);gap:12px;flex-shrink:0}
+.ward-dialog-header h2{font-size:18px;margin:0 0 6px}
+.ward-dialog-header p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+#wardPanel{padding:14px 22px 4px;overflow:auto;min-height:0;flex:1;overscroll-behavior:contain}
+#wardDialog .ward-search-label{font-size:12px;font-weight:600;margin:0;display:block}
+#wardSearch{font-size:14px;margin:6px 0 12px;padding:9px 11px;background:#fff;width:100%}
+#wardDialog .ward-browser{display:flex;flex-direction:column;gap:10px;padding:10px 0 14px}
+#wardDialog .campus-tabs{flex-wrap:wrap;gap:5px}
+#wardDialog .campus-tabs button{border-radius:5px}
+#wardButtons{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;max-height:280px;overflow:auto;padding:3px}
+#wardDialog .ward-chip{min-width:0;min-height:38px}
+#wardDialog .ward-choice{flex:1;min-width:0;padding:8px 10px;gap:8px}
+#wardDialog .ward-choice input{margin:0;width:15px;height:15px;padding:0;flex-shrink:0;accent-color:var(--accent)}
+#wardDialog .ward-choice span{overflow-wrap:anywhere}
+.ward-draft-heading{display:flex;align-items:center;justify-content:space-between;font-size:12px;margin:10px 0 4px}
+.ward-draft-selected{display:flex;flex-wrap:wrap;gap:6px;max-height:100px;overflow:auto;padding:3px 0 6px;min-height:31px}
+.ward-draft-selected .unavailable{color:#9b3528}
+.ward-empty-hint{font-size:12px;color:var(--muted);padding:7px 0;grid-column:1/-1}
+.ward-dialog-status{font-size:11px;color:var(--muted);line-height:1.6;min-height:18px;margin:9px 22px;flex-shrink:0}
+.ward-dialog-footer{display:flex;justify-content:flex-end;align-items:center;gap:9px;padding:14px 22px;background:#f3efe7;border-top:1px solid var(--border);flex-shrink:0}
+#wardDialog button:disabled{cursor:default;opacity:.5}
+@media(max-width:640px){#wardDialog{width:calc(100vw - 18px);max-height:94dvh}.ward-dialog-header{padding:15px}.ward-dialog-header p{font-size:11px}#wardPanel{padding:12px 15px 4px}.ward-dialog-footer{padding:12px 15px}.ward-dialog-status{margin:8px 15px}#wardButtons{grid-template-columns:repeat(auto-fill,minmax(94px,1fr));max-height:225px}}
+@media print{#wardDialog,.ward-acquisition{display:none!important}}

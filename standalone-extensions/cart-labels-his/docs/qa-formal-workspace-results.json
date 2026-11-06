@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "checks": [
+    "Production extension boots through real service worker; unconfigured computer is blocked and no demo controls are shipped",
+    "Real extension APIs navigate the synthetic Portal menu, query both wards and capture MRNs via its original label-print parser",
+    "Original 2.10 identity-only records still skip same-bed patients and infer missing occupied beds; no false today receipt",
+    "Save then print-only preserves records; closing/reopening and actual reacquisition restore the same-census receipt",
+    "Production footer fits at 1024 pixels; layout micro-adjustments persist across reopening",
+    "Legacy TXT exports known old/new identities only; an external edit invalidates only the changed ward and its saved receipt",
+    "Real extension message path rejects incomplete Portal payloads and blocks printing/receipt"
+  ],
+  "errors": [],
+  "requests": [
+    "https://portal.ntuh.gov.tw/Dashboard.aspx",
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx",
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://ihisaw.ntuh.gov.tw/WebApplication/PharManagement/InMedicationProcess.aspx"
+  ],
+  "backendRequests": [
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://pharmacy-device-console.cx760.chatgpt.site/api/fleet/device/heartbeat",
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://pharmacy-device-console.cx760.chatgpt.site/api/fleet/device/heartbeat",
+    "https://raw.githubusercontent.com/b89216213/pharmacy-tool-updates/main/updates/cart-labels-his/latest.json",
+    "https://pharmacy-device-console.cx760.chatgpt.site/api/fleet/device/heartbeat"
+  ],
+  "at": "2026-11-06T18:48:15.463Z",
+  "limitations": "Synthetic Portal and mocked backend HTTP; real Chrome extension/service worker/message APIs. No hospital or printer access."
+}

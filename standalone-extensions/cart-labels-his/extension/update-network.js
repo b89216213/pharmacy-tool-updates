@@ -21,5 +21,3 @@ export function parseIndex(bytes){
   compareVersion(value.version,value.version);if(value.packagePath!==`updates/cart-labels-his/packages/${value.version}.json`)throw new Error('更新公告版本與檔名不一致');
   return {...value,notes:String(value.notes||'').slice(0,4000)};
 }
-
-

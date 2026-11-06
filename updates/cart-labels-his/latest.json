@@ -1,9 +1,9 @@
 {
   "format": "cart-labels-his-release-v1",
   "toolId": "ntuh-cart-labels-his",
-  "version": "2.10.0",
-  "notes": "合併本機版功能：列印記憶只存日期、病房、床號、病歷號（不存姓名、生日）；可同步為本機「列印記憶.txt」並新增檢視頁；版面改為米白底與陶土色按鈕。沒有新增權限，原有資料、登記與設定保留。",
-  "packagePath": "updates/cart-labels-his/packages/2.10.0.json",
-  "size": 490747,
-  "sha256": "b742668e1f3eb8c4295e7c9cc8b3d918c006678aebc7a840c8614039b35a2eb5"
+  "version": "2.17.0",
+  "notes": "早上／下午病房組合、自動讀取、交車日比對與直接列印／儲存；相同標籤移除後前補、空床依完整名單判斷；重開後核對今日已存名單，保留舊版床位紀錄。Portal、電腦登記與更新機制對齊貼片回收 1.6.0。",
+  "packagePath": "updates/cart-labels-his/packages/2.17.0.json",
+  "size": 711820,
+  "sha256": "73f2500cfe6676a88f70d3b6b69fb8a8e8bdf2845b003ecd5fb3898c084151ab"
 }

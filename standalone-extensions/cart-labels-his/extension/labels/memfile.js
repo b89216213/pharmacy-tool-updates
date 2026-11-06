@@ -215,7 +215,8 @@ async function memImportApply(mode) {
 }
 
 // ---------- 初始化 ----------
-(async () => {
+globalThis.CartMemoryReady=(async () => {
+  await new Promise(resolve=>document.addEventListener('managed-app-ready',resolve,{once:true}));
   document.querySelectorAll('a[href="memory.html"]').forEach(a => a.addEventListener('click', memSnapshot));
   $('memDownloadBtn').onclick = () => downloadPresetText(memoryText(), MEMFILE_NAME);
   $('memLinkBtn').onclick = memLink; $('memUnlinkBtn').onclick = memUnlink;

@@ -2,7 +2,6 @@
 // 1. 設定移到「⚙ 設定」視窗  2. 可讀的病人名單（可移除／復原）  3. 摘要與提醒卡
 // 4. 預覽下方列印按鈕與不能列印的原因  5. 點格子選起印位置
 const manualRemoved = new Set();
-const DISMISS_PRESET_KEY = 'cart-label-dismiss-preset-alert-v1';
 
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
@@ -85,7 +84,7 @@ function renderAlerts() {
   box.replaceChildren();
   const add = (kind, text, ...buttons) => box.append(el('div', { class: 'alert ' + kind, role: kind === 'error' ? 'alert' : 'status' }, el('p', {}, text), buttons.length ? el('div', { class: 'alert-actions' }, ...buttons) : null));
   const btn = (label, onclick, primary) => el('button', { class: primary ? 'primary' : '', onclick }, label);
-  if (typeof autoSummary !== 'undefined' && autoSummary?.length) {
+  if (!globalThis.LabelWorkspace && typeof autoSummary !== 'undefined' && autoSummary?.length) {
     const parts = autoSummary.map(r => r.error ? `${r.ward}：✕ ${r.error}` : `${r.ward}：${r.total ? r.count + ' 位' : '無病人'}${r.missing ? `（${r.missing} 位未擷取${r.missingBeds?.length ? '：' + r.missingBeds.join('、') + '，請手動補印' : ''}）` : ''}`);
     const bad = autoSummary.some(r => r.error || r.missing);
     add(bad ? 'warn' : 'info', '自動抓取結果　' + parts.join('、'), btn('知道了', () => { autoSummary = null; renderAlerts(); }));
@@ -94,13 +93,7 @@ function renderAlerts() {
     add('info', '資料已變更，預覽還沒更新。', btn('更新預覽', () => convert(), true));
   const err = $('layoutError').textContent.trim();
   if (err) add('error', err, btn('開啟版面設定', () => openSettingsAt('layoutFold')));
-  const hasData = records.length > 0;
-  let dismissed = false;
-  try { dismissed = localStorage.getItem(DISMISS_PRESET_KEY) === '1'; } catch {}
-  if (hasData && !bedPresets.length && !dismissed)
-    add('warn', '還沒設定病房預設床位，空床不會補印標籤。可匯入離線版「匯出 TXT」的床位檔。',
-      btn('匯入床位 TXT', () => $('importPresets').click(), true),
-      btn('不需要', () => { try { localStorage.setItem(DISMISS_PRESET_KEY, '1'); } catch {} renderAlerts(); }));
+
 }
 
 // ---------- 4. 列印按鈕 ----------
@@ -114,7 +107,7 @@ function renderPrintBar() {
   else if (document.body.classList.contains('dirty')) reason = '資料已變更，請先按「更新預覽」。';
   else if ($('layoutError').textContent.trim()) reason = '版面尺寸有問題，請看提醒。';
   else if (disabled) reason = '目前無法列印。';
-  else reason = '列印設定：A4、實際大小 100%、邊界無、不印頁首頁尾。';
+  else reason = '';
   $('printReason').textContent = reason;
   $('printReason').classList.toggle('blocked', disabled);
 }
@@ -135,22 +128,11 @@ $('pages').addEventListener('click', e => {
 });
 function renderStartGrid() { $('startReset').hidden = startOffset() === 0; }
 $('startReset').onclick = () => setStart(1, 1);
-// 左側「依病房預設床位補齊空床」與設定視窗的開關同步
-function syncPresetSide() { $('useBedPresetsSide').checked = $('useBedPresets').checked; }
-$('useBedPresetsSide').addEventListener('change', () => {
-  $('useBedPresets').checked = $('useBedPresetsSide').checked;
-  $('useBedPresets').dispatchEvent(new Event('change'));
-  if ($('source').value.trim()) convert();
-});
-$('useBedPresets').addEventListener('change', syncPresetSide);
-$('presetSideSettings').onclick = () => openSettingsAt('presetSettings');
-$('presetSideHistory').onclick = () => $('presetsFromHistory').click();
 // 預覽上方的 QR Code 開關，與 ⚙ 設定裡的「加入病歷號 QR Code」同步
 function syncQrBar() { $('qrEnabledBar').checked = $('qrEnabled').checked; }
 $('qrEnabledBar').addEventListener('change', () => { $('qrEnabled').checked = $('qrEnabledBar').checked; $('qrEnabled').dispatchEvent(new Event('change')); });
 $('qrEnabled').addEventListener('change', syncQrBar);
 syncQrBar();
-syncPresetSide();
 
 // ---------- 整體更新 ----------
 function afterRender() {
@@ -163,7 +145,7 @@ function afterRender() {
 }
 // markDirty() 不經過 render，另外監看狀態變化
 new MutationObserver(() => { renderPrintBar(); renderAlerts(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-new MutationObserver(renderPrintBar).observe($('print'), { attributes: true, attributeFilter: ['disabled'] });
+new MutationObserver(() => renderPrintBar()).observe($('print'), { attributes: true, attributeFilter: ['disabled'] });
 // 原「版面微調」區塊加上 id 供提醒卡跳轉
 document.querySelectorAll('#settingsDialog details > summary').forEach(s => { if (s.textContent.trim() === '版面微調') s.parentElement.id = 'layoutFold'; });
 

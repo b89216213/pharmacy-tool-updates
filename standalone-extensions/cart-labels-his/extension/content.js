@@ -63,7 +63,7 @@
     const fail = msg => { busy = false; flash(msg, 6000); console.error(TAG, msg); };
     const timer = setTimeout(() => fail('擴充功能沒有回應：請到 chrome://extensions 重新載入，再按 F5'), 4000);
     try {
-      chrome.runtime.sendMessage({ type: 'open-labels', text }, res => {
+      chrome.runtime.sendMessage({ type: 'open-workspace' }, res => {
         clearTimeout(timer);
         const err = chrome.runtime.lastError;
         if (err || !res?.ok) return fail('開啟失敗：' + (err?.message || res?.error || '未知錯誤'));

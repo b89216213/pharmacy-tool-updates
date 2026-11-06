@@ -1,0 +1,10 @@
+{
+  "name": "cart-labels-his-tests",
+  "private": true,
+  "scripts": {
+    "test": "node tests/test-handover-core.cjs && node tests/test-print-policy.cjs && node tests/test-saved-receipt.cjs && node tests/test-legacy-history.cjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

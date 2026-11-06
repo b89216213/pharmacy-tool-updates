@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "saved census evidence survives page reload and a complete Chrome restart with fresh acquisition timestamps",
+    "printing the same restored saved job leaves the saved marker and exact stored JSON untouched",
+    "mode and manual-selection edits hide the marker through a switch back, until a new acquisition restores the persisted census proof",
+    "a new patient, discharge or transfer prevents a saved claim even though today still has saved physical labels",
+    "partial acquisition, an incorrect count and any unsaved ward prevent the group-wide saved marker",
+    "old records without census evidence and physical records edited after saving cannot restore a saved marker",
+    "the persisted proof uses the original complete census even when manual exclusion left a different physical label state",
+    "complete empty wards persist zero-patient evidence and restore it after reopening and restarting Chrome without printing",
+    "printing a changed unsaved census does not store new patient content and cannot revive an invalidated saved receipt",
+    "2.10 same-bed MRN records remain reusable, stay in the original key, preserve identity-only state and reflect later legacy edits"
+  ],
+  "errors": [],
+  "external": [],
+  "chromeLaunches": 3,
+  "at": "2026-11-06T18:47:27.892Z"
+}

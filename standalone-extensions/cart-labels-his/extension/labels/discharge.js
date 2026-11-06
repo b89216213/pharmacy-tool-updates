@@ -73,7 +73,7 @@ function askDischarge(candidates) {
       return { label, offset, check };
     });
     rows.forEach(r => { const known = dischargeDecisions.get(r.label); r.check.checked = known !== undefined ? known : true; });
-    $('dischargeSummary').textContent = `有 ${candidates.length} 位病人今日可出院。勾選的病人不印標籤${$('useBedPresets').checked ? '，床位改印空床並標示「今日可出院」' : ''}。`;
+    $('dischargeSummary').textContent = `有 ${candidates.length} 位病人今日可出院。勾選的病人不印標籤，床位改印空床並標示「今日可出院」。`;
     const finish = value => { dialog.oncancel = null; dialog.close(); resolve(value); };
     $('dischargeCancel').onclick = () => finish(null);
     $('dischargeKeep').onclick = () => finish(new Set());

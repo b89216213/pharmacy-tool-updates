@@ -1,6 +1,6 @@
 const HISTORY_KEY='cart-label-print-history-v1';
 const DAY_MS=86400000;
-const KEEP_DAYS=14; // 紀錄保留天數（連假時仍找得到前前次列印）
+const KEEP_DAYS=90; // 紀錄保留天數（連假時仍找得到前前次列印）
 let historyAvailable=true,printJob=null,printBusy=false;
 function taiwanDay(now=new Date()){
  const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now).map(x=>[x.type,x.value]));

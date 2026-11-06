@@ -26,7 +26,7 @@ async function post(path,body,secret){
   return validateManagementReply(data);
  }catch(e){if(e.status)throw e;throw Error('目前無法連線管理後台，請確認網路或稍後重試。');}finally{clearTimeout(timer);}
 }
-function ack(r,runtime){const s=stateOf(r);return s.state!=='allowed'&&runtime.runs.length?'pending':s.state==='registration'?'pending':s.state;}
+function ack(r,runtime){const s=stateOf(r);return s.state!=='allowed'&&(runtime.runs.length||runtime.uiBusy)?'pending':s.state==='registration'?'pending':s.state;}
 async function refresh(record,runtime,force=false){
  if(!record.registered||record.authInvalid)return record;
  if(!force&&Date.now()-(record.lastAttempt||0)<60000)return record;
@@ -48,7 +48,7 @@ async function handle(message,sender){
  if(!own(sender)&&!portal(sender))throw Error('不允許的工具來源');
  const action=message.action;let runtime=await runtimeState();
  if(action==='open'){await openManager();return{ok:true};}
- if(action==='status'){void checkUpdates();const r=summary(await refresh(await read(),runtime,!!message.force&&own(sender)),runtime);const release=(await chrome.storage.local.get('managedRelease')).managedRelease;return{...r,updateAvailable:!!release&&compareVersion(release.version,version)>0,latestVersion:release?.version||version};}
+ if(action==='status'){void checkUpdates();const r=summary(await refresh(await read(),{...runtime,uiBusy:own(sender)&&!!message.busy},!!message.force&&own(sender)),runtime);const release=(await chrome.storage.local.get('managedRelease')).managedRelease;return{...r,updateAvailable:!!release&&compareVersion(release.version,version)>0,latestVersion:release?.version||version};}
  if(action==='register'){
   if(!own(sender))throw Error('請從工具的電腦登記頁操作');
   if(runtime.runs.length||runtime.update)throw Error('請等目前作業完成再登記');
@@ -73,7 +73,8 @@ async function handle(message,sender){
   if(!own(sender))throw Error('請從工具更新頁操作');
   if(runtime.runs.length||runtime.update)throw Error('目前有作業或其他更新仍在執行，請完成後再更新');
   const contexts=await chrome.runtime.getContexts({});
-  if(contexts.some(c=>CONFIG.workPages.some(p=>c.documentUrl?.split('?')[0]===chrome.runtime.getURL(p))))throw Error('請先關閉作業畫面（包括頁面內小視窗及列印畫面），保留此管理頁再更新。');
+  const workspace=message.workspace===true&&sender.url?.split(/[?#]/)[0]===chrome.runtime.getURL(CONFIG.entry);
+  if(contexts.some(c=>CONFIG.workPages.some(p=>c.documentUrl?.split(/[?#]/)[0]===chrome.runtime.getURL(p))&&!(workspace&&c.documentId===sender.documentId)))throw Error('請先關閉其他標籤、紀錄或列印視窗，再更新工具。');
   runtime.update={key:key(sender),tabId:sender.tab?.id};await saveRuntime(runtime);return{ok:true};
  }
  if(action==='update-unlock'){
