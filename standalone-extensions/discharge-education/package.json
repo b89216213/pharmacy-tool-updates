@@ -1,6 +1,6 @@
 {
   "name": "ntuh-discharge-education",
-  "version": "2.14.3",
+  "version": "2.14.4",
   "type": "module",
   "private": true,
   "scripts": {
@@ -8,3 +8,4 @@
     "build:update": "node scripts/build-update.mjs"
   }
 }
+

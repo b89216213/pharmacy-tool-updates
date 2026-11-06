@@ -232,7 +232,7 @@ refresh();
   const input=document.querySelector('.input-panel'),result=document.querySelector('.result-panel'),resultHead=result.querySelector('.result-head');
   const toolbar=resultHead.querySelector('.toolbar'),review=byId('review'),noticeEl=byId('notice'),banner=byId('partialBanner');
   const oldFooter=document.querySelector('.bottom'),version=oldFooter.lastElementChild.textContent;
-  let view='input',pending=0,pharmacistCount=2,started=false,manualAdvance=false;const assignments=new Map();
+  let view='input',pending=0,pharmacistCount=2,started=false,manualAdvance=false,previewSignature=null;const assignments=new Map();
   const session=()=>window.CaptureSession||{status:'idle',wards:[],patients:{}};
   const complete=()=>session().status==='complete'&&!window.CaptureRunning&&window.DischargeDaily?.isCurrent()!==false;
   root.className='app';
@@ -380,14 +380,19 @@ refresh();
   }
   function wardHeading(code,count,continued=false){const row=make('tr','ward-heading'),cell=make('td');cell.colSpan=7;cell.textContent=`${code} 病房 · ${count} 人${continued?'（續）':''}`;row.append(cell);return row;}
   function overflows(sheet){const edge=sheet.getBoundingClientRect().bottom-parseFloat(getComputedStyle(sheet).paddingBottom);return sheet.querySelector('table').getBoundingClientRect().bottom>edge+.5;}
-  function renderPreview(){
-    measure.replaceChildren();preview.replaceChildren();const total=visibleRows.length;byId('outCount').textContent=total;
-    const barcodeStatus=byId('barcodeOptionStatus'),barcodeEnabled=byId('includeBarcode').checked;
+  function renderPreview({force=false}={}){
+    const printable=canPrint(),barcodeEnabled=byId('includeBarcode').checked;
+    const signature=JSON.stringify([byId('rows').innerHTML,result.querySelector('thead').innerHTML,byId('printMeta').textContent,visibleRows.map(r=>[r.ward,r.bedNumber,pharmacistFor(r.ward)]),pharmacistCount,barcodeEnabled,window.DischargeDaily?.mode,printable,window.matchMedia('print').matches]);
+    if(!force&&signature===previewSignature)return;
+    const savedTop=outputScroll.scrollTop,savedLeft=outputScroll.scrollLeft;
+    // Build in the measurement area without collapsing the visible scroll container.
+    measure.replaceChildren();const total=visibleRows.length;byId('outCount').textContent=total;
+    const barcodeStatus=byId('barcodeOptionStatus');
     const invalidCount=barcodeEnabled?visibleRows.reduce((sum,row)=>sum+row.pickups.filter(p=>!barcodeDateValue(p.orderDate)||!(/^[A-Z]?\d{1,5}$/.test(String(p.number).trim().toUpperCase()))).length,0):0;
     barcodeStatus.hidden=!invalidCount;
     barcodeStatus.textContent=invalidCount?`${invalidCount} 筆開立日期或領藥號未確認，該筆未產生條碼。`:'';
-    empty.hidden=canPrint();preview.hidden=!canPrint();empty.textContent=total?'請完成病房分配後列印':window.DischargeDaily?.mode==='incremental'?'本次沒有新增病人或出院藥':'所選範圍內沒有出院病人';
-    if(!canPrint()){byId('outPages').textContent='0';return;}
+    empty.hidden=printable;preview.hidden=!printable;empty.textContent=total?'請完成病房分配後列印':window.DischargeDaily?.mode==='incremental'?'本次沒有新增病人或出院藥':'所選範圍內沒有出院病人';
+    if(!printable){preview.replaceChildren();byId('outPages').textContent='0';previewSignature=signature;return;}
     const sources=Array.from(byId('rows').children,(source,i)=>({source,patient:visibleRows[i]})),allSheets=[];
     for(let pharmacist=1;pharmacist<=pharmacistCount;pharmacist++){
       const wards=wardStats().filter(w=>w.total&&pharmacistFor(w.code)===pharmacist);if(!wards.length)continue;
@@ -423,16 +428,19 @@ refresh();
           }
         }
       }
-      sheets.forEach((page,i)=>{page.querySelector('.sheet-page').textContent=`藥師 ${pharmacist} · 第 ${i+1} / ${sheets.length} 頁`;allSheets.push(page);preview.append(page);});
+      sheets.forEach((page,i)=>{page.querySelector('.sheet-page').textContent=`藥師 ${pharmacist} · 第 ${i+1} / ${sheets.length} 頁`;allSheets.push(page);});
     }
-    byId('outPages').textContent=allSheets.length;
+    preview.replaceChildren(...allSheets);byId('outPages').textContent=allSheets.length;
+    outputScroll.scrollTop=savedTop;outputScroll.scrollLeft=savedLeft;
+    previewSignature=signature;
   }
   function render(){pending=0;renderLive();updateGates();if(view==='assignment')renderAssignment();if(view==='output')renderPreview();}
   function schedule(){if(!pending)pending=requestAnimationFrame(render);}
   const observer=new MutationObserver(schedule);[byId('rows'),byId('count'),byId('printMeta'),banner].filter(Boolean).forEach(el=>observer.observe(el,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden']}));
   window.addEventListener('captureupdate',()=>{if(manualAdvance&&complete()){manualAdvance=false;started=true;switchView('progress');}updateGates();schedule();});
-  window.addEventListener('beforeprint',()=>{renderPreview();if(dialog.open)dialog.close();});
-  window.addEventListener('pagehide',()=>{preview.replaceChildren();measure.replaceChildren();byId('liveRows').replaceChildren();assignments.clear();});
+  window.addEventListener('beforeprint',()=>{renderPreview({force:true});if(dialog.open)dialog.close();});
+  window.addEventListener('afterprint',()=>{if(view==='output')renderPreview({force:true});});
+  window.addEventListener('pagehide',()=>{previewSignature=null;preview.replaceChildren();measure.replaceChildren();byId('liveRows').replaceChildren();assignments.clear();});
   window.DischargePresentation={switchView,canPrint,schedule,assignments:()=>({count:pharmacistCount,wards:Object.fromEntries(assignments)}),restoreAssignments(value){assignments.clear();pharmacistCount=value?.count||2;byId('pharmacistCount').value=pharmacistCount;for(const [k,v] of Object.entries(value?.wards||{}))assignments.set(k,v);schedule();}};
-  document.fonts?.ready.then(schedule);render();
+  document.fonts?.ready.then(()=>{previewSignature=null;schedule();});render();
 })();

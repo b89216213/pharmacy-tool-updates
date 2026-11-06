@@ -4,6 +4,9 @@ module.exports=function installFixture(schema){
  const N='NTUHWeb1_InPatInsertNavigatorBox_',O=N+'InPatOrderListBox_',D=O+'InPatOrderQueryBox_',Q=N+'InPatQueryBox_',E='NTUHWeb1_EditorBox_',C=E+'ContentBox_';
  const people=['合成甲','合成乙','合成丙','合成丁','合成戊','合成己','合成庚','合成辛','合成壬'].map((name,i)=>({account:'26X'+String(i+1).padStart(8,'0'),mrn:String(900001+i),name}));
  window.fixture={phase:'home',person:people[0],values:{},selected:[],sent:[],stored:[],behavior:'success',changes:[],fields:{},baseDate:'20261103',days:'1',queryMrn:'',busy:false,summaryAllClicks:0};
+ // Simulated server records survive authenticated navigation between Portal pages.
+ Object.assign(window.fixture,JSON.parse(sessionStorage.getItem('synthetic-education-history')||'{}'));
+ window.addEventListener('pagehide',()=>sessionStorage.setItem('synthetic-education-history',JSON.stringify(Object.fromEntries(['sent','stored','changes','failMrn','behavior'].map(k=>[k,window.fixture[k]])))));
  const f=window.fixture,esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const orders=()=>[{sequence:'0001',status:'確認',phase:'出院',orderDate:'20261103',number:'W0021'},{sequence:'0002',status:'停用',phase:'出院',orderDate:'20261103',number:'W0021'},{sequence:'0003',status:'確認',phase:'出院',orderDate:'20261102',number:'W0022'},{sequence:'0004',status:'確認',phase:'一般',orderDate:'20261103',number:'W0021'},{sequence:'0005',status:'確認',phase:'出院',orderDate:'20261103',number:'W9999'}];
  const byId=id=>document.getElementById(id),button=(id,label)=>`<button type="button" id="${id}">${label}</button>`,later=fn=>{f.busy=true;setTimeout(()=>{fn();render();f.busy=false;},f.delay||30);};
