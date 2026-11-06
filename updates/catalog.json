@@ -1,6 +1,6 @@
 {
   "format": "pharmacy-tool-catalog-v1",
-  "sourceCommit": "875de4b406b9bf2e2702998b7c2bbd29306b224b",
+  "sourceCommit": "57fe26006a44e9d383d7a99044fc6d300b538799",
   "tools": [
     {
       "id": "ntuh-adc-drugs",
@@ -48,8 +48,8 @@
       "id": "ntuh-cart-labels-his",
       "name": "藥車標籤列印（HIS 擴充）",
       "slug": "cart-labels-his",
-      "version": "2.10.0",
-      "downloadPath": "downloads/cart-labels-his-v2.10.0.zip"
+      "version": "2.17.0",
+      "downloadPath": "downloads/cart-labels-his-v2.17.0.zip"
     },
     {
       "id": "ntuh-cloud-medication",
@@ -57,6 +57,13 @@
       "slug": "cloud-medication",
       "version": "2.9.3",
       "downloadPath": "downloads/cloud-medication-v2.9.3.zip"
+    },
+    {
+      "id": "ntuh-pharmacy-toolbox",
+      "name": "藥局工具箱",
+      "slug": "pharmacy-toolbox",
+      "version": "0.1.0",
+      "downloadPath": "downloads/pharmacy-toolbox-v0.1.0.zip"
     }
   ]
 }
