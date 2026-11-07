@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-07",
+  "timezone": "Asia/Taipei",
+  "baseCommit": "047bb4b67def0bcb1a8efc435666511d70e8c0ce",
+  "reviewedPriorLocalCommit": "abcb45a7d01cc54c30fac7f08abfe1f00bb2815f",
+  "core": {
+    "passed": 180,
+    "failed": 0,
+    "command": "node --test tests/updater-hardening.mjs tests/updater-second-review.mjs"
+  },
+  "browser": {
+    "passed": 72,
+    "command": "node tests/updater-browser-checks.cjs",
+    "scope": "Real Chromium, IndexedDB and OPFS; simulated extension runtime, native picker and network"
+  },
+  "existingSuites": {
+    "passed": 21,
+    "details": "updater-second-review-existing-results.json"
+  },
+  "latestProductionUpgrade": {
+    "passed": 9
+  },
+  "historicalUpgrade": {
+    "versions": 42,
+    "directAppliedAndReconciled": 37,
+    "knownExistingPermissionBoundary": 5,
+    "details": "updater-history-results.json"
+  },
+  "catalogOldCommitRejected": true,
+  "scopePreservation": "Manifest unchanged except version; original non-updater clinical and management files byte-identical",
+  "windowsDefenderScanned": false,
+  "nativeWindowsPickerTested": false,
+  "actualChromeExtensionReloadTested": false,
+  "liveHospitalPortalTested": false,
+  "microsoftSampleAnalysisAvailable": false,
+  "sharedSourceSHA256": {
+    "update-core.js": "6e3cb1b4370cd4b05c53a74bde0f31e1d930538443cca022026ca630db7d70f0",
+    "update-network.js": "632e2b53c40bf546ed7e5b9fdfe6cda15a7dc6c1f4c8bd8089f5977af346365b",
+    "update-session.js": "6b1e3416371df2b93e72dfff45876b1c94b6cc5d27d898240905d2546340e3e7",
+    "update-store.js": "22a24019cd600e37a9bd3dfe7e69232aa376663c2f66732111eb0373d93b637a",
+    "updater.js": "ff9f7acd61f03a2b1e203118ffd065de1042a9912090eef9c2e1fcc4c79357d9"
+  },
+  "productionInventory": {
+    "tools": 9,
+    "files": 301,
+    "sourceZipAndPackageMatch": true,
+    "details": "updater-production-inventory.json"
+  },
+  "latestDischargeBusinessRegression": {
+    "version": "2.14.5 → 2.14.6",
+    "checksPassed": 5,
+    "test": "standalone-extensions/discharge-education/tests/order-time-age-checks.cjs"
+  }
+}

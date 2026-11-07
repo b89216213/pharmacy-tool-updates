@@ -1,5 +1,7 @@
 # pharmacy-tool-updates — 藥局工具公開更新
 
+九套工具的候選更新器、相容性矩陣與實機驗收項目見[第二次審查](docs/updater-second-review-20261107.md)。
+
 ## 工具下載
 
 [先前六工具組合包（2026-11-04，非本次新版）](downloads/pharmacy-tools-six-20261104.zip) · [圖示與驗證說明](branding/README.md)

@@ -1,0 +1,87 @@
+[
+  {
+    "test": "tests/managed-tools.mjs",
+    "passed": true
+  },
+  {
+    "test": "tests/managed-checks.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patch-recovery/tests/checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patch-recovery/tests/update-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patch-recovery/tests/management-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patient-query/tests/checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patient-query/tests/update-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/patient-query/tests/management-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/discharge-education/tests/core-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/discharge-education/tests/update-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/discharge-education/tests/management-checks.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/barcode-return/tests/checks.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/barcode-return/tests/controller-checks.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/barcode-return/tests/managed-checks.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/barcode-return/tests/status-checks.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/cart-labels-his/tests/test-handover-core.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/cart-labels-his/tests/test-print-policy.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/cart-labels-his/tests/test-saved-receipt.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/cart-labels-his/tests/test-legacy-history.cjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/pharmacy-toolbox/tests/core.test.mjs",
+    "passed": true
+  },
+  {
+    "test": "standalone-extensions/pharmacy-toolbox/tests/update.test.mjs",
+    "passed": true,
+    "setup": "node standalone-extensions/pharmacy-toolbox/scripts/build-release.mjs"
+  }
+]

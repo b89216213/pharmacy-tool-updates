@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "藥局工具箱",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "藥局共用工具入口：主選單、進階開關、電腦登記與版本更新。各作業工具將分階段接入。",
   "minimum_chrome_version": "122",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApwbXxBeiPV/+pm1kUza8UqToBc5vPpRo4xVRtIEIFLiNIBp1hOmmUppdUVCI1PqA8x70rLqCMioqdM6TbZ01v3BGgr/Dq0HeMniA7lw8p4KxIrKFYHXHvuINdE1kR18tyLI7oIuekIDdsVYDaZthlIEENYkGO27npyuEUAcTbb+z2Q6YeiK391T8ETFtQRh4dbwZeA+cguUhOj6ulWrECXmJPoi2uVEbVKXiQBGGLycG0Z8y3Kpy01+zJgBCyvZZj7jverpEvz8MuIGaRrXobKTuy2bMfBmvfi1clKjXIp0H4ZztQmF2iP9G8+kwUuxgZ9D+63n6frZTsavU7IGjIQIDAQAB",

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Portal 管藥藥帳帶入盤點",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "在特殊藥品管理頁選擇管1＋管2或管1＋管2＋管3，將今日未來時段結存量全部帶入盤點後一次確認送出。",
   "minimum_chrome_version": "122",
   "content_scripts": [

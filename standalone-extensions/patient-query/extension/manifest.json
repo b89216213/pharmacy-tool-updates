@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "病人快速選擇",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "description": "以病房捷徑與搜尋選擇病人，支援多病房在床今日出院與已清床未結清病人逐筆結清，並顯示處理進度。",
   "minimum_chrome_version": "111",
   "permissions": [
@@ -54,5 +54,5 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "version_name": "1.7.4"
+  "version_name": "1.7.5"
 }

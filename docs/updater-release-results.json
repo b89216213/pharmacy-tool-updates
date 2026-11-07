@@ -1,0 +1,105 @@
+{
+  "tools": [
+    {
+      "tool": "adc-drugs",
+      "from": "1.2.0",
+      "to": "1.2.1",
+      "files": 24,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "e06836124ff5d66b564c9c1a8aa116b934518d0abb187d3c0c3befde54030233"
+    },
+    {
+      "tool": "barcode-return",
+      "from": "1.5.3",
+      "to": "1.5.4",
+      "files": 33,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "16a718749e221fd2f8415c71cd23caa2a4f522b8ffbd6bc745c210cc08cc39ac"
+    },
+    {
+      "tool": "cart-labels-his",
+      "from": "2.17.0",
+      "to": "2.17.1",
+      "files": 77,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "1d0854fcb7fc0824f2f5db3cfd27068df46b10f76e4cc2fd83e2fca8d559ff8e"
+    },
+    {
+      "tool": "cloud-medication",
+      "from": "2.9.3",
+      "to": "2.9.4",
+      "files": 33,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "a1178ee55c42c778df3953954143c1c3e94f19bc5997c486b041d146973ae29e"
+    },
+    {
+      "tool": "controlled-inventory",
+      "from": "1.1.0",
+      "to": "1.1.1",
+      "files": 22,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "2c337fb2432e15fe8330b19a7eca4abefc716de07bcfd5764cbdc8dfc9cc66db"
+    },
+    {
+      "tool": "discharge-education",
+      "from": "2.14.5",
+      "to": "2.14.6",
+      "files": 41,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "df97b5c2d5abbabae0e85c97784226c77f292c56106fe86b6da7094cef5d323b"
+    },
+    {
+      "tool": "patch-recovery",
+      "from": "1.6.0",
+      "to": "1.6.1",
+      "files": 32,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "76a4c29d53b2fa31a3e5991d9c0dd06fd3b146dacbada28e33b6eab2f87c03f8"
+    },
+    {
+      "tool": "patient-query",
+      "from": "1.7.4",
+      "to": "1.7.5",
+      "files": 30,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "99e93c05bb06be0c506305631be0ba2eaf80ae651e513e31a9d6cd6c2c9d7739"
+    },
+    {
+      "tool": "pharmacy-toolbox",
+      "from": "0.1.0",
+      "to": "0.1.1",
+      "files": 27,
+      "oldUpdaterAcceptsNewPackage": true,
+      "sourceZipPackageMatch": true,
+      "originalNonUpdaterFilesUnchanged": true,
+      "manifestCapabilitiesUnchanged": true,
+      "packageSHA256": "84a0b3e7360ff8543b0d11788c7c6df90f82505a248f52689eb55ccff7d23db4"
+    }
+  ],
+  "windowsDefenderScanned": false,
+  "hospitalPortalTested": false
+}

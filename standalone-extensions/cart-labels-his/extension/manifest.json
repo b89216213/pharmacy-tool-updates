@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "藥車標籤列印（HIS 擴充）",
-  "version": "2.17.0",
+  "version": "2.17.1",
   "description": "自動擷取病房與預覽藥車標籤，依交車日紀錄比對，支援早晚病房組合與本機紀錄。",
   "permissions": [
     "storage",
@@ -50,7 +50,7 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "version_name": "2.17.0",
+  "version_name": "2.17.1",
   "options_ui": {
     "page": "labels/index.html",
     "open_in_tab": true
