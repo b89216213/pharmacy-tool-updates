@@ -1,9 +1,9 @@
 {
   "format": "discharge-education-release-v1",
   "toolId": "ntuh-discharge-education",
-  "version": "2.14.4",
-  "notes": "修正列印預覽往下捲動時跳回第一頁；管理狀態不變時不重畫，切換條碼、分配藥師與更新名單內容時保留捲動位置。保留列印分頁、後台管理與工具內更新，無新增權限。",
-  "packagePath": "updates/discharge-education/packages/2.14.4.json",
-  "size": 458003,
-  "sha256": "bd1170901091e4752c7ea38241b4ff5c73fde7e14f1a3afeb028e4d1e2824295"
+  "version": "2.14.5",
+  "notes": "姓名下方以小字顯示性別及年齡（如 F 1y3m）。領藥號與狀態間新增醫令確認日期時間，缺值時取醫令輸入時間。刷出與列印沿用 Portal 完整日期時間。",
+  "packagePath": "updates/discharge-education/packages/2.14.5.json",
+  "size": 462141,
+  "sha256": "5bcdcad8fcffb3d7c3bdbf9154b34b3184d6db30a28ae6032e172a2fe0b2d5d1"
 }

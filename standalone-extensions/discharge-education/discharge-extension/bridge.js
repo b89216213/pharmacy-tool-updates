@@ -210,6 +210,34 @@ function pageBridge(action,payload={}) {
       if(busy(row.ownerDocument))throw new Error('藥品頁面仍在載入，尚未開啟明細。');
       links[0].click();return {opened:true,origin:location.origin};
     }
+    // Web Forms assigns a different row prefix to every order. Read only the
+    // expanded detail belonging to the representative row for this pickup.
+    const detailLink=row.querySelector('a[id$="_btnDetail"]');
+    const prefix=detailLink?.id.slice(0,-'btnDetail'.length);
+    function readOrderDateTime(){
+      if(!prefix)return '';
+      const confirmed=new Set(),entered=new Set();
+      for(const scope of [row,...detailScopes]){
+        for(const input of scope.querySelectorAll('input[type="text"]')){
+          if(!input.id.startsWith(prefix)||!visible(input))continue;
+          const match=/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(clean(input.value));
+          if(!match)continue;
+          const [,year,month,day,hour,minute,second='00']=match;
+          const date=new Date(Date.UTC(+year,+month-1,+day));
+          if(date.getUTCFullYear()!==+year||date.getUTCMonth()!==+month-1||date.getUTCDate()!==+day||+hour>23||+minute>59||+second>59)continue;
+          const value=year+'/'+month.padStart(2,'0')+'/'+day.padStart(2,'0')+' '+hour.padStart(2,'0')+':'+minute;
+          if(input.id.endsWith('_txbCompleteDateTime'))confirmed.add(value);
+          else{
+            const cell=input.closest('td');
+            const label=clean(cell?.textContent).replace(/[:：\s]/g,'');
+            const previous=clean(cell?.previousElementSibling?.textContent).replace(/[:：\s]/g,'');
+            if(label==='醫令輸入者'||previous==='醫令輸入者')entered.add(value);
+          }
+        }
+      }
+      const times=confirmed.size?confirmed:entered;
+      return times.size===1?[...times][0]:'';
+    }
     const records=[];let excludedRecordCount=0,missingCategoryRows=0,unreadableRecordRows=0;
     const timeValue=el=>{const value=el&&visible(el)?clean(el.innerText):'';return /^(?:[-—–]+|無|無紀錄|尚無紀錄|無資料)?$/.test(value)?'':value;};
     for(const table of detailTables){
@@ -254,7 +282,7 @@ function pageBridge(action,payload={}) {
     const deliveryTimeKnown=recordsRead;
     const printTimeKnown=recordsRead;
     const reason=loading?'明細仍在載入':!detailTables.length&&!emptyDetail?'尚未找到此筆藥品的紀錄':missingCategoryRows?'部分紀錄未能辨識列印類別，僅採用可確認的批次／急單':unreadableRecordRows?'部分明細列無法辨識':!records.length&&excludedRecordCount?'未找到批次或急單紀錄（已排除其他列印類別）':status==='未確認'?'明細狀態未能判讀':'';
-    return {ready:!loading&&(!!detailTables.length||emptyDetail),missingRecord:!loading&&!detailTables.length&&!emptyDetail,number:payload.number,status,deliveryTimes,printTimes,deliveryTimeKnown,printTimeKnown,reason,recordCount:records.length,excludedRecordCount,missingCategoryRows,unreadableRecordRows,tableCount:detailTables.length,origin:location.origin};
+    return {ready:!loading&&(!!detailTables.length||emptyDetail),missingRecord:!loading&&!detailTables.length&&!emptyDetail,number:payload.number,orderDateTime:loading?'':readOrderDateTime(),status,deliveryTimes,printTimes,deliveryTimeKnown,printTimeKnown,reason,recordCount:records.length,excludedRecordCount,missingCategoryRows,unreadableRecordRows,tableCount:detailTables.length,origin:location.origin};
   }
   if(action==='returnPatientList'){
     const button=document.getElementById('NTUHWeb1_InPatientNavigatorBox_SwitchInPatientBox_btnReSelect');

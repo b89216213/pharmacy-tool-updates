@@ -223,14 +223,15 @@
         if(d?.origin)verifyOrigin(d.origin);
         if(d?.number!==group.number){await pause(200);continue;}
         result=d;
-        if(d.ready&&['已刷出','已列印'].includes(d.status))break;
-        const signature=d.ready?JSON.stringify([d.status,d.deliveryTimes,d.printTimes,d.recordCount]):'';
+        if(d.ready&&d.orderDateTime&&['已刷出','已列印'].includes(d.status))break;
+        const signature=d.ready?JSON.stringify([d.status,d.orderDateTime,d.deliveryTimes,d.printTimes,d.recordCount]):'';
         if(signature!==last){last=signature;since=Date.now();}
         else if(signature&&Date.now()-since>=400)break;
         await pause(200);
       }
       // After opening this pickup's detail and finishing the polling window,
       // an absent record table is an empty record under the requested rule.
+      entry.orderDateTime=result?.orderDateTime||'';
       Object.assign(entry,result?.ready?{status:result.status,deliveryTimes:result.deliveryTimes,printTimes:result.printTimes,deliveryTimeKnown:result.deliveryTimeKnown,printTimeKnown:result.printTimeKnown,reason:result.reason}:result?.missingRecord?{status:'無紀錄',deliveryTimes:[],printTimes:[],deliveryTimeKnown:true,printTimeKnown:true,reason:''}:{status:'未確認',deliveryTimes:[],printTimes:[],deliveryTimeKnown:false,printTimeKnown:false,reason:result?.reason||'明細讀取逾時'});
       state.deliveryDiagnostics.push({elapsedMs:Date.now()-started,status:entry.status,recordCount:result?.recordCount||0,tableCount:result?.tableCount||0});
       if(state.deliveryDiagnostics.length>200)state.deliveryDiagnostics.shift();

@@ -103,3 +103,12 @@
  #screenInput .footbar{gap:7px}#screenInput #open-education{padding:8px 10px}
  .controls .days{flex-wrap:wrap}.controls .day{flex:1 0 23%}
 }
+
+/* Keep order metadata in the existing pickup column, including printed PDF. */
+.pickup-heading{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:4px}
+.pickup-order-time{font:normal 10px/1.25 Arial,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pickup-heading .pickup-state{white-space:nowrap}
+.live-table .pickup-order-time{font-size:11px}
+
+.patient-name{font-weight:700}
+.patient-demographics{display:block;margin-top:3px;font-size:11px;font-weight:400;line-height:1.35;color:#333;white-space:nowrap}

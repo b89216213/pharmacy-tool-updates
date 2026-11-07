@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "出院藥衛教名單擷取工具",
-  "version": "2.14.4",
+  "version": "2.14.5",
   "description": "從已登入的住院清單擷取資料，依選定病房批次切換並整理 1～7 天內可出院名單。",
   "minimum_chrome_version": "111",
   "permissions": [
@@ -36,5 +36,5 @@
     "48": "icons/blue48.png",
     "128": "icons/blue128.png"
   },
-  "version_name": "2.14.4"
+  "version_name": "2.14.5"
 }

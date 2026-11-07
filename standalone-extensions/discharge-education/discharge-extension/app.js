@@ -74,11 +74,14 @@ const DischargeParser = (() => {
       const row=/^(.+?)\s+([0-9][A-Z0-9]{1,9})\s+([A-Z0-9]{1,4})\s+([A-Z0-9]{1,4})\s+(.+?)\s+([MF男女])(?=\s|$)(.*)$/i.exec(chunk);
       if (!row) {issues.push({account,reason:'無法辨識病房、病室、病床、姓名等欄位，請確認是否貼上完整列'});continue;}
       parsedRows++;
-      const patient={account,ward:row[2],room:row[3],bed:row[4],name:row[5].trim()};
+      const ageMatch=/^\s*(\d{1,3})\s*y\s*(\d{1,2})\s*m(?=\s|$)/i.exec(row[7]);
+      const age=ageMatch&&Number(ageMatch[2])<12 ? Number(ageMatch[1])+'y'+Number(ageMatch[2])+'m' : '';
+      const sex=({'男':'M','女':'F'})[row[6]]||row[6].toUpperCase();
+      const patient={account,sex,age,ward:row[2],room:row[3],bed:row[4],name:row[5].trim()};
       patient.bedNumber=[patient.ward,patient.room,patient.bed].join('-');
       // Drop the age and admission-date columns, then use the dated discharge note.
       // Ward-list status is neither required nor used to filter patients.
-      const note=row[7].replace(/^\s*\d+y\d+m\s+\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2}(?=\s|$)/i,'')
+      const note=row[7].replace(/^\s*\d+\s*y\s*\d+\s*m\s+\d{4}[\/.-]\d{1,2}[\/.-]\d{1,2}(?=\s|$)/i,'')
         .split(/\s+(?:查|選|報告查詢|錯誤回報)(?=\s|$)/)[0].trim();
       const result=extractDate(note,base);
       patient.result=result;
@@ -132,7 +135,7 @@ function refresh(){
   if(data)visibleRows=P.filter(data.patients,base,selectedDays,$('includeToday').checked);
   visibleRows=visibleRows.map(row=>{
     const d=window.PatientDetails.get(row.account),matches=d&&d.name===row.name&&d.bedNumber===row.bedNumber;
-    return {...row,mrn:matches?d.mrn:'未擷取',sex:matches&&/^[FM]$/.test(d.sex)?d.sex:'',drugStatus:matches?d.drugStatus:'未確認',pickups:matches?(d.pickups||[]):[],pickupComplete:!!(matches&&d.pickupComplete)};
+    return {...row,mrn:matches?d.mrn:'未擷取',sex:matches&&/^[FM]$/.test(d.sex)?d.sex:row.sex,drugStatus:matches?d.drugStatus:'未確認',pickups:matches?(d.pickups||[]):[],pickupComplete:!!(matches&&d.pickupComplete)};
   });
   visibleRows=window.DischargeDaily?.project(visibleRows)||visibleRows;
   for(const row of visibleRows){
@@ -141,10 +144,18 @@ function refresh(){
     row.mrn=detail&&detail.name===row.name&&detail.bedNumber===row.bedNumber?detail.mrn:'未擷取';
     row.drugStatus=detail&&detail.name===row.name&&detail.bedNumber===row.bedNumber?detail.drugStatus:'未確認';
     const detailMatches=detail&&detail.name===row.name&&detail.bedNumber===row.bedNumber;
-    row.sex=detailMatches&&/^[FM]$/.test(detail.sex)?detail.sex:'';
     // Preserve the incremental pickup selection prepared above.
     row.pickupComplete=!!(detailMatches&&detail.pickupComplete);
-    addCell(tr,row.bedNumber,'bed');addCell(tr,displayPatientName(row));addCell(tr,row.mrn,'account');
+    addCell(tr,row.bedNumber,'bed');
+    const nameCell=addCell(tr,row.name,'patient-name');
+    const demographics=patientDemographics(row);
+    if(demographics){
+      const line=document.createElement('span');
+      line.className='patient-demographics';
+      line.textContent=demographics;
+      nameCell.append(line);
+    }
+    addCell(tr,row.mrn,'account');
     const dateCell=addCell(tr,'');const badge=document.createElement('span');badge.className='date-badge';badge.textContent=P.displayDate(row.date);dateCell.appendChild(badge);
     const when=document.createElement('span');when.className='date-note';const d=(row.date-base)/P.DAY;when.textContent=d===0?'基準日當天':d===1?'基準日隔天':`基準日後第 ${d} 天`;dateCell.appendChild(when);
     const pickupCell=addCell(tr,'','pickup-cell');
@@ -153,7 +164,11 @@ function refresh(){
       const entry=document.createElement('div');entry.className='pickup-entry';entry.dataset.orderDate=pickup.orderDate||'';
       const number=document.createElement('span');number.className='pickup-number';number.textContent=pickup.number;
       const state=document.createElement('span');state.className='pickup-state';state.textContent=pickup.status;
-      const heading=document.createElement('div');heading.append(number,document.createTextNode(' · '),state);
+      const time=document.createElement('span');time.className='pickup-order-time';
+      time.textContent=pickup.orderDateTime?.slice(5)||'—';
+      time.title=pickup.orderDateTime||'未取得醫令確認或輸入時間';
+      const heading=document.createElement('div');heading.className='pickup-heading';
+      heading.append(number,time,state);
       const delivery=document.createElement('div');delivery.className='pickup-time delivery-time';delivery.textContent='刷出：'+pickupTime(pickup,'delivery');
       const print=document.createElement('div');print.className='pickup-time print-time';print.textContent='列印：'+pickupTime(pickup,'print');
       if(pickup.reason)entry.title=pickup.reason;
@@ -175,11 +190,11 @@ function refresh(){
   $('review').hidden=!data || !data.issues.length;
   if(data&&data.issues.length){$('reviewTitle').textContent=`待核對 ${data.issues.length} 筆（未自動列入名單）`;for(const issue of data.issues){const li=document.createElement('li');li.textContent=[issue.bedNumber,issue.name,issue.account].filter(Boolean).join(' ／ ')+'：'+issue.reason;$('reviewList').appendChild(li);}}
 }
-const headings=['床號','姓名','病歷號','出院日期','領藥號／狀態','刷出時間','列印時間'];
-function displayPatientName(row){return row.sex?`${row.name} ${row.sex}`:row.name;}
+const headings=['床號','姓名','病歷號','出院日期','領藥號／開方日期時間／狀態','刷出時間','列印時間'];
+function patientDemographics(row){return [row.sex,row.age].filter(Boolean).join(' ');}
 function tableData(){return [headings,...visibleRows.flatMap(r=>{
-  const patient=[r.bedNumber,displayPatientName(r),r.mrn,P.displayDate(r.date)];
-  const entries=r.pickups.map(p=>[...patient,p.number+' · '+p.status,pickupTime(p,'delivery','；'),pickupTime(p,'print','；')]);
+  const patient=[r.bedNumber,[r.name,patientDemographics(r)].filter(Boolean).join(' '),r.mrn,P.displayDate(r.date)];
+  const entries=r.pickups.map(p=>[...patient,[p.number,p.orderDateTime||'—',p.status].join(' · '),pickupTime(p,'delivery','；'),pickupTime(p,'print','；')]);
   if(!entries.length)entries.push([...patient,r.drugStatus==='無'?'無':r.drugStatus==='有'?'領藥號未確認':'未確認',r.drugStatus==='無'?'無紀錄':'未確認',r.drugStatus==='無'?'無紀錄':'未確認']);
   else if(!r.pickupComplete)entries.push([...patient,'其他領藥號未確認','未確認','未確認']);
   return entries;
