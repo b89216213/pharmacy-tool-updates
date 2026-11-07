@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ADC 特殊藥品批次取藥",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "讀取今日 134 開頭的 ADC 補藥報表，協助西址住院藥局逐筆取藥。",
   "minimum_chrome_version": "122",
   "permissions": [

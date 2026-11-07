@@ -1,5 +1,5 @@
 {
-  "version": "1.6.2",
+  "version": "1.7.5",
   "mode": "synthetic DOM and Chrome API adapters; not browser or hospital end-to-end",
   "passed": [
     "Dynamic ward classification splits combined pediatric codes and deduplicates aliases",

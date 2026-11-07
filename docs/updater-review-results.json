@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-07",
+  "baseCommit": "dbccea694a4a5049a59ac649ab97545c53464063",
+  "core": {
+    "passed": 135,
+    "tools": 9,
+    "command": "node --test tests/updater-hardening.mjs"
+  },
+  "browser": {
+    "passed": 72,
+    "command": "node tests/updater-browser-checks.cjs",
+    "scope": "Real Chromium/IndexedDB/OPFS; simulated Chrome runtime, OS picker, GitHub and hospital services."
+  },
+  "existingSuites": [
+    {
+      "test": "tests/managed-tools.mjs",
+      "passed": true
+    },
+    {
+      "test": "tests/managed-checks.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patch-recovery/tests/checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patch-recovery/tests/update-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patch-recovery/tests/management-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patient-query/tests/checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patient-query/tests/update-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/patient-query/tests/management-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/discharge-education/tests/core-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/discharge-education/tests/update-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/discharge-education/tests/management-checks.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/barcode-return/tests/checks.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/barcode-return/tests/controller-checks.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/barcode-return/tests/managed-checks.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/barcode-return/tests/status-checks.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/cart-labels-his/tests/test-handover-core.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/cart-labels-his/tests/test-print-policy.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/cart-labels-his/tests/test-saved-receipt.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/cart-labels-his/tests/test-legacy-history.cjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/pharmacy-toolbox/tests/core.test.mjs",
+      "passed": true
+    },
+    {
+      "test": "standalone-extensions/pharmacy-toolbox/tests/update.test.mjs",
+      "passed": true
+    }
+  ],
+  "oldUpdaterCompatibility": {
+    "tools": 9,
+    "passed": true
+  },
+  "windowsDefenderScanned": false,
+  "nativeWindowsPickerTested": false,
+  "liveHospitalPortalTested": false,
+  "sharedSourceSHA256": {
+    "update-core.js": "5d4c6d15e4787aceded3f7dde952d348c77b6a761015c9406744ee7b24fc3a1e",
+    "update-network.js": "632e2b53c40bf546ed7e5b9fdfe6cda15a7dc6c1f4c8bd8089f5977af346365b",
+    "update-session.js": "1535f2ac9988b5ce240bd1d62d18e0b36d98c54e613ad4f16b46156a23ff80f2",
+    "update-store.js": "22a24019cd600e37a9bd3dfe7e69232aa376663c2f66732111eb0373d93b637a",
+    "updater.js": "ff9f7acd61f03a2b1e203118ffd065de1042a9912090eef9c2e1fcc4c79357d9"
+  }
+}

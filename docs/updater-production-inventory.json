@@ -1,0 +1,86 @@
+{
+  "commit": "047bb4b67def0bcb1a8efc435666511d70e8c0ce",
+  "tools": [
+    {
+      "slug": "adc-drugs",
+      "version": "1.2.0",
+      "files": 22,
+      "zipSHA256": "257d332bba5464810f47e6089f5fdef1fd8dcb83cfaff351c2bdce790999efc0",
+      "packageSHA256": "f909183807962b2b88b13ba4e4edfbac886c1881dd887c526e7820fb6283cdd0",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "barcode-return",
+      "version": "1.5.3",
+      "files": 31,
+      "zipSHA256": "f4ffe75bbbd13c6d15d8158373bd3160d2b5e4d4fce61327aba1404a46203d31",
+      "packageSHA256": "af3fe4348dee342db7052e1e7431c97d9acd0378a628048fa142df562288dd2c",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "controlled-inventory",
+      "version": "1.1.0",
+      "files": 20,
+      "zipSHA256": "c57f03583eaaea1b0752660adc4fc53628fb8cddcc59aa4b93372a1327cef0ee",
+      "packageSHA256": "7a3337444e01c5afb996f5b9ed5255552ae12de587b79a0c4dd3689c4be464fd",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "discharge-education",
+      "version": "2.14.5",
+      "files": 39,
+      "zipSHA256": "010848d19e1656225c89495fabed7031ab277eb7a12f4736471c7e3cb9ca3567",
+      "packageSHA256": "5bcdcad8fcffb3d7c3bdbf9154b34b3184d6db30a28ae6032e172a2fe0b2d5d1",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "patch-recovery",
+      "version": "1.6.0",
+      "files": 30,
+      "zipSHA256": "41956da7b0074b2d8433cd1be6a6ed4d5291100908f434cc7baeeecfee749cb9",
+      "packageSHA256": "74f6b4f98eca71db4bb8970557b2ec832ecb1569d1701817b3a75d401aaec2a0",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "patient-query",
+      "version": "1.7.4",
+      "files": 28,
+      "zipSHA256": "4e1114d16616901192097beda8b30910174846412f6eeb8b1ee9a7583a6d7e46",
+      "packageSHA256": "0a4bbd8e613c16f08b939e281b5a1bcd926eeed28e5342664f7fe89fecc1af5b",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "cart-labels-his",
+      "version": "2.17.0",
+      "files": 75,
+      "zipSHA256": "8eae4b49ed7345a59dd199ca8c968da1ffa925345d633c0c70bf0b5450fd74e2",
+      "packageSHA256": "73f2500cfe6676a88f70d3b6b69fb8a8e8bdf2845b003ecd5fb3898c084151ab",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "cloud-medication",
+      "version": "2.9.3",
+      "files": 31,
+      "zipSHA256": "a24cfc27775102b716165182d3d431a18379b5033a810a8360c899f31cda0176",
+      "packageSHA256": "cafee41956ad89b0b50a314e6addf7041df7ae0abfed2a6f1dbf0a6514d2cf5b",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    },
+    {
+      "slug": "pharmacy-toolbox",
+      "version": "0.1.0",
+      "files": 25,
+      "zipSHA256": "209729c270b821e832b5183cd83e7827a75dddbb1351559b3dc6862026c17da1",
+      "packageSHA256": "f8d13d19c7037f4da57668865eb9d02939ebdb60e725fa62b0250ff5c80ef840",
+      "zipDifferences": [],
+      "sourceDifferences": []
+    }
+  ]
+}

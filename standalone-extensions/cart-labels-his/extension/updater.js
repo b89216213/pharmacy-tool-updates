@@ -1,122 +1,176 @@
-import {mountInstallation} from './installation-ui.js';
-import {compareVersion,validatePackage,verifyDirectory,applyPackage,restoreFiles,sha256} from './update-core.js';
-import {SOURCE,githubFile,parseIndex} from './update-network.js';
+import {UPDATE_CONFIG as config} from './update-config.js';
+import {compareVersion, verifyDirectory} from './update-core.js';
+import {SOURCE, githubFile, parseIndex, validateIndex} from './update-network.js';
 import {updateStore as store} from './update-store.js';
-const $=id=>document.getElementById(id),decoder=new TextDecoder('utf-8',{fatal:true});
-const readInstalled=async path=>{const r=await fetch(chrome.runtime.getURL(path),{cache:'no-store'});if(!r.ok)throw new Error('無法讀取已安裝檔案');return new Uint8Array(await r.arrayBuffer());};
-export async function mountUpdater({isBusy,prepare,finish}){
-  if(!globalThis.chrome?.runtime?.getManifest)return;
-  const installation=await mountInstallation();
-  const current=chrome.runtime.getManifest();$('update-version').textContent='目前 v'+current.version;
-  // Discard private-source credentials and cached announcements on migration.
-  // Folder authorization and interrupted-update journals remain local and intact.
-  await store('delete','token');
-  const sourceKey=SOURCE.repo+'@'+SOURCE.ref;
-  if(await store('get','source')!==sourceKey){
-    await store('delete','latest');await store('delete','lastCheck');await store('put','source',sourceKey);
+import {createUpdateSession, readInstalled, requestWritePermission} from './update-session.js';
+
+let mounted;
+export function mountUpdater(options) {
+  if (!globalThis.chrome?.runtime?.getManifest) return Promise.resolve();
+  return mounted ??= mount(options);
+}
+
+async function mount({isBusy, prepare, finish}) {
+  const $ = id => document.getElementById(id);
+  const current = chrome.runtime.getManifest();
+  const dialog = $('update-dialog');
+  const status = (message, error = false) => {
+    $('update-status').textContent = message;
+    $('update-status').classList.toggle('update-error', error);
+  };
+  const session = createUpdateSession({current, isBusy, prepare, finish, onProgress: status});
+  const installation = config.installationUI ? await (await import('./installation-ui.js')).mountInstallation() : null;
+  $('update-version').textContent = '目前 v' + current.version;
+  // The database remains local. Remove obsolete private-repository credentials.
+  await store('delete', 'token');
+  const sourceKey = SOURCE.repo + '@' + SOURCE.ref;
+  if (await store('get', 'source') !== sourceKey) {
+    await store('delete', 'latest');
+    await store('delete', 'lastCheck');
+    await store('put', 'source', sourceKey);
   }
-  let directory=await store('get','directory'),latest=null,working=false,checking=false,installing=false,journal=await store('get','journal');
-  document.addEventListener('installation-change',()=>{directory=installation.directory;render();});
-  let reminded=false,reminderPending=false,reminderTimer=null;
-  const hasUpdate=()=>!!latest&&compareVersion(latest.version,current.version)>0;
-  function clearReminder(){reminderPending=false;clearTimeout(reminderTimer);reminderTimer=null;}
-  function openDialog(){
-    render();if(!$('update-dialog').open)$('update-dialog').showModal();
-    if(hasUpdate()){reminded=true;clearReminder();}
+  let directory = await store('get', 'directory');
+  let journal = await store('get', 'journal');
+  let latest = null, fresh = false, action = false, checking = false, disposed = false;
+  let reminderPending = false, reminded = false, reminderTimer;
+  const hasUpdate = () => latest && compareVersion(latest.version, current.version) > 0;
+  const locked = () => action || checking || session.running || session.needsReload;
+  const clearReminder = () => { reminderPending = false; clearTimeout(reminderTimer); };
+
+  function render() {
+    const busy = locked();
+    for (const element of dialog.querySelectorAll('button,input')) element.disabled = busy;
+    $('update-directory').textContent = directory ? (installation?.ready ? '已確認：' : '已記住：') + directory.name : '尚未授權小工具安裝的資料夾';
+    $('update-folder').textContent = installation?.state === 'permission' ? '允許存取' : directory ? '變更資料夾' : '選擇安裝資料夾';
+    // Recovery is bound to the original update location; do not replace its handle.
+    $('update-folder').disabled = busy || !!journal;
+    $('update-apply').hidden = !hasUpdate() && !session.needsReload;
+    $('update-apply').disabled = session.needsReload ? false : busy || !fresh || !directory || !!journal;
+    $('update-apply').textContent = session.needsReload ? '重新開啟工具' : '更新並重新開啟';
+    $('update-check').disabled = busy || !!journal;
+    $('update-recover').hidden = !journal || session.needsReload;
+    $('update-recover').disabled = busy || !directory;
+    $('update-notes').textContent = latest?.notes || '';
+    $('update-new-version').textContent = hasUpdate() ? '可更新至 v' + latest.version : '';
+    $('open-update').textContent = hasUpdate() ? '更新可用' : '工具更新';
+    $('open-update').classList.toggle('update-available', !!hasUpdate());
   }
-  function remindWhenReady(){
-    clearTimeout(reminderTimer);reminderTimer=null;
-    if(!reminderPending||reminded||!hasUpdate()||journal){clearReminder();return;}
-    // A manually opened update dialog already counts as seeing this reminder.
-    if($('update-dialog').open){reminded=true;clearReminder();return;}
-    // Wait for queries, saves, other dialogs and active field editing to finish.
-    if(!installation.ready||working||checking||installing||isBusy()||document.hidden||document.activeElement?.matches('input,textarea,select,[contenteditable]:not([contenteditable="false"])')){
-      reminderTimer=setTimeout(remindWhenReady,1000);return;
+
+  function openDialog() {
+    render();
+    if (!dialog.open) dialog.showModal();
+    if (fresh && hasUpdate()) { reminded = true; clearReminder(); }
+  }
+
+  function remindWhenReady() {
+    clearTimeout(reminderTimer);
+    if (disposed || !reminderPending || !fresh || !hasUpdate() || reminded || journal) { clearReminder(); return; }
+    if (dialog.open) { reminded = true; clearReminder(); return; }
+    if ((installation && !installation.ready) || locked() || isBusy() || document.hidden
+      || document.querySelector('dialog[open]')
+      || document.activeElement?.matches('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) {
+      reminderTimer = setTimeout(remindWhenReady, 1000);
+      return;
     }
     openDialog();
   }
-  const status=(message,error=false)=>{$('update-status').textContent=message;$('update-status').classList.toggle('update-error',error);};
-  const locked=value=>{working=value;for(const el of $('update-dialog').querySelectorAll('button,input'))el.disabled=value;};
-  const guarded=fn=>async()=>{if(working)return;try{await fn();}catch(e){status(e.name==='AbortError'?'已取消，工具未更動。':e.message||'更新失敗，請稍後再試。',true);}finally{if(!installing){locked(false);render();}}};
-  function render(){
-    $('update-directory').textContent=directory?(installation.ready?'已確認：':'已記住：')+directory.name:'尚未授權小工具安裝的資料夾';
-    $('update-folder').textContent=installation.state==='permission'?'允許存取':directory?'變更資料夾':'選擇安裝資料夾';
-    $('update-apply').hidden=!latest||compareVersion(latest.version,current.version)<=0;
-    $('update-apply').disabled=working||checking||!directory||!!journal;
-    $('update-check').disabled=working||checking;
-    $('update-recover').hidden=!journal;
-    $('update-notes').textContent=latest?.notes||'';
-    $('update-new-version').textContent=latest&&compareVersion(latest.version,current.version)>0?'可更新至 v'+latest.version:'';
-    $('open-update').textContent=latest&&compareVersion(latest.version,current.version)>0?'更新可用':'工具更新';
-    $('open-update').classList.toggle('update-available',!!latest&&compareVersion(latest.version,current.version)>0);
-  }
-  async function permission(dir){
-    if(await dir.queryPermission({mode:'readwrite'})==='granted')return;
-    if(await dir.requestPermission({mode:'readwrite'})!=='granted')throw new Error('未取得資料夾寫入權限，未更動工具。');
-  }
-  async function check(manual=true){
-    if(working||checking||installing)return;
-    checking=true;render();
-    if(manual)locked(true);
-    if(manual||$('update-dialog').open)status('正在檢查新版…');
-    try{latest=parseIndex(await githubFile(SOURCE.index,{max:32000}));await store('put','lastCheck',Date.now());await store('put','latest',latest);reminderPending=!reminded&&hasUpdate();if(manual||!working)status(hasUpdate()?'新版已就緒。可按「更新並重新開啟」，或先關閉視窗繼續使用。':'目前已是最新版本。');render();}
-    catch(e){clearReminder();if(manual||$('update-dialog').open)status(e.message,true);else status('上次檢查未成功，可按「檢查新版」重試。',true);}
-    finally{checking=false;if(manual)locked(false);render();remindWhenReady();}
-  }
-  $('open-update').addEventListener('click',openDialog);
-  $('update-close').addEventListener('click',()=>{if(!working)$('update-dialog').close();});
-  $('update-dialog').addEventListener('cancel',event=>{if(working)event.preventDefault();});
-  $('update-folder').addEventListener('click',guarded(async()=>{
-    directory=await (installation.state==='permission'?installation.requestAccess():installation.select());
-    render();status('已確認小工具安裝的資料夾，日後更新會沿用這個位置。');
-  }));
-  $('update-check').addEventListener('click',guarded(()=>check()));
-  async function install(recovery=false){
-    if(!directory)throw new Error('請先授權小工具安裝的資料夾。');
-    if(isBusy())throw new Error('請等目前查詢或儲存完成，並關閉其他編輯視窗後再更新。');
-    // Request permissions while still inside the button's user activation.
-    await permission(directory);locked(true);installing=true;
-    let unlockApp,managedLock=false;
-    async function updateLock(action){const r=await chrome.runtime.sendMessage({kind:'managed-tool',action,workspace:true});if(!r?.ok)throw Error(r?.error||'無法取得工具更新鎖定，請稍後再試。');}
-    try{
-      await navigator.locks.request('cart-labels-his-update',{ifAvailable:true},async lock=>{
-        if(!lock)throw new Error('另一個視窗正在更新，請稍後再試。');
-        const contexts=chrome.runtime.getContexts?await chrome.runtime.getContexts({}):[];
-        const viewCount=chrome.runtime.getContexts?contexts.filter(c=>c.documentUrl?.split(/[?#]/)[0]===chrome.runtime.getURL('labels/index.html')).length:(chrome.extension?.getViews?.()||[]).filter(v=>v.location.href.split(/[?#]/)[0]===chrome.runtime.getURL('labels/index.html')).length;
-        if(viewCount>1)throw new Error('請先關閉其他藥車標籤列印視窗，再進行更新。');
-        if(isBusy())throw new Error('工具仍在處理作業，請稍後再試。');
-        await updateLock('update-lock');managedLock=true;
-        await prepare();unlockApp=finish;
-        if(recovery){await restoreFiles(directory,journal,status);await store('delete','journal');journal=null;}
-        else{
-          if(journal)throw new Error('上次更新尚未完成，請先還原原版。');
-          if(!latest||compareVersion(latest.version,current.version)<=0)throw new Error('請先檢查新版。');
-          await verifyDirectory(directory,current,readInstalled);status('正在下載並驗證新版…');
-          const release=latest;
-          const bytes=await githubFile(release.packagePath);
-          if(bytes.length!==release.size||await sha256(bytes)!==release.sha256)throw new Error('更新包與公告不一致，未更動工具。請重新檢查新版。');
-          const validated=await validatePackage(JSON.parse(decoder.decode(bytes)),current);
-          if(validated.version!==release.version)throw new Error('下載的版本與公告不一致');
-          journal=await applyPackage(directory,validated,{saveJournal:async value=>{await store('put','journal',value);journal=value;},clearJournal:async()=>{await store('delete','journal');journal=null;},onProgress:status});
-        }
-        const {cartSource}=await chrome.storage.session.get('cartSource');
-        const params=new URLSearchParams(location.search);
-        await chrome.storage.local.set({cartUpdateReopen:{at:Date.now(),sourceId:cartSource?.sourceId??Number(params.get('source')),origin:cartSource?.origin||params.get('origin')||''}});
-        status(recovery?'原版已還原，正在重新開啟…':'更新完成，正在重新開啟…');
-      });
-      // Finish the lock callback before unloading the extension document.
-      installing=false;chrome.runtime.reload();
-    }catch(e){installing=false;if(managedLock)try{await updateLock('update-unlock');}catch{}unlockApp?.();throw e;}
-  }
-  $('update-apply').addEventListener('click',guarded(()=>install()));
-  $('update-recover').addEventListener('click',guarded(()=>install(true)));
-  window.addEventListener('beforeunload',event=>{if(installing){event.preventDefault();event.returnValue='';}});
-  if(journal?.phase==='written'&&journal.version===current.version){await store('delete','journal');journal=null;status('已完成更新至 v'+current.version+'，原有列印紀錄與設定保留。');}
-  else if(journal)status('偵測到上次更新未完成。請先按「還原原版檔案」。',true);
-  else status('開啟工具會自動檢查新版，不需 GitHub 帳號或憑證。');
-  latest=await store('get','latest')||null;
-  render();
-  if(!journal&&installation.ready)void check(false);
-  setInterval(()=>{if(!working&&!installing&&!journal)void check(false);},6*60*60*1000);
-}
 
+  async function check(manual = true) {
+    if (locked() || journal || disposed) return;
+    checking = true;
+    fresh = false;
+    render();
+    if (manual || dialog.open) status('正在檢查新版…');
+    try {
+      latest = parseIndex(await githubFile(SOURCE.index, {max: 32000}));
+      await store('put', 'latest', latest);
+      await store('put', 'lastCheck', Date.now());
+      fresh = true;
+      reminderPending = hasUpdate() && !reminded;
+      status(hasUpdate() ? '新版已就緒。可按「更新並重新開啟」，或先關閉視窗繼續使用。' : '目前已是最新版本。');
+    } catch (error) {
+      clearReminder();
+      status(manual || dialog.open ? error.message : '上次檢查未成功，可按「檢查新版」重試。', true);
+    } finally { checking = false; render(); remindWhenReady(); }
+  }
+
+  function guarded(task) {
+    return async () => {
+      if (locked()) return;
+      // Lock even during a folder picker/permission prompt, before the first await.
+      action = true;
+      render();
+      try { await task(); }
+      catch (error) { status(error.name === 'AbortError' ? '已取消，工具未更動。' : error.message || '更新失敗，請稍後再試。', true); }
+      finally {
+        try { journal = await store('get', 'journal'); }
+        catch { status('無法讀取更新狀態，請重新開啟工具。', true); }
+        action = false;
+        render();
+      }
+    };
+  }
+
+  $('open-update').addEventListener('click', openDialog);
+  $('update-close').addEventListener('click', () => { if (!locked()) dialog.close(); });
+  dialog.addEventListener('cancel', event => { if (locked()) event.preventDefault(); });
+  $('update-check').addEventListener('click', () => { void check(); });
+  $('update-folder').addEventListener('click', guarded(async () => {
+    if (journal) throw Error('請先完成原安裝資料夾的更新還原。');
+    if (installation) directory = await (installation.state === 'permission' ? installation.requestAccess() : installation.select());
+    else {
+      if (!window.showDirectoryPicker) throw Error('這個 Chrome 環境不支援資料夾授權，請改用手動更新。');
+      const selected = await window.showDirectoryPicker({id: config.slug + '-folder', mode: 'readwrite'});
+      await requestWritePermission(selected);
+      await verifyDirectory(selected, current, readInstalled);
+      await store('put', 'directory', selected);
+      directory = selected;
+    }
+    status('已確認小工具安裝的資料夾，日後更新會沿用這個位置。');
+  }));
+
+  const apply = guarded(async () => {
+    if (!fresh) throw Error('請先重新檢查新版。');
+    await session.run({directory, release: latest});
+  });
+  $('update-apply').addEventListener('click', () => {
+    if (session.needsReload) {
+      try { chrome.runtime.reload(); } catch { status('請至 Chrome 擴充功能頁重新載入這個工具。', true); }
+    } else void apply();
+  });
+  $('update-recover').addEventListener('click', guarded(() => session.run({directory, recovery: true})));
+  document.addEventListener('installation-change', () => {
+    if (!installation || locked() || journal) return;
+    directory = installation.directory;
+    render();
+  });
+  function openRequestedSection() {
+    if (location.hash !== '#update') return;
+    history.replaceState(history.state, '', location.pathname + location.search);
+    openDialog();
+  }
+  window.addEventListener('hashchange', openRequestedSection);
+  window.addEventListener('beforeunload', event => {
+    if (session.running) { event.preventDefault(); event.returnValue = ''; }
+  });
+
+  try {
+    if (journal && await session.reconcile()) {
+      journal = null;
+      status('已完成更新至 v' + current.version + '，原有作業紀錄與設定保留。');
+    } else if (journal) status('偵測到上次更新未完成。請先按「還原原版檔案」。', true);
+    else status('開啟工具會自動檢查新版，不需 GitHub 帳號或憑證。');
+  } catch (error) { status(error.message, true); }
+  // A new journal retains its original handle even if installation discovery ran
+  // while the previous update was interrupted. Legacy journals use the saved handle.
+  if (journal?.directory) directory = journal.directory;
+  try {
+    const cached = await store('get', 'latest');
+    if (cached) latest = validateIndex(cached);
+  } catch { await store('delete', 'latest'); }
+  render();
+  openRequestedSection();
+  if (!journal && (!installation || installation.ready)) void check(false);
+  const interval = setInterval(() => { if (!locked() && !journal) void check(false); }, 6 * 60 * 60 * 1000);
+  window.addEventListener('pagehide', () => { disposed = true; clearReminder(); clearInterval(interval); }, {once: true});
+}
